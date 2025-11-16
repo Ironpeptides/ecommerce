@@ -18,7 +18,7 @@ export default function Footer() {
   ];
 
   const serviceItems = [
-    { label: "Next.js Starter Kit", href: "/" },
+    { label: "Vilyo Inventory", href: "/" },
     {
       label: "Need Custom Development",
       href: "https://wa.me/message/5USU26346OWRF1",
@@ -50,11 +50,11 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto mb-16 flex flex-col md:flex-row justify-between items-start md:items-center">
           <div className="mb-8 md:mb-0">
             <h2 className="text-2xl md:text-3xl font-semibold mb-4 bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">
-              Build faster with HubStack
+              Scale faster with Vilyo Inventory
             </h2>
             <p className="text-gray-400 max-w-xl text-base">
-              Start your next project with our premium starter kit. Get all the
-              features you need to build modern web applications.
+              Start your next project with our premium tier. Get all the
+              features you need to run modern business operations.
             </p>
           </div>
           <div className="flex gap-4 md:flex-row flex-col">
@@ -65,7 +65,7 @@ export default function Footer() {
               Get Support
             </button>
             <ThemeButton
-              href="https://gmukejohnbaptist.gumroad.com/l/hubstack-simple-auth"
+              href="https://gmukejohnbaptist.gumroad.com/l/Vilyo Inventory-simple-auth"
               title="Purchase Now"
             />
           </div>
@@ -186,7 +186,7 @@ export default function Footer() {
                 href="/"
                 className="hover:text-emerald-400 transition-colors"
               >
-                Hubstack
+                Vilyo Inventory
               </Link>{" "}
               |
               <Link

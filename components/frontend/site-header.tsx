@@ -29,6 +29,10 @@ import {
   Database,
   BarChart,
   Lock,
+  ShoppingCart,
+  ShoppingBag,
+  Truck,
+  Map,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
@@ -40,67 +44,74 @@ import { getInitials } from "@/lib/generateInitials";
 
 const features = [
   {
-    icon: Users,
-    title: "Advanced Authentication",
+    icon: Database,
+    title: "Product Catalog Management",
     description:
-      "Secure and flexible authentication system with role-based access control and multi-provider support.",
-    href: "/features/authentication",
-  },
-  {
-    icon: Layout,
-    title: "Dynamic Dashboard",
-    description:
-      "Beautifully designed, responsive dashboard with data visualization and management tools.",
-    href: "/features/dashboard",
-  },
-  {
-    icon: FileText,
-    title: "Reusable Form Components",
-    description:
-      "Streamline your workflows with reusable and customizable form components.",
-    href: "/features/forms",
+      "Create and manage products with custom attributes, SKUs, categories, pricing, and stock level settings.",
+    href: "/features/product-catalog",
   },
   {
     icon: BarChart2,
-    title: "Advanced Data Tables",
+    title: "Real-time Inventory Tracking",
     description:
-      "Manage and display data effortlessly with customizable and powerful data tables.",
-    href: "/features/data-tables",
+      "Monitor stock levels across multiple locations with automated alerts for low inventory and detailed history logs.",
+    href: "/features/inventory-tracking",
   },
   {
-    icon: CloudUpload,
-    title: "Image Upload",
+    icon: Map,
+    title: "Multi-location Support",
     description:
-      "Effortless image uploads powered by UploadThing, supporting both single and multiple file uploads.",
-    href: "/features/image-upload",
+      "Seamlessly manage inventory across different store locations with easy stock transfer capabilities.",
+    href: "/features/multi-location",
   },
   {
     icon: Edit3,
-    title: "Rich Text Editor",
+    title: "Stock Adjustment Tools",
     description:
-      "Seamlessly create and edit rich content using an integrated Quill editor.",
-    href: "/features/rich-text-editor",
+      "Record and track inventory changes with custom reason codes, audit trails, and adjustment history.",
+    href: "/features/stock-adjustments",
+  },
+  {
+    icon: ShoppingCart,
+    title: "Sales Order Management",
+    description:
+      "Process customer orders efficiently with status tracking, customizable invoicing, and fulfillment monitoring.",
+    href: "/features/sales-orders",
+  },
+  {
+    icon: Users,
+    title: "Customer Relationship Management",
+    description:
+      "Maintain comprehensive customer profiles with segmentation, purchase history, and specialized pricing tiers.",
+    href: "/features/customer-management",
+  },
+  {
+    icon: ShoppingBag,
+    title: "Purchase Order System",
+    description:
+      "Create and track supplier orders with receiving functionality and automated reordering capabilities.",
+    href: "/features/purchase-orders",
+  },
+  {
+    icon: Truck,
+    title: "Supplier Management",
+    description:
+      "Manage supplier relationships, link products to suppliers, and track performance metrics.",
+    href: "/features/supplier-management",
+  },
+  {
+    icon: FileText,
+    title: "Comprehensive Reporting",
+    description:
+      "Generate detailed reports for inventory levels, sales performance, purchase orders, and stock forecasting.",
+    href: "/features/reporting",
   },
   {
     icon: Lock,
-    title: "Secure Authentication",
+    title: "Role-based Access Control",
     description:
-      "Role-based authentication system with customizable access control.",
-    href: "/features/secure-authentication",
-  },
-  {
-    icon: Database,
-    title: "Prisma ORM",
-    description:
-      "Leverage Prisma ORM for robust and scalable database management in TypeScript.",
-    href: "/features/prisma-orm",
-  },
-  {
-    icon: BarChart,
-    title: "Analytics Integration",
-    description:
-      "Track performance with integrated analytics from PostHog and Vercel for actionable insights.",
-    href: "/features/analytics",
+      "Secure user management with customizable permissions for different staff roles and responsibilities.",
+    href: "/features/user-management",
   },
 ];
 

@@ -52,7 +52,7 @@ const CustomizationCard = ({ theme = "light" }) => {
                         isDark ? "text-slate-500" : "text-slate-400"
                       }`}
                     >
-                      $500
+                      $5000
                     </span>
                     <span className="px-3 py-1 text-sm font-semibold text-red-700 bg-red-100 rounded-full">
                       UP TO 40% OFF
@@ -71,7 +71,7 @@ const CustomizationCard = ({ theme = "light" }) => {
                         isDark ? "text-white" : "text-slate-900"
                       }`}
                     >
-                      $300
+                      $3000
                     </span>
                   </div>
                 </div>
@@ -83,7 +83,7 @@ const CustomizationCard = ({ theme = "light" }) => {
                   isDark ? "text-slate-300" : "text-slate-600"
                 }`}
               >
-                Get a customized version of HubStack tailored to your specific
+                Get a customized version of Vilyo Inventory tailored to your specific
                 needs, with premium support and deployment assistance.
               </p>
 

@@ -1,68 +1,60 @@
 import Iframe from "react-iframe";
-import PlainFeatures from "@/components/frontend/features";
-import TabbedFeatures from "@/components/frontend/tabbed-features";
 import TechStackGrid from "@/components/frontend/Techstack";
 import { GridBackground } from "@/components/reusable-ui/grid-background";
-import ProjectComparison from "@/components/reusable-ui/project-comparison";
-import RadialFeature from "@/components/reusable-ui/radial-features";
+
 import ReUsableHero from "@/components/reusable-ui/reusable-hero";
 import {
-  Award,
-  Github,
-  Code,
-  Code2,
-  History,
-  Sprout,
-  Folder,
-  Layout,
-  Rocket,
+  Database,
+  BarChart2,
+  ShoppingCart,
 } from "lucide-react";
 import React from "react";
 import Showcase from "@/components/frontend/showcase";
 import PricingCard from "@/components/frontend/single-tier-pricing";
-import FAQ from "@/components/frontend/FAQ";
 import CustomizationCard from "@/components/frontend/customisation-card";
 import Image from "next/image";
 import { BorderBeam } from "@/components/magicui/border-beam";
-import FeatureTabs from "@/components/frontend/SmoothTabs";
+import InventoryComparison from "@/components/reusable-ui/project-comparison";
+import InventoryFeatureTabs from "@/components/frontend/SmoothTabs";
+import InventoryFAQ from "@/components/frontend/FAQ";
 
 export default async function page() {
-  const currentUsers = 300;
+  const currentUsers = 100;
   return (
     <section>
       <ReUsableHero
-        theme="light"
-        announcement={{
-          text: "Introducing Hubstack Advanced - Launch Your app in days",
-        }}
-        title={
-          <>
-            The Ultimate Next.js Agency
-            <br />& Fullstack SaaS Starter Kit
-          </>
-        }
-        mobileTitle="Ultimate Next.js Agency & SaaS Kit"
-        subtitle="You will get a premium Next.js 15 starter kit with a complete agency website, user & admin dashboards, full authentication system, blog platform, documentation system, and project showcase features - everything you need to launch your digital agency or SaaS product in days instead of months."
-        buttons={[
-          {
-            label: "Get the Kit Now",
-            href: "https://gmukejohnbaptist.gumroad.com/l/hubstack-simple-auth",
-            primary: true,
-          },
-          {
-            label: "View Demo",
-            href: "/#demo",
-          },
-        ]}
-        icons={[
-          { icon: Code2, position: "left" },
-          { icon: Layout, position: "right" }, // Changed to Layout for dashboard representation
-          { icon: Rocket, position: "center" }, // Changed to Rocket for launch/speed representation
-        ]}
-        backgroundStyle="neutral"
-        className="min-h-[70vh]"
-        userCount={currentUsers > 10 ? currentUsers : null}
-      />
+  theme="light"
+  announcement={{
+    text: "New: Multi-location inventory tracking now available",
+  }}
+  title={
+    <>
+      Simplify Your Inventory
+      <br />Management with Vilyo Inventory
+    </>
+  }
+  mobileTitle="Simplify Inventory Management with Vilyo Inventory"
+  subtitle="Vilyo Inventory offers a comprehensive solution for businesses to track products, manage stock levels across multiple locations, process sales orders,  and handle supplier relationships. Boost efficiency, reduce stockouts, and gain valuable insights with our powerful yet easy-to-use inventory management system.It is also connected to Vilyo finance  and Vilyo e.Commerce so we help you with; daily and monthly reports, track expenses and profits  of your business and receive orders online!"
+  buttons={[
+    {
+      label: "Start Free Trial",
+      href: "/register",
+      primary: true,
+    },
+    {
+      label: "View Demo",
+      href: "/#demo",
+    },
+  ]}
+  icons={[
+    { icon: Database, position: "left" },    // Database icon for inventory/products
+    { icon: BarChart2, position: "right" },  // Chart for reporting/analytics
+    { icon: ShoppingCart, position: "center" }, // Cart for sales orders
+  ]}
+  backgroundStyle="neutral"
+  className="min-h-[70vh]"
+  userCount={currentUsers > 10 ? currentUsers : null}
+/>
       <GridBackground>
         <div className="px-8 py-16 ">
           <TechStackGrid />
@@ -80,9 +72,9 @@ export default async function page() {
           />
         </div>
       </div>
-      <ProjectComparison />
+      <InventoryComparison />
       <GridBackground className="">
-        <FeatureTabs />
+        <InventoryFeatureTabs />
       </GridBackground>
 
       <div id="demo" className="py-16 max-w-6xl mx-auto relative">
@@ -103,7 +95,7 @@ export default async function page() {
           <CustomizationCard theme="light" />
         </div>
       </div>
-      <FAQ />
+      <InventoryFAQ />
     </section>
   );
 }

@@ -1,25 +1,25 @@
 export const siteConfig = {
-  name: "Hubstack Starter kit",
-  shortName: "HSK",
+  name: "Vilyo Inventory",
+  shortName: "Vi",
   description:
-    "Providing exceptional healthcare services with compassion and expertise since 2008. Our commitment to excellence has made us a trusted healthcare provider in the region.",
+    "Providing exceptional software services with compassion and expertise since 2008. Our commitment to excellence has made us a trusted software provider in the region.",
 
   // Contact Information
   contact: {
     phone: {
-      primary: "+256(0) 762063160",
-      emergency: "+256(0) 756384580",
-      whatsapp: "+256(0) 762063160",
+      primary: "+254(0) 746358820",
+      emergency: "+254(0) 115547750",
+      whatsapp: "+254(0) 746358820",
     },
     email: {
-      primary: "jb@desishub.com",
-      support: "info@desishub.com",
-      appointments: "jb@desishub.com",
+      primary: "simiyunevily@gmail.com",
+      support: "info@vilyoInventory.com",
+      appointments: "simiyunevily@gmail.com",
     },
     address: {
-      street: "P.O.Box 430337",
-      city: "Kasese",
-      country: "Uganda",
+      street: "P.O.Box 384",
+      city: "Nairobi",
+      country: "Kenya",
       coordinates: {
         latitude: "0.11111",
         longitude: "30.11111",
@@ -41,27 +41,27 @@ export const siteConfig = {
     status: "24/7 All Week Days",
     emergency: "24/7 Emergency Services",
     outpatient: "Monday - Saturday: 8:00 AM - 5:00 PM",
-    pharmacy: "24/7 Pharmacy Services",
-    laboratory: "24/7 Laboratory Services",
+    software: "24/7 Software Services",
+    Consultation: "24/7 Consultation Services",
   },
 
   // Company Meta Information
   meta: {
-    foundedYear: 2008,
-    license: "Licensed by Uganda Medical and Dental Practitioners Council",
-    accreditation: "Internationally Accredited Healthcare Facility",
+    foundedYear: 2025,
+    license: "Kenya Copyright Board",
+    accreditation: "Internationally Accredited Software Company",
     values: [
       {
         title: "Excellence",
-        description: "Committed to providing the highest quality healthcare",
+        description: "Committed to providing the highest quality software",
       },
       {
         title: "Compassion",
-        description: "Treating every patient with care and empathy",
+        description: "Treating every business with care and empathy",
       },
       {
         title: "Innovation",
-        description: "Embracing modern medical technologies and practices",
+        description: "Embracing modern software technologies and practices",
       },
     ],
   },
@@ -70,84 +70,102 @@ export const siteConfig = {
   services: {
     emergency: [
       "24/7 Emergency Care",
-      "Ambulance Services",
-      "Trauma Care",
-      "Critical Care",
+      "Consultation Services",
+      "Software development services",
+      "Critical troubleshooting",
     ],
     specialties: [
-      "Obstetrics & Gynecology",
-      "Surgery Department",
-      "Medical Department",
-      "Laboratory Department",
-      "Imaging Department",
-      "Pediatrics Department",
-      "Outpatient Department",
+      "Website development",
+      "Mobile app development",
+      "Cybersecurity services",
+      "Artificial Intelligence",
+      "e.Commerce",
+      "Point of Sale",
+      "Finance Department",
     ],
     supportServices: [
-      "Pharmacy",
-      "Laboratory",
-      "Radiology",
-      "Physical Therapy",
-      "Nutritional Counseling",
+      "Website",
+      "Inventory",
+      "Point of sale(POS)",
+      "Finance",
+      "Consultation",
     ],
   },
 
-  // SEO and Metadata
+
+  
+
+  // Search Engine Optimization (SEO) Configuration
   seo: {
-    title: "Kasese Hospital - Excellence in Healthcare",
+    title: "Enterprise Suite Platform - Finance, POS, and Project Management Solutions",
     description:
-      "Leading healthcare provider in Kasese offering comprehensive medical services, emergency care, and specialized treatments.",
+      "Integrated enterprise suite offering real-time financial tracking, automated POS inventory updates via Mobile Money (M-Pesa), and project management for East African businesses.",
     keywords: [
-      "hospital",
-      "healthcare",
-      "medical services",
-      "emergency care",
-      "Kasese",
-      "Uganda",
-      "doctors",
-      "specialists",
+      "enterprise suite",
+      "finance platform",
+      "POS system",
+      "inventory management",
+      "project management system",
+      "M-Pesa integration",
+      "business software",
+      "East Africa",
+      "SME solutions",
     ],
-    ogImage: "https://kasesehospital.org/og-image.jpg",
+    ogImage: "https://yorenterpriseplatform.com/assets/og-image-suite.jpg",
   },
 
-  // Legal Information
+  // Legal Information and Compliance
   legal: {
-    name: "Kasese Hospital Ltd",
-    registration: "UG123456789",
-    privacyPolicy: "/privacy-policy",
-    terms: "/terms-and-conditions",
-    accessibility: "/accessibility",
+    name: "Enterprise Solutions Tech Ltd",
+    registration: "KE2025ABCDE", // Placeholder registration number
+    privacyPolicy: "/legal/privacy-policy",
+    terms: "/legal/terms-of-service",
+    dataSecurity: "/legal/data-security-policy",
   },
 
-  // Appointment Types
-  appointmentTypes: [
+  // Core Service Modules/Features
+  serviceModules: [
     {
-      id: "general",
-      name: "General Consultation",
-      duration: "30 minutes",
+      id: "finance",
+      name: "Financial Management",
+      description: "Automated transaction logging, ledger, and reporting.",
     },
     {
-      id: "specialist",
-      name: "Specialist Consultation",
-      duration: "45 minutes",
+      id: "pos",
+      name: "POS & Inventory",
+      description: "Point-of-Sale with real-time stock management and mobile money linking.",
     },
     {
-      id: "followup",
-      name: "Follow-up Visit",
-      duration: "20 minutes",
+      id: "pm",
+      name: "Project Management",
+      description: "Task tracking, resource allocation, and budget control.",
     },
   ],
 
-  // Insurance and Payment
-  insurance: {
-    accepted: [
-      "National Health Insurance",
-      "Private Insurance Companies",
-      "Corporate Medical Schemes",
+  // Billing and Subscription Configuration
+  billing: {
+    tiers: [
+      {
+        id: "starter",
+        name: "Starter (SME)",
+        price: 500, // Monthly price in KES (your suggested price)
+        features: ["Finance Module", "Basic POS", "M-Pesa Notifications"],
+      },
+      {
+        id: "pro",
+        name: "Professional (Growth)",
+        price: 1500, // Higher tier price
+        features: ["All Starter Features", "Full Inventory", "Project Management Lite", "Multi-User Access"],
+      },
     ],
-    paymentMethods: ["Cash", "Credit Card", "Mobile Money", "Insurance"],
+    paymentMethods: [
+      "Mobile Money (M-Pesa, Airtel Money)",
+      "Bank Transfer",
+      "Credit/Debit Card (Visa/Mastercard)",
+    ],
   },
-};
+}
+
 
 // Helper function to get formatted contact info
 export const getContactInfo = () => {
