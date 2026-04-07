@@ -77,6 +77,12 @@ export async function createUser(data: UserProps) {
 
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
+      const org = await db.organisation.create({
+            data: {
+              name: "Default  organisation",
+              slug: "default-organisation"
+            }
+          })
 
       // Create user with role
       const newUser = await tx.user.create({
@@ -84,6 +90,8 @@ export async function createUser(data: UserProps) {
           email,
           password: hashedPassword,
           firstName,
+          orgId: org.id,
+          orgName: org.name,
           lastName,
           name,
           phone,

@@ -47,6 +47,15 @@ export const authOptions: NextAuthOptions = {
           where: { roleName: "user" },
         });
 
+        const org = await db.organisation.create({
+          data: {
+            name: "Default Organisation",
+            slug: "default-organisation"
+          },
+
+        })
+
+
         return {
           id: profile.id.toString(),
           name: profile.name || profile.login,
@@ -55,6 +64,8 @@ export const authOptions: NextAuthOptions = {
           phone: "",
           image: profile.avatar_url,
           email: profile.email,
+          orgId: org.id,
+          orgName: org.name,
           roles: defaultRole ? [defaultRole] : [],
           permissions: defaultRole ? defaultRole.permissions : [], // Include permissions from default role
         };
@@ -69,12 +80,23 @@ export const authOptions: NextAuthOptions = {
           where: { roleName: "user" },
         });
 
+        const org = await db.organisation.create({
+          data: {
+            name: "Default Organisation",
+            slug: "default-organisation"
+          },
+
+        })
+
+
         return {
           id: profile.sub,
           name: `${profile.given_name} ${profile.family_name}`,
           firstName: profile.given_name,
           lastName: profile.family_name,
           phone: "",
+          orgId: org.id,
+          orgName: org.name,
           image: profile.picture,
           email: profile.email,
           roles: defaultRole ? [defaultRole] : [],
@@ -137,6 +159,8 @@ export const authOptions: NextAuthOptions = {
             email: existingUser.email,
             roles: existingUser.roles,
             permissions: uniquePermissions,
+            orgId: existingUser.orgId,
+            orgName: existingUser.orgName
           };
         } catch (error) {
           throw { error: "Something went wrong", status: 401 };
@@ -185,6 +209,8 @@ export const authOptions: NextAuthOptions = {
         token.picture = user.image;
         token.firstName = user.firstName;
         token.lastName = user.lastName;
+        token.orgId = user.orgId,
+        token.orgName = user.orgName,
         token.phone = user.phone;
         token.roles = user.roles;
         token.permissions = user.permissions;
@@ -193,7 +219,10 @@ export const authOptions: NextAuthOptions = {
         const userData = await getUserWithRoles(token.id);
         if (userData) {
           token.roles = userData.roles;
+          token.orgName = userData.orgName,
+          token.orgId = userData.orgId,
           token.permissions = userData.permissions;
+          
         }
       }
       return token;
@@ -209,6 +238,8 @@ export const authOptions: NextAuthOptions = {
         session.user.phone = token.phone;
         session.user.roles = token.roles;
         session.user.permissions = token.permissions;
+        session.user.orgName = token.orgName;
+        session.user.orgId = token.orgId;
       }
       return session;
     },

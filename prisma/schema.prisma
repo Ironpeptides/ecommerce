@@ -74,6 +74,10 @@ model User {
   sessions      Session[]
   savings       Saving[]
   blogs         Blog[]
+  orgName String?
+  organisation   Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  orgId  String
+  address String?
   feedbacks     Feedback[]
   showcases     Showcase[]
   isVerfied     Boolean    @default(false)
@@ -82,6 +86,25 @@ model User {
   updatedAt     DateTime   @updatedAt
   roleId        String?
 }
+
+model Organisation {
+  id             String      @id @default(cuid()) 
+  name           String
+  slug           String       @unique
+  industry       String?
+  country        String?
+  state          String?
+  currency       String?
+  timezone       String?
+  fiscalYear     String?
+  inventoryStart DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  users          User[]
+  @@map("organisations")
+}
+
 
 model Category {
   id          String    @id @default(cuid())

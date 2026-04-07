@@ -20,330 +20,155 @@ import {
 } from "@/components/ui/sheet";
 import {
   Menu,
-  Users,
-  BarChart2,
-  FileText,
-  Layout,
-  CloudUpload,
-  Edit3,
-  Database,
-  BarChart,
-  Lock,
+  Search,
   ShoppingCart,
-  ShoppingBag,
-  Truck,
-  Map,
+  FlaskConical,
+  Dna,
+  ShieldCheck,
+  Microscope,
+  Scale,
+  FileWarning,
+  Gavel,
+  ShieldAlert,
+  X,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { ChevronDown } from "lucide-react";
-
 import Logo from "../global/Logo";
 import { Session } from "next-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { getInitials } from "@/lib/generateInitials";
+import { useStore } from "@/store";
 
-const features = [
-  {
-    icon: Database,
-    title: "Product Catalog Management",
-    description:
-      "Create and manage products with custom attributes, SKUs, categories, pricing, and stock level settings.",
-    href: "/features/product-catalog",
-  },
-  {
-    icon: BarChart2,
-    title: "Real-time Inventory Tracking",
-    description:
-      "Monitor stock levels across multiple locations with automated alerts for low inventory and detailed history logs.",
-    href: "/features/inventory-tracking",
-  },
-  {
-    icon: Map,
-    title: "Multi-location Support",
-    description:
-      "Seamlessly manage inventory across different store locations with easy stock transfer capabilities.",
-    href: "/features/multi-location",
-  },
-  {
-    icon: Edit3,
-    title: "Stock Adjustment Tools",
-    description:
-      "Record and track inventory changes with custom reason codes, audit trails, and adjustment history.",
-    href: "/features/stock-adjustments",
-  },
-  {
-    icon: ShoppingCart,
-    title: "Sales Order Management",
-    description:
-      "Process customer orders efficiently with status tracking, customizable invoicing, and fulfillment monitoring.",
-    href: "/features/sales-orders",
-  },
-  {
-    icon: Users,
-    title: "Customer Relationship Management",
-    description:
-      "Maintain comprehensive customer profiles with segmentation, purchase history, and specialized pricing tiers.",
-    href: "/features/customer-management",
-  },
-  {
-    icon: ShoppingBag,
-    title: "Purchase Order System",
-    description:
-      "Create and track supplier orders with receiving functionality and automated reordering capabilities.",
-    href: "/features/purchase-orders",
-  },
-  {
-    icon: Truck,
-    title: "Supplier Management",
-    description:
-      "Manage supplier relationships, link products to suppliers, and track performance metrics.",
-    href: "/features/supplier-management",
-  },
-  {
-    icon: FileText,
-    title: "Comprehensive Reporting",
-    description:
-      "Generate detailed reports for inventory levels, sales performance, purchase orders, and stock forecasting.",
-    href: "/features/reporting",
-  },
-  {
-    icon: Lock,
-    title: "Role-based Access Control",
-    description:
-      "Secure user management with customizable permissions for different staff roles and responsibilities.",
-    href: "/features/user-management",
-  },
+const shopCategories = [
+  { icon: Dna, title: "Peptides", description: "Analytical grade amino acid sequences.", href: "/category/peptides" },
+  { icon: FlaskConical, title: "SARMs", description: "Tissue-specific receptor ligands for study.", href: "/category/sarms" },
+  { icon: Microscope, title: "Research Chemicals", description: "Laboratory reagents & compounds.", href: "/category/research-chemicals" },
+];
+
+const complianceLinks = [
+  { icon: ShieldAlert, title: "Research Use Policy", href: "/legal/ruo-policy" },
+  { icon: Gavel, title: "Terms of Service", href: "/legal/terms" },
+  { icon: FileWarning, title: "Refund & Return Policy", href: "/legal/refund-policy" },
+  { icon: Scale, title: "Shipping & Import", href: "/legal/shipping-policy" },
 ];
 
 export default function SiteHeader({ session }: { session: Session | null }) {
   const [open, setOpen] = React.useState(false);
-  const [showFeatures, setShowFeatures] = React.useState(false);
+  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+  const cart = useStore((state: any) => state.cart || []);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 ">
-      <div className="container max-w-7xl mx-auto flex h-14 items-center justify-between">
-        <div className="flex items-center space-x-4">
+    <header className="sticky top-12 z-50 w-full border-b border-white/10 bg-black/80 backdrop-blur-md">
+      <div className="container max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+        
+        <div className="flex items-center gap-8">
           <Logo />
-          <NavigationMenu className="hidden md:flex">
-            <NavigationMenuList>
+          
+          <NavigationMenu className="hidden lg:flex">
+            <NavigationMenuList className="gap-1">
               <NavigationMenuItem>
                 <Link href="/" legacyBehavior passHref>
-                  <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
+                  <NavigationMenuLink className="h-9 px-4 py-2 text-sm font-bold text-gray-400 hover:text-blue-400 transition-colors uppercase tracking-tight">
                     Home
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
 
+              {/* Shop Dropdown */}
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Features</NavigationMenuTrigger>
+                <NavigationMenuTrigger className="bg-transparent text-gray-400 font-bold hover:text-blue-400 uppercase tracking-tight">
+                  Shop
+                </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <div className="w-[800px] p-4">
-                    <div className="flex items-center justify-between mb-4 pb-2 border-b">
-                      <h4 className="text-lg font-medium">Features</h4>
-                      <Link
-                        href="/features"
-                        className="text-sm text-blue-500 hover:underline"
-                      >
-                        View all
-                      </Link>
-                    </div>
-                    <div className="grid gap-4 md:grid-cols-3 ">
-                      {features.map((feature, index) => (
-                        <Link
-                          key={index}
-                          href={`/feature/${feature.title
-                            .toLowerCase()
-                            .replace(/\s+/g, "-")}`}
-                          className="block group"
-                        >
-                          <div className="flex items-start gap-4">
-                            <div className="p-2 bg-muted rounded-md group-hover:bg-muted/80">
-                              <feature.icon className="h-6 w-6 text-blue-500" />
-                            </div>
-                            <div>
-                              <h5 className="font-medium mb-1 group-hover:text-blue-500">
-                                {feature.title}
-                              </h5>
-                              <p className="text-sm text-muted-foreground line-clamp-2">
-                                {feature.description}
-                              </p>
-                            </div>
+                  <div className="w-[500px] p-6 bg-black border border-white/10 rounded-xl shadow-2xl">
+                    <div className="grid gap-4 grid-cols-2">
+                      {shopCategories.map((item) => (
+                        <Link key={item.title} href={item.href} className="group flex items-start gap-3 p-3 rounded-lg transition-colors hover:bg-blue-500/10">
+                          <div className="p-2 rounded-md bg-blue-500/10 text-blue-500"><item.icon size={20} /></div>
+                          <div>
+                            <p className="text-sm font-bold text-white group-hover:text-blue-400">{item.title}</p>
+                            <p className="text-[11px] text-gray-500 uppercase">{item.description}</p>
                           </div>
                         </Link>
                       ))}
-                    </div>
-                    <div className="mt-6 pt-4 border-t">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="font-medium mb-1">Get started</h4>
-                          <p className="text-sm text-muted-foreground">
-                            Am really excited for all these features out of the
-                            box
-                          </p>
-                        </div>
-                        <Button asChild variant="secondary">
-                          <Link
-                            target="_blank"
-                            href="https://coding-school-typescript.vercel.app/give-away"
-                          >
-                            Get started
-                          </Link>
-                        </Button>
-                      </div>
                     </div>
                   </div>
                 </NavigationMenuContent>
               </NavigationMenuItem>
 
+              {/* Compliance Dropdown (New) */}
               <NavigationMenuItem>
-                <Link href="/#pricing" legacyBehavior passHref>
-                  <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
-                    Pricing
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <Link href="/agency" legacyBehavior passHref>
-                  <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
-                    Agency
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <Link href="/showcases" legacyBehavior passHref>
-                  <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
-                    Showcases
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <Link href="/change-logs" legacyBehavior passHref>
-                  <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
-                    Change Logs
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <Link href="/feedback" legacyBehavior passHref>
-                  <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
-                    Feedback
-                  </NavigationMenuLink>
-                </Link>
+                <NavigationMenuTrigger className="bg-transparent text-purple-400 font-bold hover:text-purple-300 uppercase tracking-tight">
+                  Legal & Compliance
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="w-[300px] p-2 bg-black border border-white/10 rounded-xl shadow-2xl">
+                    {complianceLinks.map((link) => (
+                      <Link key={link.title} href={link.href} className="flex items-center gap-3 p-3 text-sm font-bold text-gray-400 hover:text-white hover:bg-purple-500/10 rounded-lg transition-all group">
+                        <link.icon size={16} className="text-purple-500 group-hover:animate-pulse" />
+                        <span className="uppercase tracking-tighter">{link.title}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </NavigationMenuContent>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
         </div>
-        {session ? (
-          <Button asChild variant={"ghost"}>
-            <Link href="/dashboard">
-              <Avatar>
-                <AvatarImage
-                  src={session?.user?.image ?? ""}
-                  alt={session?.user?.name ?? ""}
-                />
-                <AvatarFallback>
-                  {getInitials(session?.user?.name)}
-                </AvatarFallback>
-              </Avatar>
-              <span className="ml-3">Dashboard</span>
-            </Link>
-          </Button>
-        ) : (
-          <div className="hidden md:flex items-center space-x-4">
-            <Button asChild variant="ghost">
-              <Link href={"/login"}>Log in</Link>
-            </Button>
-            <Button>
-              <Link href="/register">Signup</Link>
+
+        <div className="flex items-center gap-2 md:gap-4">
+          {/* Actions... */}
+          <div className="relative flex items-center">
+            {isSearchOpen && (
+              <input type="text" placeholder="Search CAS# / Compound..." className="absolute right-10 w-40 md:w-64 bg-[#111] border border-blue-500/30 rounded-md px-4 py-1.5 text-sm text-white focus:outline-none focus:border-blue-500" autoFocus />
+            )}
+            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-blue-400" onClick={() => setIsSearchOpen(!isSearchOpen)}>
+              {isSearchOpen ? <X size={20} /> : <Search size={20} />}
             </Button>
           </div>
-        )}
 
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon">
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-full p-0">
-            <SheetHeader className="border-b p-4">
-              <SheetTitle className="text-left">Navigation</SheetTitle>
-            </SheetHeader>
-            <div className="flex flex-col py-4">
-              <Link
-                href="/"
-                className="px-4 py-2 text-lg font-medium hover:bg-accent"
-                onClick={() => setOpen(false)}
-              >
-                Home
-              </Link>
-              <button
-                className="flex items-center justify-between px-4 py-2 text-lg font-medium hover:bg-accent text-left"
-                onClick={() => setShowFeatures(!showFeatures)}
-              >
-                Features
-                <ChevronDown
-                  className={cn(
-                    "h-5 w-5 transition-transform",
-                    showFeatures && "rotate-180"
-                  )}
-                />
-              </button>
-              {showFeatures && (
-                <div className="px-4 py-2 space-y-4">
-                  {features.map((feature, index) => (
-                    <Link
-                      key={index}
-                      href={`/feature/${feature.title
-                        .toLowerCase()
-                        .replace(/\s+/g, "-")}`}
-                      className="flex items-start gap-4 py-2"
-                      onClick={() => setOpen(false)}
-                    >
-                      <div className="p-2 bg-muted rounded-md">
-                        <feature.icon className="h-6 w-6 text-blue-500" />
-                      </div>
-                      <div>
-                        <h5 className="font-medium mb-1">{feature.title}</h5>
-                        <p className="text-sm text-muted-foreground">
-                          {feature.description}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              )}
-              <Link
-                href="/#pricing"
-                className="px-4 py-2 text-lg font-medium hover:bg-accent"
-                onClick={() => setOpen(false)}
-              >
-                Pricing
-              </Link>
-              <Link
-                href="/how-it-works"
-                className="px-4 py-2 text-lg font-medium hover:bg-accent"
-                onClick={() => setOpen(false)}
-              >
-                How it works
-              </Link>
+          <Link href="/cart" className="relative p-2 text-gray-400 hover:text-blue-400 transition-colors">
+            <ShoppingCart size={22} />
+            {cart.length > 0 && (
+              <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-purple-600 text-[10px] font-bold text-white italic">
+                {cart.length}
+              </span>
+            )}
+          </Link>
+
+          {session ? (
+            <Link href="/dashboard" className="flex items-center gap-3 group">
+              <Avatar className="h-8 w-8 border border-white/10 group-hover:border-blue-500"><AvatarImage src={session?.user?.image ?? ""} /><AvatarFallback className="bg-blue-900 text-blue-100">{getInitials(session?.user?.name)}</AvatarFallback></Avatar>
+            </Link>
+          ) : (
+            <div className="hidden md:flex items-center gap-3">
+              <Button asChild variant="ghost" className="text-gray-400 hover:text-white">
+                <Link href="/login">Login</Link>
+              </Button>
+              <Button asChild className="bg-blue-600 hover:bg-blue-500 text-white rounded-md font-bold px-6 uppercase tracking-widest text-xs">
+                <Link href="/register">Join Registry</Link>
+              </Button>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-background">
-              <div className="grid gap-2">
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => setOpen(false)}
-                >
-                  Log in
-                </Button>
-                <Button className="w-full" onClick={() => setOpen(false)}>
-                  Sign up
-                </Button>
-              </div>
-            </div>
-          </SheetContent>
-        </Sheet>
+          )}
+
+          {/* Mobile Sheet (Restructured for Compliance) */}
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild className="lg:hidden"><Button variant="ghost" size="icon" className="text-white"><Menu className="h-6 w-6" /></Button></SheetTrigger>
+            <SheetContent side="left" className="w-[300px] bg-black border-r-white/10 p-0 text-white">
+              <SheetHeader className="p-6 border-b border-white/10"><Logo /></SheetHeader>
+              <nav className="flex flex-col p-4 gap-2 font-bold uppercase text-xs tracking-widest">
+                <Link href="/" className="p-3 text-blue-400 bg-blue-500/5 rounded-lg">Home</Link>
+                <div className="px-3 py-2 text-gray-600 mt-4">Catalog</div>
+                {shopCategories.map((cat) => (
+                  <Link key={cat.title} href={cat.href} className="flex items-center gap-3 p-3 hover:bg-white/5 rounded-lg"><cat.icon size={18} className="text-blue-500" />{cat.title}</Link>
+                ))}
+                <div className="px-3 py-2 text-purple-500 mt-4">Compliance</div>
+                {complianceLinks.map((link) => (
+                  <Link key={link.title} href={link.href} className="flex items-center gap-3 p-3 hover:bg-purple-500/5 rounded-lg border border-purple-500/10 text-purple-300"><link.icon size={18} />{link.title}</Link>
+                ))}
+              </nav>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </header>
   );

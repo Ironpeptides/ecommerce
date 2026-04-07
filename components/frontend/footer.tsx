@@ -3,122 +3,138 @@ import Image from "next/image";
 import Link from "next/link";
 import ThemeButton from "./theme-button";
 import { useRouter } from "next/navigation";
-import { getContactInfo } from "@/config/meta";
 import Logo from "../global/Logo";
 
 export default function Footer() {
   const navItems = [
     { label: "Home", href: "/" },
-    { label: "Pricing", href: "/#pricing" },
-    { label: "Documentation", href: "/docs" },
-    { label: "Showcase", href: "/showcase" },
-    { label: "Agency Site", href: "/agency" },
-    // { label: "Blog", href: "/blog" },
-    { label: "Support", href: "https://wa.me/message/5USU26346OWRF1" },
+    { label: "Catalog", href: "/catalog" },
+    { label: "Research Blog", href: "/blog" },
+    { label: "Lab Partners", href: "/partners" },
+    { label: "About Us", href: "/about" },
+    { label: "Contact", href: "/contact" },
   ];
 
-  const serviceItems = [
-    { label: "Vilyo Inventory", href: "/" },
-    {
-      label: "Need Custom Development",
-      href: "https://wa.me/message/5USU26346OWRF1",
-    },
-    {
-      label: "Need Deployment Support",
-      href: "https://wa.me/message/5USU26346OWRF1",
-    },
-    {
-      label: "Need UI Customization",
-      href: "https://wa.me/message/5USU26346OWRF1",
-    },
+  const catalogItems = [
+    { label: "Recovery Peptides", href: "/catalog?category=recovery" },
+    { label: "Growth Peptides", href: "/catalog?category=growth" },
+    { label: "Cognitive Peptides", href: "/catalog?category=cognitive" },
+    { label: "Longevity & Anti-Aging", href: "/catalog?category=longevity" },
+    { label: "Hormonal Support", href: "/catalog?category=hormonal" },
+    { label: "Research Bundles", href: "/catalog?category=bundle" },
   ];
+
+  const complianceItems = [
+    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Terms & Conditions", href: "/terms" },
+    { label: "Shipping Policy", href: "/shipping" },
+    { label: "Refund Policy", href: "/refunds" },
+    { label: "Accessibility", href: "/accessibility" },
+  ];
+
   const router = useRouter();
-  const { email, fullAddress, mainPhone } = getContactInfo();
+
   return (
     <footer className="bg-gray-900 text-white py-16 px-4 md:px-8 lg:px-16 rounded-t-[2.5rem] relative overflow-hidden">
       {/* Background gradient effects */}
       <div className="absolute inset-0">
-        <div className="absolute top-0 left-0 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-0 w-72 h-72 bg-green-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 left-0 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-72 h-72 bg-green-500/10 rounded-full blur-3xl" />
       </div>
 
       {/* Grid pattern overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:24px_24px]" />
 
       <div className="relative">
-        {/* Top Section */}
-        <div className="max-w-7xl mx-auto mb-16 flex flex-col md:flex-row justify-between items-start md:items-center">
-          <div className="mb-8 md:mb-0">
-            <h2 className="text-2xl md:text-3xl font-semibold mb-4 bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">
-              Scale faster with Vilyo Inventory
+        {/* ── CTA Banner ── */}
+        <div className="max-w-7xl mx-auto mb-16 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-semibold mb-3 bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">
+              Premium peptides for serious researchers
             </h2>
-            <p className="text-gray-400 max-w-xl text-base">
-              Start your next project with our premium tier. Get all the
-              features you need to run modern business operations.
+            <p className="text-gray-400 max-w-xl text-sm leading-relaxed">
+              Sourced from ISO-certified laboratories. Every batch third-party
+              tested for purity, identity, and sterility — so your research
+              starts on solid ground.
             </p>
           </div>
-          <div className="flex gap-4 md:flex-row flex-col">
+          <div className="flex gap-3 md:flex-row flex-col shrink-0">
             <button
               onClick={() => router.push("/contact")}
-              className="px-6 md:!py-1 py-3 border border-gray-700 hover:border-emerald-500 rounded-full text-gray-300 hover:text-emerald-400 transition-all duration-300 block"
+              className="px-6 py-2.5 border border-gray-700 hover:border-emerald-500 rounded-full text-gray-300 hover:text-emerald-400 transition-all duration-300 text-sm"
             >
-              Get Support
+              Talk to an Expert
             </button>
             <ThemeButton
-              href="https://gmukejohnbaptist.gumroad.com/l/Vilyo Inventory-simple-auth"
-              title="Purchase Now"
+              href="/catalog"
+              title="Browse Catalog"
             />
           </div>
         </div>
 
-        {/* Main Footer Content */}
+        {/* ── Main Grid ── */}
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12 mb-16">
-            {/* Logo and Social Media Section */}
+
+            {/* Brand column */}
             <div className="lg:col-span-4">
               <Logo variant="dark" />
-              <div className="flex flex-col mt-6">
-                <h3 className="text-base font-semibold mb-4 text-gray-200">
-                  Social Media Links
-                </h3>
-                <div className="flex gap-4">
-                  {[
-                    "https://cdn-icons-png.flaticon.com/128/5968/5968764.png",
-                    "https://cdn-icons-png.flaticon.com/128/3670/3670151.png",
-                    "https://cdn-icons-png.flaticon.com/128/145/145807.png",
-                    "https://cdn-icons-png.flaticon.com/128/3670/3670176.png",
-                  ].map((social) => (
-                    <Link
-                      key={social}
-                      href="#"
-                      className="w-10 h-10 flex items-center justify-center bg-gray-800 rounded-full hover:bg-emerald-500/20 transition-all duration-300"
-                    >
-                      <Image
-                        src={social}
-                        alt={`${social} icon`}
-                        width={20}
-                        height={20}
-                        className="opacity-75 hover:opacity-100 transition-opacity"
-                      />
-                    </Link>
-                  ))}
-                </div>
+              <p className="text-gray-500 text-sm mt-4 mb-6 leading-relaxed max-w-xs">
+                Your trusted source for research-grade peptides.
+                Rigorous QA. Transparent sourcing. Fast dispatch.
+              </p>
+
+              {/* Trust badges */}
+              <div className="flex flex-wrap gap-2 mb-6">
+                {["ISO Certified", "3rd-Party Tested", "Secure Checkout"].map((badge) => (
+                  <span
+                    key={badge}
+                    className="text-[11px] font-medium px-2.5 py-1 rounded-full border border-emerald-500/30 text-emerald-400 bg-emerald-500/5"
+                  >
+                    {badge}
+                  </span>
+                ))}
+              </div>
+
+              {/* Social links */}
+              <h3 className="text-sm font-semibold mb-3 text-gray-300">Follow Our Research</h3>
+              <div className="flex gap-3">
+                {[
+                  { icon: "https://cdn-icons-png.flaticon.com/128/5968/5968764.png", label: "Facebook" },
+                  { icon: "https://cdn-icons-png.flaticon.com/128/3670/3670151.png", label: "Twitter" },
+                  { icon: "https://cdn-icons-png.flaticon.com/128/145/145807.png", label: "LinkedIn" },
+                  { icon: "https://cdn-icons-png.flaticon.com/128/3670/3670176.png", label: "Instagram" },
+                ].map(({ icon, label }) => (
+                  <Link
+                    key={label}
+                    href="#"
+                    aria-label={label}
+                    className="w-9 h-9 flex items-center justify-center bg-gray-800 rounded-full hover:bg-emerald-500/20 hover:border-emerald-500/40 border border-transparent transition-all duration-300"
+                  >
+                    <Image
+                      src={icon}
+                      alt={label}
+                      width={16}
+                      height={16}
+                      className="opacity-60 hover:opacity-100 transition-opacity"
+                    />
+                  </Link>
+                ))}
               </div>
             </div>
 
             {/* Quick Links */}
             <div className="lg:col-span-2">
-              <h3 className="text-base font-semibold mb-4 text-gray-200">
-                Quick Links
+              <h3 className="text-sm font-semibold mb-4 text-gray-200 uppercase tracking-wider">
+                Navigate
               </h3>
-              <ul className="space-y-3">
-                {navItems.map((item, i) => (
-                  <li key={i}>
+              <ul className="space-y-2.5">
+                {navItems.map((item) => (
+                  <li key={item.label}>
                     <Link
                       href={item.href}
-                      className="text-gray-400 hover:text-emerald-400 transition-colors text-sm flex items-center gap-2"
+                      className="text-gray-400 hover:text-emerald-400 transition-colors text-sm"
                     >
-                      <span className="w-1 h-1 bg-emerald-500 rounded-full opacity-0 transition-opacity group-hover:opacity-100"></span>
                       {item.label}
                     </Link>
                   </li>
@@ -126,89 +142,102 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* Services */}
+            {/* Catalog */}
             <div className="lg:col-span-3">
-              <h3 className="text-base font-semibold mb-4 text-gray-200">
-                Services
+              <h3 className="text-sm font-semibold mb-4 text-gray-200 uppercase tracking-wider">
+                Catalog
               </h3>
-              <ul className="space-y-3">
-                {serviceItems.slice(0, 6).map((service, i) => (
-                  <li key={i}>
+              <ul className="space-y-2.5">
+                {catalogItems.map((item) => (
+                  <li key={item.label}>
                     <Link
-                      href={service.href}
-                      className="text-gray-400 hover:text-emerald-400 transition-colors text-sm flex items-center gap-2"
+                      href={item.href}
+                      className="text-gray-400 hover:text-emerald-400 transition-colors text-sm"
                     >
-                      <span className="w-1 h-1 bg-emerald-500 rounded-full opacity-0 transition-opacity group-hover:opacity-100"></span>
-                      {service.label}
+                      {item.label}
                     </Link>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Contact Information */}
-            <div className="lg:col-span-3">
-              <h3 className="text-base font-semibold mb-4 text-gray-200">
-                Contact Information
-              </h3>
-              <ul className="space-y-4">
-                <li className="text-gray-400 text-sm flex items-start gap-3">
-                  <span className="w-5 h-5 rounded-full bg-gray-800 flex items-center justify-center mt-0.5">
-                    <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
-                  </span>
-                  Phone: {mainPhone}
-                </li>
-                <li className="text-gray-400 text-sm flex items-start gap-3">
-                  <span className="w-5 h-5 rounded-full bg-gray-800 flex items-center justify-center mt-0.5">
-                    <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
-                  </span>
-                  Email: {email}
-                </li>
-                <li className="text-gray-400 text-sm flex items-start gap-3">
-                  <span className="w-5 h-5 rounded-full bg-gray-800 flex items-center justify-center mt-0.5">
-                    <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
-                  </span>
-                  Address:
-                  <br />
-                  {fullAddress}
-                  {/* <br />
-                  Wellness City, 56789 */}
-                </li>
-              </ul>
+            {/* Contact + Compliance */}
+            <div className="lg:col-span-3 space-y-8">
+              <div>
+                <h3 className="text-sm font-semibold mb-4 text-gray-200 uppercase tracking-wider">
+                  Contact
+                </h3>
+                <ul className="space-y-3">
+                  {[
+                    { label: "support@peptidestore.com", href: "mailto:support@peptidestore.com" },
+                    { label: "Live Chat (Mon–Fri, 9–5 EST)", href: "/contact" },
+                    { label: "Order Tracking", href: "/tracking" },
+                  ].map((item) => (
+                    <li key={item.label}>
+                      <Link
+                        href={item.href}
+                        className="text-gray-400 hover:text-emerald-400 transition-colors text-sm"
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold mb-4 text-gray-200 uppercase tracking-wider">
+                  Legal
+                </h3>
+                <ul className="space-y-2.5">
+                  {complianceItems.map((item) => (
+                    <li key={item.label}>
+                      <Link
+                        href={item.href}
+                        className="text-gray-400 hover:text-emerald-400 transition-colors text-sm"
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
 
-          {/* Footer Bottom */}
-          <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-gray-400 text-sm">
-              © {new Date().getFullYear()}{" "}
-              <Link
-                href="/"
-                className="hover:text-emerald-400 transition-colors"
-              >
-                Vilyo Inventory
-              </Link>{" "}
-              |
-              <Link
-                href="#"
-                className="hover:text-emerald-400 transition-colors ml-2"
-              >
-                Privacy Policy
-              </Link>{" "}
-              |
-              <Link
-                href="#"
-                className="hover:text-emerald-400 transition-colors ml-2"
-              >
-                Terms & Conditions
-              </Link>{" "}
-              |
-              <Link
-                href="#"
-                className="hover:text-emerald-400 transition-colors ml-2"
-              >
-                Accessibility
-              </Link>
+          {/* ── Research Disclaimer ── */}
+          <div className="mb-8 rounded-2xl border border-amber-500/20 bg-amber-500/5 px-5 py-4">
+            <p className="text-amber-400/80 text-xs leading-relaxed">
+              <span className="font-semibold text-amber-400">⚠ Research Use Only.</span>{" "}
+              All products sold on this platform are intended strictly for
+              in-vitro research and laboratory use by qualified professionals.
+              They are{" "}
+              <span className="font-semibold">
+                not approved for human consumption, veterinary use, or clinical
+                application
+              </span>{" "}
+              and have not been evaluated by the FDA or any equivalent regulatory
+              authority. By purchasing, you confirm you are a licensed researcher
+              or scientist and accept full responsibility for compliance with all
+              applicable local laws and regulations.
+            </p>
+          </div>
+
+          {/* ── Footer Bottom ── */}
+          <div className="pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-3">
+            <p className="text-gray-500 text-xs">
+              © {new Date().getFullYear()} PeptideStore. All rights reserved.
+            </p>
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
+              {complianceItems.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="text-gray-500 hover:text-emerald-400 transition-colors text-xs"
+                >
+                  {item.label}
+                </Link>
+              ))}
             </div>
           </div>
         </div>

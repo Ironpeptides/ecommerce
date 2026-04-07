@@ -156,3 +156,20 @@ body {
   top: calc(50% - 1.25em);
   left: calc(50% - 1.25em);
 }
+
+
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  /* Slowed down significantly for a more "luxury" feel */
+  animation: marquee 10s linear infinite;
+}
+
+/* Maintain smooth motion without stutter */
+.animate-marquee {
+  will-change: transform;
+}

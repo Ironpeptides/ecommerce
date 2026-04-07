@@ -10,15 +10,12 @@ export const metadata: Metadata = {
   title: "Ronix Fit Savers",
   description: "Join Ronix Savings Group",
 };
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${inter.className} bg-[#0a0a0b] text-slate-200 selection:bg-emerald-500/30 selection:text-emerald-200`}>
         <Providers>{children}</Providers>
+        <Toaster />
       </body>
     </html>
   );

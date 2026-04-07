@@ -12,6 +12,8 @@ export interface AuthenticatedUser {
   phone: string;
   roles: Role[];
   permissions: string[];
+  orgId: string;
+  orgName: string | null;
   name?: string | null;
   email?: string | null;
   image?: string | null;
