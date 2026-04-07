@@ -100,3 +100,9 @@ export default async function page() {
   );
 }
  */
+
+export default async function page(){
+  return (
+    <h2>This is a test page</h2>
+  )
+}
