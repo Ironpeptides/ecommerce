@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react'
 import Ratings from '../ratings';
-import { Eye, Heart, ShoppingBag, Clock } from 'lucide-react';
+import { Eye, Heart, ShoppingBag, Clock, X, Check } from 'lucide-react';
 import ProductDetailsCard from './product-details.card';
 import { useStore } from '../../store';
 import useUser from '../../hooks/useUser';
@@ -12,97 +12,203 @@ import useLocationTracking from '../../hooks/useLocationTracking';
 import useDeviceTracking from '../../hooks/useDeviceTracking';
 import { createFetchSlug } from '../../utils/slugify';
 
-const ProductCard = ({product, isEvent}:{product:any; isEvent?:boolean}) => {
+// ─── Reusable Options Modal ───────────────────────────────────────────────────
+
+interface ProductOption {
+  label: string;
+  value: string;
+  price?: number;
+}
+
+interface OptionsModalProps {
+  product: any;
+  options: ProductOption[];
+  onClose: () => void;
+  onConfirm: (selected: ProductOption) => void;
+}
+
+const OptionsModal = ({ product, options, onClose, onConfirm }: OptionsModalProps) => {
+  const [selected, setSelected] = useState<ProductOption | null>(null);
+
+  return (
+    <div
+      className='fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm'
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className='relative w-full max-w-sm mx-4 bg-[#121214] border border-white/10 rounded-2xl overflow-hidden shadow-2xl'>
+
+        {/* Header */}
+        <div className='flex items-center justify-between px-5 py-4 border-b border-white/10'>
+          <div>
+            <h2 className='text-sm font-semibold text-gray-100 line-clamp-1'>{product?.title}</h2>
+            <p className='text-xs text-emerald-500 mt-0.5'>{product?.shop?.name}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className='rounded-full p-1.5 hover:bg-white/10 transition-colors text-gray-400 hover:text-white'
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Options */}
+        <div className='p-5 space-y-2'>
+          <p className='text-xs text-gray-400 mb-3 uppercase tracking-widest font-bold'>Choose a variant</p>
+          {options.map((opt) => {
+            const isSelected = selected?.value === opt.value;
+            return (
+              <button
+                key={opt.value}
+                onClick={() => setSelected(opt)}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-medium transition-all ${
+                  isSelected
+                    ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400'
+                    : 'border-white/10 bg-white/5 text-gray-300 hover:border-white/20 hover:bg-white/10'
+                }`}
+              >
+                <span>{opt.label}</span>
+                {opt.price !== undefined && (
+                  <span className={`text-xs font-bold ${isSelected ? 'text-emerald-400' : 'text-gray-500'}`}>
+                    ${opt.price.toFixed(2)}
+                  </span>
+                )}
+                {isSelected && <Check size={14} className='text-emerald-500 ml-2 shrink-0' />}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Footer */}
+        <div className='px-5 pb-5 flex gap-3'>
+          <button
+            onClick={onClose}
+            className='flex-1 py-2.5 rounded-xl border border-white/10 text-sm font-semibold text-gray-400 hover:bg-white/5 transition-colors'
+          >
+            Cancel
+          </button>
+          <button
+            disabled={!selected}
+            onClick={() => selected && onConfirm(selected)}
+            className='flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-emerald-600 text-white hover:bg-emerald-500 active:scale-95'
+          >
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── Product Card ─────────────────────────────────────────────────────────────
+
+const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) => {
 
   const [timeLeft, setTimeLeft] = useState("");
   const [open, setOpen] = useState(false);
+  const [optionsOpen, setOptionsOpen] = useState(false);
+
   const location = useLocationTracking();
   const deviceInfo = useDeviceTracking();
-  const addToCart = useStore((state:any)=> state.addToCart)
-  const addToWishList = useStore((state:any)=> state.addToWishList)
-  const removeFromWishList = useStore((state:any)=>state.removeFromWishList);
-  const wishlist = useStore((state:any)=>state.wishlist);
-  const isWishlisted = wishlist.some((item:any)=> item.id === product.id);
-  const cart = useStore((state:any)=>state.cart);
-  const isInCart = cart.some((item:any)=>item.id === product.id);
-  const {user} = useUser()
- 
-  useEffect(()=>{
-    if(isEvent && product?.ending_date){
-      const interval = setInterval(()=>{
-        const endTime = new Date(product.ending_date).getTime();
-        const now = Date.now();
-        const diff = endTime - now;
-       
-        if(diff <= 0){
-          setTimeLeft("Expired");
-          clearInterval(interval);
-          return;
-        }
+  const addToCart = useStore((state: any) => state.addToCart);
+  const addToWishList = useStore((state: any) => state.addToWishList);
+  const removeFromWishList = useStore((state: any) => state.removeFromWishList);
+  const wishlist = useStore((state: any) => state.wishlist);
+  const isWishlisted = wishlist.some((item: any) => item.id === product.id);
+  const cart = useStore((state: any) => state.cart);
+  const isInCart = cart.some((item: any) => item.id === product.id);
+  const { user } = useUser();
 
-        const days = Math.floor(diff /(1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff/ (1000 * 60 * 60)%24));
-        const minutes = Math.floor((diff /(1000 * 60)) % 60);
-        setTimeLeft(`${days}d ${hours}h ${minutes}m`);
+  // Derive options from product data, with a sensible fallback
+  const productOptions: ProductOption[] = product?.options?.length
+    ? product.options
+    : [
+        { label: '10mg  3ml',   value: '10mg-3ml',   price: product?.sale_price },
+        { label: '30mg  3ml',   value: '30mg-3ml',   price: product?.sale_price * 1.5 },
+        { label: '60mg  3ml',   value: '60mg-3ml',   price: product?.sale_price * 2 },
+        { label: '120mg – 10ml', value: '120mg-10ml', price: product?.sale_price * 3.5 },
+      ];
 
-      }, 60000);
-      const endTime = new Date(product.ending_date).getTime();
-      const now = Date.now();
-      const diff = endTime - now;
+  const handleOptionConfirm = (selected: ProductOption) => {
+    addToCart(
+      { ...product, quantity: 1, selectedOption: selected, sale_price: selected.price ?? product.sale_price },
+      user, location, deviceInfo
+    );
+    setOptionsOpen(false);
+  };
 
-      if(diff <= 0){
-        setTimeLeft("Expired");
-      }else{
-        const days = Math.floor(diff /(1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff/ (1000 * 60 * 60)%24));
-        const minutes = Math.floor((diff /(1000 * 60)) % 60);
-        setTimeLeft(`${days}d ${hours}h ${minutes}m`);
-      }
-      return () => clearInterval(interval)
+  useEffect(() => {
+    if (isEvent && product?.ending_date) {
+      const calc = () => {
+        const diff = new Date(product.ending_date).getTime() - Date.now();
+        if (diff <= 0) { setTimeLeft("Expired"); return; }
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const m = Math.floor((diff / (1000 * 60)) % 60);
+        setTimeLeft(`${d}d ${h}h ${m}m`);
+      };
+      calc();
+      const interval = setInterval(calc, 60000);
+      return () => clearInterval(interval);
     }
   }, [isEvent, product?.ending_date]);
 
-
   return (
-    <div className='group w-full bg-white/5 border border-white/10 rounded-xl overflow-hidden relative transition-all duration-300 hover:border-emerald-500/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.5)]'>
-        
-        {/* Badges Container */}
+    <>
+      <div className='group w-full bg-white/5 border border-white/10 rounded-xl overflow-hidden relative transition-all duration-300 hover:border-emerald-500/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.5)]'>
+
+        {/* Badges */}
         <div className='absolute top-3 left-3 z-20 flex flex-col gap-2'>
-           {isEvent && (
+          {isEvent && (
             <div className='bg-emerald-600 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider shadow-lg'>
-               Special Offer
-            </div> 
-           )}
-           {product?.stock <= 5 && (
-            <div className='bg-amber-500/10 border border-amber-500/50 text-amber-500 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider backdrop-blur-md'>
-               Limited Stock
+              Special Offer
             </div>
-           )}
+          )}
+          {product?.stock <= 5 && (
+            <div className='bg-amber-500/10 border border-amber-500/50 text-amber-500 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider backdrop-blur-md'>
+              Limited Stock
+            </div>
+          )}
         </div>
 
-        {/* Action Icons - Redesigned for cleaner UX */}
+        {/* Action Icons — now includes cart */}
         <div className='absolute z-20 flex flex-col gap-2 right-3 top-3 translate-x-10 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300'>
-          <button 
-            onClick={()=> isWishlisted ? removeFromWishList(product.id, user, location, deviceInfo): addToWishList({...product,quantity:1}, user, location, deviceInfo)}
+          <button
+            onClick={() => isWishlisted ? removeFromWishList(product.id, user, location, deviceInfo) : addToWishList({ ...product, quantity: 1 }, user, location, deviceInfo)}
             className='bg-black/60 backdrop-blur-md border border-white/10 rounded-full p-2 text-white hover:bg-emerald-600 transition-colors shadow-xl'
+            title='Wishlist'
           >
-            <Heart size={18} fill={ isWishlisted ? "currentColor" : "transparent"} className={isWishlisted ? "text-red-500" : ""} />
+            <Heart size={18} fill={isWishlisted ? "currentColor" : "transparent"} className={isWishlisted ? "text-red-500" : ""} />
           </button>
-          
-          <button 
-            onClick={()=>setOpen(!open)}
+
+          <button
+            onClick={() => setOpen(!open)}
             className='bg-black/60 backdrop-blur-md border border-white/10 rounded-full p-2 text-white hover:bg-emerald-600 transition-colors shadow-xl'
+            title='Quick view'
           >
             <Eye size={18} />
           </button>
+
+          {/* ← New cart icon */}
+          <button
+            onClick={() => !isInCart && addToCart({ ...product, quantity: 1 }, user, location, deviceInfo)}
+            disabled={isInCart}
+            className={`backdrop-blur-md border border-white/10 rounded-full p-2 transition-colors shadow-xl ${
+              isInCart
+                ? 'bg-emerald-700/60 text-emerald-400 cursor-not-allowed'
+                : 'bg-black/60 text-white hover:bg-emerald-600'
+            }`}
+            title={isInCart ? 'Already in cart' : 'Add to cart'}
+          >
+            <ShoppingBag size={18} />
+          </button>
         </div>
 
-        {/* Image Section */}
-        <Link 
-          href={`/product/${createFetchSlug(product?.shop?.name || '', product?.slug || '')}`} 
+        {/* Image */}
+        <Link
+          href={`/product/${createFetchSlug(product?.shop?.name || '', product?.slug || '')}`}
           className='block relative aspect-square overflow-hidden bg-[#121214]'
         >
-          <Image 
+          <Image
             src={product?.images[0]?.url || ""}
             alt={product?.title}
             fill
@@ -110,7 +216,7 @@ const ProductCard = ({product, isEvent}:{product:any; isEvent?:boolean}) => {
           />
         </Link>
 
-        {/* Content Section */}
+        {/* Content */}
         <div className='p-4 space-y-2'>
           <Link
             href={`/shop/${product?.shop?.id}`}
@@ -131,27 +237,31 @@ const ProductCard = ({product, isEvent}:{product:any; isEvent?:boolean}) => {
 
           <div className='flex justify-between items-end pt-2 border-t border-white/5'>
             <div className='flex flex-col'>
-              <span className='text-xs text-gray-500 line-through'>
-                ${product?.regular_price}
-              </span>
-              <span className='text-lg font-bold text-white'>
-                ${product?.sale_price}
-              </span>
+              <span className='text-xs text-gray-500 line-through'>${product?.regular_price}</span>
+              <span className='text-lg font-bold text-white'>${product?.sale_price}</span>
             </div>
-            
-            <button 
-              onClick={()=>!isInCart && addToCart({...product, quantity: 1}, user, location, deviceInfo)}
+
+            <button
+              onClick={() => !isInCart && addToCart({ ...product, quantity: 1 }, user, location, deviceInfo)}
               disabled={isInCart}
               className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all ${
-                isInCart 
-                ? 'bg-gray-800 text-gray-500 cursor-not-allowed' 
-                : 'bg-emerald-600 text-white hover:bg-emerald-500 active:scale-95 shadow-lg shadow-emerald-900/20'
+                isInCart
+                  ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                  : 'bg-emerald-600 text-white hover:bg-emerald-500 active:scale-95 shadow-lg shadow-emerald-900/20'
               }`}
             >
               <ShoppingBag size={14} />
               {isInCart ? 'In Cart' : 'Add'}
             </button>
           </div>
+
+          {/* ← Select option button */}
+          <button
+            onClick={() => setOptionsOpen(true)}
+            className='w-full mt-1 py-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-bold uppercase tracking-wider hover:bg-emerald-500/20 transition-colors'
+          >
+            Select option
+          </button>
 
           {isEvent && timeLeft && (
             <div className='mt-2 flex items-center gap-2 py-1.5 px-2 bg-emerald-500/10 rounded-md border border-emerald-500/20'>
@@ -163,11 +273,20 @@ const ProductCard = ({product, isEvent}:{product:any; isEvent?:boolean}) => {
           )}
         </div>
 
-        {open && (
-          <ProductDetailsCard data={product} setOpen={setOpen}/>
-        ) }
-    </div>
-  )
-}
+        {open && <ProductDetailsCard data={product} setOpen={setOpen} />}
+      </div>
 
-export default ProductCard
+      {/* Options Modal rendered outside the card to avoid z-index clipping */}
+      {optionsOpen && (
+        <OptionsModal
+          product={product}
+          options={productOptions}
+          onClose={() => setOptionsOpen(false)}
+          onConfirm={handleOptionConfirm}
+        />
+      )}
+    </>
+  );
+};
+
+export default ProductCard;

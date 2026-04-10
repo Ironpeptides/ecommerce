@@ -145,7 +145,7 @@ export default function SiteHeader({ session }: { session: Session | null }) {
                 <Link href="/login">Login</Link>
               </Button>
               <Button asChild className="bg-blue-600 hover:bg-blue-500 text-white rounded-md font-bold px-6 uppercase tracking-widest text-xs">
-                <Link href="/register">Join Registry</Link>
+                <Link href="/register"> Register</Link>
               </Button>
             </div>
           )}

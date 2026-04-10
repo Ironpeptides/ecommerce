@@ -46,7 +46,7 @@ const staticProducts = [
     ratings: 4.6,
     totalSales: 75,
     stock: 4, // triggers "Limited Stock" badge
-    images: [{ url: "/images/Acetic-Water-01-mockup-300x300.webp" }],
+    images: [{ url: "/images/Acetic-Water-01-mockup-300x300.webp" },{ url: "/images/Aminotadalafil-01-mockup-300x300.webp" } ],
     shop: { id: "shop-2", name: "BioSynth Labs" },
     category: "Growth",
   },
