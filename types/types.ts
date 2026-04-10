@@ -17,10 +17,12 @@ export type UserProps = {
   name: string;
   firstName: string;
   lastName: string;
+  orgName: string;
   phone: string;
   image: string;
   email: string;
   password: string;
+  role?: string;
 };
 export type LoginProps = {
   email: string;

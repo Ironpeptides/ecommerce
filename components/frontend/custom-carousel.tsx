@@ -5,8 +5,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 const carouselItems = [
   {
     image: "/images/slide-1.jpg",
-    title: "Simple Monthly Savings,",
-    subtitle: "Join Ronix Savings Group",
+    title: "Simple Monthly deliveries,",
+    subtitle: "Join Iron Peptides Innovation",
   },
   {
     image: "/images/slide-2.jpg",

@@ -8,6 +8,9 @@ import { PasswordProps } from "@/components/Forms/ChangePasswordForm";
 import { Resend } from "resend";
 import { generateToken } from "@/lib/token";
 import { z } from "zod";
+import { OrgData } from "@/components/Forms/RegisterForm";
+import { generateOTP } from "@/lib/generateOTP";
+import VerifyEmail from "@/components/email-templates/verify-email";
 // import { generateNumericToken } from "@/lib/token";
 const resend = new Resend(process.env.RESEND_API_KEY);
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
@@ -32,8 +35,8 @@ const UpdateUserSchema = z.object({
   image: z.string().optional(),
 });
 type UpdateUserInput = z.infer<typeof UpdateUserSchema>;
-export async function createUser(data: UserProps) {
-  const { email, password, firstName, lastName, name, phone, image } = data;
+export async function createUser(data: UserProps, orgData:OrgData) {
+  const { email, password, firstName, lastName, name, phone, image, role } = data;
 
   try {
     // Use a transaction for atomic operations
@@ -63,6 +66,39 @@ export async function createUser(data: UserProps) {
         };
       }
 
+      // CREATE THE ORGANISATION
+
+      const IronpeptidesOrgData = {
+        name: "IronPeptidesInnovation",
+        slug: "peptidesInc",
+        timezone: "America/Mexico_City",
+        currency: "MXN",
+        country: "Mexico"
+
+      }
+
+      const existingOrganisation = await tx.organisation.findUnique({
+        where: { 
+          slug: orgData.slug
+         },
+      });
+
+      if(existingOrganisation){
+        return {
+          error: `Organization Name ${orgData.name} is already taken`,
+          status: 409,
+          data: null,
+        };
+
+      }
+
+
+      const org = await db.organisation.create({
+            data: orgData || IronpeptidesOrgData
+          })
+
+
+
       // Find or create default role
       let defaultRole = await tx.role.findFirst({
         where: { roleName: DEFAULT_USER_ROLE.roleName },
@@ -77,24 +113,24 @@ export async function createUser(data: UserProps) {
 
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
-      const org = await db.organisation.create({
-            data: {
-              name: "Default  organisation",
-              slug: "default-organisation"
-            }
-          })
+      // Generate a 6-figure token
+
+
+     const token = generateOTP()
 
       // Create user with role
       const newUser = await tx.user.create({
         data: {
           email,
           password: hashedPassword,
+           // role, This is for ecommerce
           firstName,
           orgId: org.id,
           orgName: org.name,
           lastName,
           name,
           phone,
+          token,
           image,
           roles: {
             connect: {
@@ -107,10 +143,35 @@ export async function createUser(data: UserProps) {
         },
       });
 
+      // Send the verification email
+
+      const verificationCode = newUser.token??""
+
+      const { data, error } = await resend.emails.send({
+      from:  `${phone} <onboarding@resend.dev>`, // "Iron Peptides <simiyunevily@gmail.com>"
+      to: "simiyunevily@gmail.com", //email,
+      subject: "Verify your Account",
+      react: VerifyEmail({ verificationCode}),
+    });
+
+    if(error){
+      console.log(error)
+
+      return {
+        error: `Something went wrong,Please try again`,
+        status: 500,
+        data: null,
+      }
+
+    }
+
+    console.log(data);
+      
+
       return {
         error: null,
         status: 200,
-        data: newUser,
+        data: {id:newUser.id, email:newUser.email},
       };
     });
   } catch (error) {
@@ -387,4 +448,32 @@ export async function updateUser(userId: string, data: UpdateUserInput) {
       error: "Something went wrong",
     };
   }
+}
+
+export async function verifyOTP(userId:string, otp:string){
+  try {
+    const user = await db.user.findUnique({
+      where: {
+        id:userId
+      }
+    })
+
+    if(user?.token !== otp){
+      return {
+        status:403,
+      }
+    }
+
+    return {
+      status:200
+    }
+    
+  } catch (error) {
+
+    return {
+      status:403,
+    }
+    
+  }
+
 }

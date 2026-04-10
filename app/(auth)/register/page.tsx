@@ -7,7 +7,7 @@ import React from "react";
 export default function Page() {
   return (
     <GridBackground>
-      <div className="px-4">
+      <div className="px-4 bg-zinc-950">
         <RegisterForm />
       </div>
     </GridBackground>

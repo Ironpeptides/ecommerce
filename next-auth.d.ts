@@ -11,6 +11,7 @@ declare module "next-auth" {
       phone: string;
       roles: Role[];
       orgId: string;
+      role?: string;
       orgName: string | null;
       permissions: string[];
     } & DefaultSession["user"];
@@ -23,6 +24,7 @@ declare module "next-auth" {
     orgName: string | null;
     lastName: string;
     phone: string;
+    role?: string;
     roles: Role[];
     permissions: string[];
     name?: string | null;

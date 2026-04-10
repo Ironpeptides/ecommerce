@@ -24,7 +24,7 @@ export default function FormSelectInput({
   return (
     <div className="">
       {labelShown && (
-        <h2 className="pb-2 block text-sm font-medium leading-6 text-gray-900">
+        <h2 className="pb-2 block text-sm font-medium leading-6 text-white">
           Select {label}
         </h2>
       )}

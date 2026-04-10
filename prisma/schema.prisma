@@ -68,6 +68,7 @@ model User {
   jobTitle      String?
   roles         Role[]     @relation("UserRoles") // Updated to support multiple roles
   // role          UserRole  @default(USER)
+  role           String? // This is for buyers on the ecommerce side
   password      String?
   status        Boolean    @default(true)
   accounts      Account[]

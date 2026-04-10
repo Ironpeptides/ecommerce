@@ -39,7 +39,7 @@ export default function TextInput({
       <div className="flex space-x-2 items-center">
         <label
           htmlFor={name}
-          className="block text-sm font-medium leading-6 text-gray-900"
+          className="block text-sm font-medium leading-6 text-white"
         >
           {label}
         </label>

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import React from "react";
-import HubStackLogo from "./kit-logo";
-import VilyoIncLogo from "./VilyoLogo";
+import Image from "next/image";
 
 export default function Logo({
   variant = "light",
@@ -10,19 +9,31 @@ export default function Logo({
   variant?: "dark" | "light";
   href?: string;
 }) {
-  if (variant === "light") {
-    return (
-      <Link href={href} className="flex items-center space-x-2">
-        {/* <HubStackLogo width={200} height={60} /> */}
-        <VilyoIncLogo />
-      </Link>
-    );
-  } else {
-    return (
-      <Link href={"/"} className="flex items-center space-x-2">
-        {/* <HubStackLogo width={200} height={60} theme="dark" /> */}
-        <VilyoIncLogo />
-      </Link>
-    );
-  }
+  // Common Image Component to keep code DRY (Don't Repeat Yourself)
+  const LogoImage = (
+    <Image
+      src="/images/IronPeptideInnovationsLogo.png"
+      alt="Iron Peptide Innovations Logo"
+      width={60} // Increased size for better clarity
+      height={60}
+      className="rounded-md object-contain"
+      priority // Ensures the logo loads immediately as it's a layout element
+    />
+  );
+
+  return (
+    <Link href={href} className="flex items-center space-x-2">
+      {variant === "light" ? (
+        <>
+          {LogoImage}
+          <span className="font-bold text-slate-900">IRON PEPTIDE</span>
+        </>
+      ) : (
+        <>
+          {LogoImage}
+          <span className="font-bold text-white">IRON PEPTIDE</span>
+        </>
+      )}
+    </Link>
+  );
 }

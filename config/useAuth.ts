@@ -12,6 +12,7 @@ export interface AuthenticatedUser {
   phone: string;
   roles: Role[];
   permissions: string[];
+  role: string; // This is for ecommerce user
   orgId: string;
   orgName: string | null;
   name?: string | null;

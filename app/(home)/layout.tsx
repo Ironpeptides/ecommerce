@@ -13,7 +13,8 @@ export default async function HomeLayout({
   const session = await getServerSession(authOptions);
 
   return (
-    <PremiumProvider>
+    <div className="bg-[#0a0a0b] text-slate-200 selection:bg-emerald-500/30 selection:text-emerald-200">
+      <PremiumProvider>
 
       
       
@@ -112,5 +113,7 @@ export default async function HomeLayout({
         <Footer />
       </div>
     </PremiumProvider>
+    </div>
+    
   );
 }
