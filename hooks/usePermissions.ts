@@ -6,21 +6,24 @@ export function usePermission() {
   const { data: session } = useSession();
 
   const hasPermission = (permission: string): boolean => {
-    if (!session?.user?.permissions) return false;
-    return session.user.permissions.includes(permission);
+    const permissions = session?.user?.permissions;
+    if (!permissions) return false;
+    return permissions.includes(permission);
   };
 
-  const hasAnyPermission = (permissions: string[]): boolean => {
-    if (!session?.user?.permissions) return false;
-    return permissions.some((permission) =>
-      session.user.permissions.includes(permission)
+  const hasAnyPermission = (permissionsList: string[]): boolean => {
+    const permissions = session?.user?.permissions;
+    if (!permissions) return false;
+    return permissionsList.some((permission) =>
+      permissions.includes(permission)
     );
   };
 
-  const hasAllPermissions = (permissions: string[]): boolean => {
-    if (!session?.user?.permissions) return false;
-    return permissions.every((permission) =>
-      session.user.permissions.includes(permission)
+  const hasAllPermissions = (permissionsList: string[]): boolean => {
+    const permissions = session?.user?.permissions;
+    if (!permissions) return false;
+    return permissionsList.every((permission) =>
+      permissions.includes(permission)
     );
   };
 
