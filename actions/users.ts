@@ -464,6 +464,15 @@ export async function verifyOTP(userId:string, otp:string){
       }
     }
 
+    const update = await db.user.update({
+      where: {
+        id:userId,
+      },
+      data: {
+        isVerified: true,
+      },
+    });
+
     return {
       status:200
     }

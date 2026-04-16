@@ -59,9 +59,9 @@ model Role {
 model User {
   id            String     @id @default(cuid())
   name          String
-  firstName     String
-  lastName      String
-  phone         String     @unique
+  firstName     String?
+  lastName      String?
+  phone         String?     @unique
   email         String     @unique
   emailVerified DateTime?
   image         String?
@@ -76,12 +76,12 @@ model User {
   savings       Saving[]
   blogs         Blog[]
   orgName String?
-  organisation   Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  orgId  String
+  organisation   Organisation? @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  orgId  String?
   address String?
   feedbacks     Feedback[]
   showcases     Showcase[]
-  isVerfied     Boolean    @default(false)
+  isVerified     Boolean    @default(false)
   token         String?
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt

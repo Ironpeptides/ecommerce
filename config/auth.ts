@@ -59,13 +59,11 @@ export const authOptions: NextAuthOptions = {
           name: profile.name || profile.login,
           firstName: profile.name?.split(" ")[0] || "",
           lastName: profile.name?.split(" ")[1] || "",
-          phone: "",
+          phone: undefined,
           image: profile.avatar_url,
           email: profile.email,
           orgId,
           orgName,
-          roles: [],
-          permissions: [],
         };
       },
     }),
@@ -83,13 +81,11 @@ export const authOptions: NextAuthOptions = {
           name: `${profile.given_name} ${profile.family_name}`,
           firstName: profile.given_name,
           lastName: profile.family_name,
-          phone: "",
+          phone: undefined,
           image: profile.picture,
           email: profile.email,
           orgId,
           orgName,
-          roles: [],
-          permissions: [],
         };
       },
     }),
@@ -118,21 +114,22 @@ export const authOptions: NextAuthOptions = {
             (await compare(credentials.password, existingUser.password));
 
           if (!passwordMatch) throw new Error("Incorrect password");
+          if (!existingUser.isVerified) throw new Error("User not verified");
 
           const permissions = existingUser.roles.flatMap((r) => r.permissions);
 
           return {
             id: existingUser.id,
-            name: existingUser.name,
-            firstName: existingUser.firstName,
-            lastName: existingUser.lastName,
-            phone: existingUser.phone,
-            image: existingUser.image,
-            email: existingUser.email,
-            roles: existingUser.roles,
-            permissions: [...new Set(permissions)],
-            orgId: existingUser.orgId,
-            orgName: existingUser.orgName,
+          name: existingUser.name ?? undefined,           
+          firstName: existingUser.firstName ?? undefined, 
+          lastName: existingUser.lastName ?? undefined,   
+         phone: existingUser.phone ?? undefined,         
+          image: existingUser.image ?? undefined,         
+         email: existingUser.email,
+          roles: existingUser.roles,
+         permissions: [...new Set(permissions)],
+         orgId: existingUser.orgId ?? undefined,         
+         orgName: existingUser.orgName ?? undefined,     
           };
         } catch (error) {
           throw new Error("Authentication failed");
@@ -150,7 +147,7 @@ export const authOptions: NextAuthOptions = {
       ) {
         const existingUser = await db.user.findUnique({
           where: { email: user.email! },
-          include: { roles: true },
+          include: { roles: true},
         });
 
         // Only assign role if they have none (i.e. brand new OAuth user)
@@ -161,11 +158,17 @@ export const authOptions: NextAuthOptions = {
           if (defaultRole) {
             await db.user.update({
               where: { email: user.email! },
-              data: { roles: { connect: { id: defaultRole.id } }, role: "buyer" },
+              data: { roles: { connect: { id: defaultRole.id } }, role: "buyer", isVerified: true },
             });
           }
           
-        }
+        }else if (existingUser && !existingUser.isVerified) {
+      // ← handles returning OAuth users who somehow aren't verified yet
+      await db.user.update({
+        where: { email: user.email! },
+        data: { isVerified: true },
+      });
+    }
       }
       return true;
     },
@@ -178,9 +181,9 @@ export const authOptions: NextAuthOptions = {
         token.picture = user.image;
         token.firstName = user.firstName;
         token.lastName = user.lastName;
-        token.orgId = user.orgId;
-        token.orgName = user.orgName;
-        token.phone = user.phone;
+        token.orgId = user.orgId ?? undefined;
+        token.orgName = user.orgName ?? null;
+        token.phone = user.phone ?? undefined;
         token.role = user.role;
         token.roles = user.roles;
         token.permissions = user.permissions;
@@ -189,7 +192,7 @@ export const authOptions: NextAuthOptions = {
         const userData = await getUserWithRoles(token.id);
         if (userData) {
           token.roles = userData.roles;
-          token.orgId = userData.orgId;
+          token.orgId = userData.orgId ?? undefined;
           token.orgName = userData.orgName;
           token.permissions = userData.permissions;
         }
@@ -203,12 +206,12 @@ export const authOptions: NextAuthOptions = {
         session.user.name = token.name;
         session.user.email = token.email;
         session.user.image = token.picture;
-        session.user.firstName = token.firstName;
-        session.user.lastName = token.lastName;
-        session.user.phone = token.phone;
-        session.user.roles = token.roles;
-        session.user.permissions = token.permissions;
-        session.user.orgId = token.orgId;
+        session.user.firstName = token.firstName ?? undefined;
+        session.user.lastName = token.lastName ?? undefined;
+        session.user.phone = token.phone ?? undefined;
+        session.user.roles = token.roles ?? undefined;
+        session.user.permissions = token.permissions ?? undefined;
+        session.user.orgId = token.orgId ?? undefined;
         session.user.orgName = token.orgName;
       }
       return session;

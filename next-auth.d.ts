@@ -6,27 +6,27 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string;
-      firstName: string;
-      lastName: string;
-      phone: string;
-      roles: Role[];
-      orgId: string;
+      firstName?: string;
+      lastName?: string;
+      phone?: string;
+      roles?: Role[];
+      orgId?: string;
       role?: string;
-      orgName: string | null;
-      permissions: string[];
+      orgName?: string | null;
+      permissions?: string[];
     } & DefaultSession["user"];
   }
 
   interface User {
     id: string;
-    firstName: string;
-    orgId: string;
-    orgName: string | null;
-    lastName: string;
-    phone: string;
+    firstName?: string;
+    orgId?: string;
+    orgName?: string | null;
+    lastName?: string;
+    phone?: string;
     role?: string;
-    roles: Role[];
-    permissions: string[];
+    roles?: Role[];
+    permissions?: string[];
     name?: string | null;
     email?: string | null;
     image?: string | null;
@@ -36,12 +36,13 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT {
     id: string;
-    firstName: string;
-    lastName: string;
-    phone: string;
-    roles: Role[];
-    permissions: string[];
-     orgId: string;
+    firstName?: string;
+    lastName?: string;
+    role?: string;
+    phone?: string;
+    roles?: Role[];
+    permissions?: string[];
+     orgId?: string;
     orgName: string | null;
   }
 }
