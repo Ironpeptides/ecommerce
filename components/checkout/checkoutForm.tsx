@@ -1,7 +1,7 @@
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import React from "react";
-import type { PaymentMethod } from "../../app/checkout/page";
+import type { PaymentMethod } from "../../app/checkout/CheckoutContent";
 import StripePaymentForm from "../../app/checkout/stripepaymentform";
 import CryptoPaymentForm from "../../app/checkout/cryptopaymentform";
 import "dotenv/config";
