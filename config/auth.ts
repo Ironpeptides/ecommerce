@@ -6,6 +6,7 @@ import type { Adapter } from "next-auth/adapters";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { db } from "@/prisma/db";
+import "dotenv/config";
 
 async function getUserWithRoles(userId: string) {
   const user = await db.user.findUnique({

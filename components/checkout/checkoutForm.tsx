@@ -4,6 +4,7 @@ import React from "react";
 import type { PaymentMethod } from "../../app/checkout/page";
 import StripePaymentForm from "../../app/checkout/stripepaymentform";
 import CryptoPaymentForm from "../../app/checkout/cryptopaymentform";
+import "dotenv/config";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 

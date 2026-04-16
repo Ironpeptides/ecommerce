@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { stripe } from "../../order/create-payment-intent/route";
 import { db } from "@/prisma/db";
+import "dotenv/config";
 
 export async function POST(req: NextRequest) {
   try {

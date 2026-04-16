@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-
+import "dotenv/config";
 const CRYPTOMUS_PAYMENT_API_KEY = process.env.CRYPTOMUS_PAYMENT_API_KEY!;
 
 function verifySign(payload: Record<string, any>, receivedSign: string): boolean {
