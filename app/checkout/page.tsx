@@ -1,7 +1,8 @@
 // app/checkout/page.tsx (or wherever your checkout page is located)
 import { Suspense } from 'react';
-import CheckoutContent from './CheckoutContent';
+
 import { Loader2 } from "lucide-react";
+import CheckoutContent from './CheckoutContent';
 
 export default function CheckoutPage() {
   return (
