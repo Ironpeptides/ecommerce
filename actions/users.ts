@@ -266,7 +266,7 @@ export async function sendResetLink(email: string) {
         token,
       },
     });
-    const userFirstname = user.firstName;
+    const userFirstname = user.firstName ?? undefined;
 
     const resetPasswordLink = `${baseUrl}/reset-password?token=${token}&&email=${email}`;
     const { data, error } = await resend.emails.send({

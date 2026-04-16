@@ -122,9 +122,9 @@ export async function POST(req: NextRequest) {
 
     // ── Validate products exist and prices haven't been tampered ─────────────
     const productIds = cart.map((i) => i.id);
-    const products = await db.products.findMany({
+    const products = await db.product.findMany({
       where: { id: { in: productIds } },
-      select: { id: true, sale_price: true, stock: true, title: true },
+      select: { id: true, salePrice: true, stock: true, name: true },
     });
 
     if (products.length !== productIds.length) {
@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
       const product = products.find((p:any) => p.id === item.id);
       if (!product) continue;
 
-      if (Math.abs(Number(product.sale_price) - Number(item.sale_price)) > 0.01) {
+      if (Math.abs(Number(product.salePrice) - Number(item.sale_price)) > 0.01) {
         return NextResponse.json(
           { error: `Price mismatch for product: ${item.id}` },
           { status: 400 }
@@ -148,7 +148,7 @@ export async function POST(req: NextRequest) {
       if (product.stock < item.quantity) {
         return NextResponse.json(
           {
-            error: `Insufficient stock for: ${product.title}. Only ${product.stock} left.`,
+            error: `Insufficient stock for: ${product.name}. Only ${product.stock} left.`,
           },
           { status: 400 }
         );
@@ -160,8 +160,8 @@ export async function POST(req: NextRequest) {
       const product = products.find((p:any) => p.id === item.id)!;
       return {
         ...item,
-        title: product.title,
-        sale_price: Number(product.sale_price),
+        title: product.name,
+        sale_price: Number(product.salePrice),
       };
     });
 

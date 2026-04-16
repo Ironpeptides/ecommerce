@@ -12,6 +12,10 @@ export default async function page({
   const user = await getUserById(id);
   const roles = (await getRoles()) || [];
   return (
-    <UserForm roles={roles.data ?? []} editingId={id} initialData={user} />
+    <UserForm 
+  roles={roles.data ?? []} 
+  editingId={id} 
+  initialData={user ?? undefined} // Convert null to undefined
+/>
   );
 }

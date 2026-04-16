@@ -29,9 +29,10 @@ import PasswordInput from "../FormInputs/PasswordInput";
 import TextInput from "../FormInputs/TextInput";
 import FormSelectInput from "../FormInputs/FormSelectInput";
 import ImageInput from "../FormInputs/ImageInput";
+import { OrgData } from "./RegisterForm";
 type UserFormProps = {
   editingId?: string | undefined;
-  initialData?: User | undefined | null;
+  initialData?: User | undefined;
   roles: Role[];
 };
 export default function UserForm({
@@ -46,10 +47,10 @@ export default function UserForm({
     formState: { errors },
   } = useForm<UserProps>({
     defaultValues: {
-      firstName: initialData?.firstName,
-      lastName: initialData?.lastName,
-      phone: initialData?.phone,
-      email: initialData?.email,
+    firstName: initialData?.firstName ?? undefined,
+    lastName: initialData?.lastName ?? undefined,
+    phone: initialData?.phone ?? undefined,
+    email: initialData?.email ?? undefined,
     },
   });
   const router = useRouter();
@@ -98,7 +99,15 @@ export default function UserForm({
         //route
         router.push("/dashboard/users");
       } else {
-        await createUser(data);
+        const orgData: OrgData = {
+              name: "",
+              slug: "",
+              timezone: "",
+              currency: "",
+              country: ``,
+            };
+        
+        await createUser(data,orgData);
         setLoading(false);
         // Toast
         toast.success("Successfully Created!");
