@@ -9,7 +9,7 @@ import {
   SALES_TAX_RATE,
   SHIPPING_COST,
   SUB_DISCOUNT,
-} from "./CheckoutContent";
+} from "./checkoutContent";
 
 const fmt = (n: number) => `$${n.toFixed(2)}`;
 

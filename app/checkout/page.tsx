@@ -2,7 +2,8 @@
 import { Suspense } from 'react';
 
 import { Loader2 } from "lucide-react";
-import CheckoutContent from './CheckoutContent';
+import CheckoutContent from './checkoutContent';
+
 
 export default function CheckoutPage() {
   return (
