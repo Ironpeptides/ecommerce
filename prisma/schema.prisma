@@ -89,6 +89,9 @@ model User {
 
   orders           Order[]
   shippingAddresses ShippingAddress[]
+
+  cart        Cart?    // Users usually have one active cart
+  reviews     Review[]
 }
 
 model Organisation {
@@ -246,6 +249,16 @@ model Product {
   isActive    Boolean  @default(true)
   isFeatured  Boolean  @default(false)
 
+  // Peptides specific
+  casNumber   String?  // Chemical Abstracts Service registry number
+  formula     String?  // e.g., C38H49N9O5
+  molarMass   String?
+  
+  batches     Batch[]
+  certificates ProductCertificate[]
+  reviews      Review[]
+  cartItems    CartItem[]
+
   images      ProductImage[]
   variants    ProductVariant[]
   category    Category?       @relation(fields: [categoryId], references: [id])
@@ -254,6 +267,17 @@ model Product {
 
   @@index([slug])
   @@index([categoryId])
+}
+
+model Batch {
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  batchNumber String   @unique
+  purity      Float?   // e.g., 99.2
+  coaUrl      String?  // URL to the PDF/Image of lab results
+  manufacturedAt DateTime?
+  expiryDate   DateTime?
 }
 
 model ProductImage {
@@ -315,6 +339,11 @@ model Order {
   items           OrderItem[]
   statusHistory   OrderStatusHistory[]
   notes           String?   // internal admin notes
+
+  termsAccepted Boolean @default(false) // Legal requirement for research chems
+  
+  payments    Payment[]
+  shipments   Shipment[]
 
   @@index([userId])
   @@index([orderStatus])
@@ -448,7 +477,7 @@ model Payment {
 
 model Cart {
   id     String @id @default(cuid())
-  userId String
+  userId String @unique
   user   User   @relation(fields: [userId], references: [id])
 
   items  CartItem[]
@@ -477,12 +506,6 @@ model Review {
   product   Product @relation(fields: [productId], references: [id])
 
   createdAt DateTime @default(now())
-}
-
-model LabInfo {
-purity       Float?
-dosage       String?
-storage      String?
 }
 
 model ProductCertificate {
