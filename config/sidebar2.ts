@@ -7,28 +7,32 @@ import {
   Cable,
   CircleDollarSign,
   FolderTree,
+  Heart,
   Home,
   LucideIcon,
   Presentation,
   Settings,
+  ShoppingCart,
+  Star,
+  HeadphonesIcon,
   Users,
+  User,
 } from "lucide-react";
 
 export interface ISidebarLink {
-  badge: string | undefined;
   title: string;
   href?: string;
   icon: LucideIcon;
   dropdown: boolean;
-  permission: string; // Required permission to view this item
+  permission: string;
   dropdownMenu?: MenuItem[];
-
+  badge?: string;
 }
 
 type MenuItem = {
   title: string;
   href: string;
-  permission: string; // Required permission to view this menu item
+  permission: string;
 };
 
 export const sidebarLinks: ISidebarLink[] = [
@@ -39,15 +43,53 @@ export const sidebarLinks: ISidebarLink[] = [
     dropdown: false,
     permission: "dashboard.read",
   },
+  // Buyer-specific sections
   {
-    title: "Users",
+    title: "My Orders",
+    href: "/dashboard/orders",
+    icon: ShoppingCart,
+    dropdown: false,
+    permission: "orders.read",
+    badge: "Active",
+  },
+  {
+    title: "My Wishlist",
+    href: "/dashboard/wishlist",
+    icon: Heart,
+    dropdown: false,
+    permission: "wishlist.read",
+  },
+  {
+    title: "My Reviews",
+    href: "/dashboard/reviews",
+    icon: Star,
+    dropdown: false,
+    permission: "reviews.read",
+  },
+  {
+    title: "Support Tickets",
+    href: "/dashboard/support",
+    icon: HeadphonesIcon,
+    dropdown: false,
+    permission: "support.read",
+  },
+  {
+    title: "My Profile",
+    href: "/dashboard/profile",
+    icon: User,
+    dropdown: false,
+    permission: "profile.read",
+  },
+  // Admin/Staff sections
+  {
+    title: "Users Management",
     icon: Users,
     href: "/dashboard/users",
     dropdown: true,
     permission: "users.read",
     dropdownMenu: [
       {
-        title: "Users",
+        title: "All Users",
         href: "/dashboard/users",
         permission: "users.read",
       },
@@ -59,12 +101,7 @@ export const sidebarLinks: ISidebarLink[] = [
       {
         title: "Change Password",
         href: "/dashboard/change-password",
-        permission: "roles.read",
-      },
-      {
-        title: "Profile",
-        href: "/dashboard/profile",
-        permission: "roles.read",
+        permission: "profile.update",
       },
     ],
   },
@@ -85,6 +122,11 @@ export const sidebarLinks: ISidebarLink[] = [
         href: "/dashboard/inventory/products",
         permission: "products.read",
       },
+      {
+        title: "Stock Levels",
+        href: "/dashboard/inventory/stock",
+        permission: "products.read",
+      },
     ],
   },
   {
@@ -95,7 +137,7 @@ export const sidebarLinks: ISidebarLink[] = [
     permission: "sales.read",
     dropdownMenu: [
       {
-        title: "Sales",
+        title: "All Sales",
         href: "/dashboard/sales",
         permission: "sales.read",
       },
@@ -103,6 +145,11 @@ export const sidebarLinks: ISidebarLink[] = [
         title: "Customers",
         href: "/dashboard/sales/customers",
         permission: "customers.read",
+      },
+      {
+        title: "Transactions",
+        href: "/dashboard/sales/transactions",
+        permission: "sales.read",
       },
     ],
   },
@@ -114,21 +161,14 @@ export const sidebarLinks: ISidebarLink[] = [
     permission: "blogs.read",
   },
   {
-    title: "Orders",
-    href: "/dashboard/orders",
-    icon: BarChart2,
-    dropdown: false,
-    permission: "orders.read",
-  },
-  {
     title: "Settings",
     href: "/dashboard/settings",
     icon: Settings,
     dropdown: true,
     dropdownMenu: [
       {
-        title: "Change Password",
-        href: "/dashboard/settings/change-password",
+        title: "General Settings",
+        href: "/dashboard/settings/general",
         permission: "settings.read",
       },
       {
@@ -139,11 +179,6 @@ export const sidebarLinks: ISidebarLink[] = [
       {
         title: "Showcases",
         href: "/dashboard/settings/showcases",
-        permission: "settings.read",
-      },
-      {
-        title: "Profile",
-        href: "/dashboard/settings/profile",
         permission: "settings.read",
       },
       {
@@ -174,6 +209,11 @@ export const sidebarLinks: ISidebarLink[] = [
       {
         title: "Customers Report",
         href: "/dashboard/reports/customers",
+        permission: "reports.read",
+      },
+      {
+        title: "Sales Report",
+        href: "/dashboard/reports/sales",
         permission: "reports.read",
       },
     ],

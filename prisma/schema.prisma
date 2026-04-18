@@ -37,10 +37,11 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-enum UserRole {
+enum UserRoles {
   USER
   ADMIN
   SERVICE_PROVIDER
+  BUYER
 }
 
 model Role {
@@ -48,6 +49,8 @@ model Role {
   displayName String // Human-readable name (e.g., "Store Manager")
   roleName    String   @unique // System name (e.g., "store_manager")
   description String?
+  organisation   Organisation? @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  orgId  String?
   permissions String[] // Array of permission strings
   users       User[]   @relation("UserRoles")
   createdAt   DateTime @default(now())
@@ -107,9 +110,24 @@ model Organisation {
   inventoryStart DateTime?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+  roles Role[]
 
   users          User[]
+  invites          Invite[]
   @@map("organisations")
+}
+
+
+model Invite {
+  id             String      @id @default(cuid()) 
+  email          String  @unique
+
+  organisation   Organisation? @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  orgId  String?
+  status    Boolean @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  @@map("invites")
 }
 
 

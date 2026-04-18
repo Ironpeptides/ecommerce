@@ -1,7 +1,7 @@
 "use server";
 import { ResetPasswordEmail } from "@/components/email-templates/reset-password";
 import { db } from "@/prisma/db";
-import { UserProps } from "@/types/types";
+import { InvitedUserProps, UserProps } from "@/types/types";
 import bcrypt, { compare } from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { PasswordProps } from "@/components/Forms/ChangePasswordForm";
@@ -11,9 +11,14 @@ import { z } from "zod";
 import { OrgData } from "@/components/Forms/RegisterForm";
 import { generateOTP } from "@/lib/generateOTP";
 import VerifyEmail from "@/components/email-templates/verify-email";
+import { adminPermissions, buyerPermissions } from "@/config/permissions";
+import { InviteData } from "@/components/Forms/users/UserInvitationForm";
+import InvitationEmail from "@/components/email-templates/user-invite";
+import "dotenv/config";
 // import { generateNumericToken } from "@/lib/token";
 const resend = new Resend(process.env.RESEND_API_KEY);
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+
 
 const DEFAULT_USER_ROLE = {
   displayName: "User",
@@ -26,6 +31,22 @@ const DEFAULT_USER_ROLE = {
     "orders.read",
   ],
 };
+     
+const ADMIN_USER_ROLE = {
+  displayName: "Administrator",
+  roleName: "admin",
+  description: "Full system access",
+  permissions: adminPermissions,
+};
+
+const BUYER_USER_ROLE = {
+  displayName: "Buyer",
+  roleName: "buyer",
+  description: "Ecommerce customer access",
+  permissions: buyerPermissions,
+}
+
+
 const UpdateUserSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
@@ -101,13 +122,16 @@ export async function createUser(data: UserProps, orgData:OrgData) {
 
       // Find or create default role
       let defaultRole = await tx.role.findFirst({
-        where: { roleName: DEFAULT_USER_ROLE.roleName },
+        where: { roleName: ADMIN_USER_ROLE.roleName },
       });
 
       // Create default role if it doesn't exist
       if (!defaultRole) {
         defaultRole = await tx.role.create({
-          data: DEFAULT_USER_ROLE,
+          data: {
+            ...ADMIN_USER_ROLE,
+            orgId: org.id
+          },
         });
       }
 
@@ -183,6 +207,98 @@ export async function createUser(data: UserProps, orgData:OrgData) {
     };
   }
 }
+
+export async function createInvitedUser(data: InvitedUserProps) {
+  const { email, password, firstName, lastName, name, phone, image, orgId, roleId, orgName } = data;
+
+  try {
+    // Use a transaction for atomic operations
+    return await db.$transaction(async (tx) => {
+      // Check for existing users
+      const existingUserByEmail = await tx.user.findUnique({
+        where: { email },
+      });
+
+      const existingUserByPhone = await tx.user.findUnique({
+        where: { phone },
+      });
+
+      if (existingUserByEmail) {
+        return {
+          error: `This email ${email} is already in use`,
+          status: 409,
+          data: null,
+        };
+      }
+
+      if (existingUserByPhone) {
+        return {
+          error: `This Phone number ${phone} is already in use`,
+          status: 409,
+          data: null,
+        };
+      }
+
+      
+
+      
+
+
+
+      
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      // Create user with role
+      const newUser = await tx.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+           // role, This is for ecommerce
+          firstName,
+          orgId: orgId,
+          orgName: orgName,
+          lastName,
+          name,
+          phone,
+          isVerified: true,
+          image,
+          roles: {
+            connect: {
+              id: roleId,
+            },
+          },
+        }
+      });
+
+
+      // Update the status of the Invite
+
+      await db.invite.update({
+        where: {
+          email
+        },
+        data: {
+          status: true,
+        },
+      });
+
+      return {
+        error: null,
+        status: 200,
+        data: {id:newUser.id, email:newUser.email},
+      };
+    });
+  } catch (error) {
+    console.error("Error creating user:", error);
+    return {
+      error: `Something went wrong, Please try again`,
+      status: 500,
+      data: null,
+    };
+  }
+}
 export async function getAllMembers() {
   try {
     const members = await db.user.findMany({
@@ -214,8 +330,94 @@ export async function getAllUsers() {
   }
 }
 
+export async function getOrgUsers(orgId: string) {
+  try {
+    const users = await db.user.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      where: {
+        orgId,
+      },
+      include: {
+        roles: true,
+      },
+    });
+    return users;
+  } catch (error) {
+    console.error("Error fetching the count:", error);
+    return 0;
+  }
+}
+
+export async function getOrgInvites(orgId: string) {
+  try {
+    const users = await db.invite.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      where: {
+        orgId,
+      },
+      select: {
+        id: true,
+        email: true,
+        status:true,
+        createdAt:true,
+        updatedAt:true,
+      }
+    });
+    return users;
+  } catch (error) {
+    console.error("Error fetching the count:", error);
+    return 0;
+  }
+}
+
+export async function getOrgBuyers(orgId: string) {
+  try {
+    const buyers = await db.user.findMany({
+      where: {
+        // Use the exact system name stored in your Role table
+        roles: {
+          some: {
+            roleName: "buyer", // OR "BUYER" - must match your DB seed exactly
+          },
+        },
+      },
+      include: {
+        roles: true,
+        orders: true, // Useful if you want to calculate 'totalOrders' later
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return buyers;
+  } catch (error) {
+    console.error("Error fetching buyers:", error);
+    return [];
+  }
+}
+
 export async function deleteUser(id: string) {
   try {
+    const user = await db.user.findUnique({
+      where: {
+        id,
+      },
+      select:{
+        email: true,
+      }
+    })
+
+    await db.invite.delete({
+      where:{
+        email: user?.email
+      }
+    })
+
     const deleted = await db.user.delete({
       where: {
         id,
@@ -485,4 +687,104 @@ export async function verifyOTP(userId:string, otp:string){
     
   }
 
+}
+
+export async function getCurrentUsersCount(){
+  try {
+    const count = await db.user.count();
+
+    return count;
+    
+  } catch (error) {
+    console.log(error)
+    return 0
+    
+  }
+}
+
+
+
+export async function sendInvite(data: InviteData) {
+  const { email, orgId, orgName, roleId, roleName, userFirstname, invitedBy} = data;
+
+  try {
+  
+ // Check for existing users
+      const existingUserByEmail = await db.user.findUnique({
+        where: { email},
+      });
+
+      
+
+      if (existingUserByEmail) {
+        return {
+          error: `This email ${email} is already in use`,
+          status: 409,
+          data: null,
+        };
+      }
+
+      // Check if already invited
+
+
+      const existingInvite = await db.invite.findFirst({
+        where: { email},
+      });
+
+
+      if (existingInvite) {
+        return {
+          error: `This user ${email} is already invited`,
+          status: 409,
+          data: null,
+        };
+      }
+
+      // Create the Invite
+
+       await db.invite.create({
+  data: {
+    email,
+    orgId,
+  },
+});
+
+      // Send the verification email
+
+      const inviteLink = `${baseUrl}/user-invite/${orgId}?roleId=${roleId}&&email=${email}&&orgName=${orgName}`
+      
+      const { data, error } = await resend.emails.send({
+      from:  `Iron Peptides <onboarding@resend.dev>`, // "Iron Peptides <simiyunevily@gmail.com>"
+      to: "simiyunevily@gmail.com", //email,
+      subject: `Welcome to ${orgName} - ${roleName} Role Invitation`,
+      react: InvitationEmail({ orgName,roleName,inviteLink, userFirstname, invitedBy }),
+    });
+
+    if(error){
+      console.log(error)
+
+      return {
+        error: `Something went wrong,Please try again`,
+        status: 500,
+        data: null,
+      }
+
+    }
+
+    console.log(data);
+    revalidatePath("/dashboard/users")
+
+    return {
+      error:null,
+      status:200,
+      data,
+    }
+  } catch (error) {
+    console.error("Error inviting user:", error);
+    return {
+      error: `Something went wrong, Please try again`,
+      status: 500,
+      data: null,
+    };
+  }
 }

@@ -19,7 +19,7 @@ import InventoryFeatureTabs from "@/components/frontend/SmoothTabs";
 import InventoryFAQ from "@/components/frontend/FAQ";
 
 export default async function page() {
-  const currentUsers = 100;
+  const currentUsers = await getCurrentUsersCount();
   return (
     <section>
       <ReUsableHero

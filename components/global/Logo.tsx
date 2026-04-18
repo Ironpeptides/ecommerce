@@ -12,7 +12,7 @@ export default function Logo({
   // Common Image Component to keep code DRY (Don't Repeat Yourself)
   const LogoImage = (
     <Image
-      src="/images/IronPeptideInnovationsLogo.png"
+      src="/images/peptideIron.png"
       alt="Iron Peptide Innovations Logo"
       width={60} // Increased size for better clarity
       height={60}
@@ -26,7 +26,7 @@ export default function Logo({
       {variant === "light" ? (
         <>
           {LogoImage}
-          <span className="font-bold text-slate-900">IRON PEPTIDE</span>
+          <span className="font-bold text-white">IRON PEPTIDE</span>
         </>
       ) : (
         <>

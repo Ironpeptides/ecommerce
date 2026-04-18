@@ -288,11 +288,7 @@ const page = () => {
   const offers = staticOffers;
 
   const isLoading = false;
-  const isError = false;
-  const latestProductsLoading = false;
-  const shopLoading = false;
-  const offersLoading = false;
-
+  
   return (
     <main className="min-h-screen text-white">
       <Hero />

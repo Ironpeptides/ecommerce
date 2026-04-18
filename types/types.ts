@@ -24,6 +24,21 @@ export type UserProps = {
   password: string;
   role?: string;
 };
+
+export type InvitedUserProps = {
+  name: string;
+  firstName: string;
+  lastName: string;
+  roleId:string;
+  orgName: string;
+  orgId: string;
+  phone: string;
+  image: string;
+  email: string;
+  password: string;
+  role?: string;
+};
+
 export type LoginProps = {
   email: string;
   password: string;

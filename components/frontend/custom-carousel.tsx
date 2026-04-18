@@ -15,8 +15,8 @@ const carouselItems = [
   },
   {
     image: "/images/slide-3.jpg",
-    title: "End Year Celebration,",
-    subtitle: "Reap Your Rewards in December",
+    title: "Iron peptides for research",
+    subtitle: "Order your batch today",
   },
 ];
 

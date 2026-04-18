@@ -35,7 +35,7 @@ export default function VerifyEmail({ verificationCode }: VerifyEmailProps) {
             {/* Header / Logo */}
             <Section style={{ backgroundColor: '#252f3d', padding: '20px 0', textAlign: 'center' }}>
               <Img
-                src={`${baseUrl}/images/IronPeptideInnovationsLogo.png`}
+                src={`https://83153x3k0f.ufs.sh/f/WHfEA9ldMx5DkPX4zs1pln71ahxzZC0eTMXmsRfOt36yP42G`}
                 width="75"
                 height="45"
                 alt="Iron Peptides Logo"

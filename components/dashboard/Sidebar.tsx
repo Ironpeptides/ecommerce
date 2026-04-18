@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Logo from "../global/Logo";
-import { ISidebarLink, sidebarLinks } from "@/config/sidebar";
+import { ISidebarLink, sidebarLinks } from "@/config/sidebar2";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import { NotificationMenu } from "../NotificationMenu";

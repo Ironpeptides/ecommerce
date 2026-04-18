@@ -154,7 +154,7 @@ export const authOptions: NextAuthOptions = {
         // Only assign role if they have none (i.e. brand new OAuth user)
         if (existingUser && !existingUser.roles?.length) {
           const defaultRole = await db.role.findFirst({
-            where: { roleName: "user" },
+            where: { roleName: "buyer" },
           });
           if (defaultRole) {
             await db.user.update({

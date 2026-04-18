@@ -225,6 +225,27 @@ export async function getRoles() {
   }
 }
 
+
+export async function getOrgRoles(orgId:string) {
+  try {
+    const roles = await db.role.findMany({
+      where: {
+        orgId: orgId
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return { success: true, data: roles };
+  } catch (error) {
+    console.error("Error fetching roles:", error);
+    return {
+      success: false,
+      error: "Failed to fetch roles",
+    };
+  }
+}
+
 export async function getRoleById(id: string) {
   try {
     const role = await db.role.findUnique({
