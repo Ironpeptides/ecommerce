@@ -15,13 +15,13 @@ import {
 } from "lucide-react";
 
 export interface ISidebarLink {
-  badge: string | undefined;
   title: string;
   href?: string;
   icon: LucideIcon;
   dropdown: boolean;
   permission: string; // Required permission to view this item
   dropdownMenu?: MenuItem[];
+  badge?: string;
 
 }
 

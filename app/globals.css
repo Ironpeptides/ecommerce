@@ -173,3 +173,59 @@ body {
 .animate-marquee {
   will-change: transform;
 }
+
+
+
+
+
+
+/* Ensure proper image containment */
+.aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+/* Fix for grid items */
+.grid > * {
+  min-width: 0; /* Prevents overflow */
+}
+
+/* Responsive breakpoints */
+@media (min-width: 480px) {
+  .xs\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Modal animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-in {
+  animation-duration: 0.2s;
+  animation-fill-mode: both;
+}
+
+.fade-in {
+  animation-name: fadeIn;
+}
+
+.zoom-in {
+  animation-name: zoomIn;
+}

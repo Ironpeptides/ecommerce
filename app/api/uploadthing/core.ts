@@ -18,6 +18,24 @@ export const ourFileRouter = {
       return { uploadedBy: "JB" };
     }
   ),
+  
+  // ✅ NEW: Product image uploader (for product images)
+  productImageUploader: f({ 
+    image: { maxFileSize: "4MB", maxFileCount: 1 } 
+  }).onUploadComplete(async ({ metadata, file }) => {
+    console.log("Product image uploaded:", file.url);
+    return { uploadedBy: "JB", url: file.url };
+  }),
+
+  // ✅ NEW: Certificate uploader (for certificates of analysis)
+  certificateUploader: f({
+    image: { maxFileSize: "8MB", maxFileCount: 1 },
+    pdf: { maxFileSize: "8MB", maxFileCount: 1 },
+  }).onUploadComplete(async ({ metadata, file }) => {
+    console.log("Certificate uploaded:", file.url);
+    return { uploadedBy: "JB", url: file.url };
+  }),
+
   fileUploads: f({
     image: { maxFileSize: "1MB", maxFileCount: 4 },
     pdf: { maxFileSize: "1MB", maxFileCount: 4 },
@@ -43,6 +61,7 @@ export const ourFileRouter = {
     console.log("file url", file.url);
     return { uploadedBy: "JB" };
   }),
+  
   mailAttachments: f({
     image: { maxFileSize: "1MB", maxFileCount: 4 },
     pdf: { maxFileSize: "1MB", maxFileCount: 4 },
@@ -66,7 +85,7 @@ export const ourFileRouter = {
     "application/zip": { maxFileSize: "1MB", maxFileCount: 4 },
   }).onUploadComplete(async ({ metadata, file }) => {
     console.log("file url", file.url);
-    return { uploadedBy: "JB" };
+    return { uploadedBy: "Jacob" };
   }),
 } satisfies FileRouter;
 

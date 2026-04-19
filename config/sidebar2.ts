@@ -119,7 +119,7 @@ export const sidebarLinks: ISidebarLink[] = [
       },
       {
         title: "Products",
-        href: "/dashboard/inventory/products",
+        href: "/dashboard/products",
         permission: "products.read",
       },
       {

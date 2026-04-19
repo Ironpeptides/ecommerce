@@ -133,7 +133,7 @@ model Invite {
 
 model Category {
   id          String    @id @default(cuid())
-  title       String
+  title        String    
   slug        String    @unique
   imageUrl    String?
   description String?
@@ -258,7 +258,8 @@ model Product {
   name        String
   slug        String   @unique
   description String?
-  price       Float
+  orgId      String?   @map("org_id")
+  price       Float?
   salePrice   Float?
   sku         String?  @unique
   barcode     String?
@@ -266,14 +267,15 @@ model Product {
   lowStock    Int      @default(5)  // threshold for low stock alerts
   isActive    Boolean  @default(true)
   isFeatured  Boolean  @default(false)
+  certificates ProductCertificate[]
 
   // Peptides specific
   casNumber   String?  // Chemical Abstracts Service registry number
   formula     String?  // e.g., C38H49N9O5
   molarMass   String?
   
+
   batches     Batch[]
-  certificates ProductCertificate[]
   reviews      Review[]
   cartItems    CartItem[]
 
@@ -296,6 +298,8 @@ model Batch {
   coaUrl      String?  // URL to the PDF/Image of lab results
   manufacturedAt DateTime?
   expiryDate   DateTime?
+  createdAt   DateTime @default(now())
+  quantity    Float?   // how many units in this batch
 }
 
 model ProductImage {
@@ -315,7 +319,9 @@ model ProductVariant {
   id        String  @id @default(cuid())
   name      String  // e.g. "Size", "Color"
   value     String  // e.g. "XL", "Red"
-  price     Float?  // override product price if different
+  quantity    Float?   // e.g. 5.0
+  unit        String?  // e.g. "mg", "mcg"
+  price     Float?  
   stock     Int     @default(0)
   sku       String? @unique
 
@@ -325,6 +331,21 @@ model ProductVariant {
   @@index([productId])
 }
 
+
+// Add to your schema.prisma file
+
+model ProductCertificate {
+  id        String   @id @default(cuid())
+  url       String
+  productId String   @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([productId])
+  @@index([productId])
+  @@map("product_certificates")
+}
 
 // ─── Orders ───────────────────────────────────────────────────────────────────
 
@@ -341,6 +362,11 @@ model Order {
   paymentStatus   PaymentStatus @default(UNPAID)
   paymentMethod   String?     // "stripe", "cryptomus", etc.
   paymentIntentId String?     @unique
+
+  buyerPaidAt       DateTime?   // when buyer marks as paid
+  buyerPaymentProof String?     // optional: upload a screenshot/txid
+  adminApprovedAt   DateTime?   // when admin confirms payment
+  adminApprovedBy   String?     // userId of admin who approved
 
   subtotal        Float
   shippingFee     Float       @default(0)
@@ -464,6 +490,7 @@ enum OrderStatus {
 enum PaymentStatus {
   UNPAID
   PAID
+  PENDING_APPROVAL
   PARTIALLY_PAID
   REFUNDED
   FAILED
@@ -477,20 +504,42 @@ enum DiscountType {
 
 // Other Important models
 
+
+
 model Payment {
-  id            String   @id @default(cuid())
+  id            String        @id @default(cuid())
+  createdAt     DateTime      @default(now())
   orderId       String
-  order         Order    @relation(fields: [orderId], references: [id])
-
-  provider      String   // "stripe", "mpesa", "crypto"
-  transactionId String?
+  order         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  method        String        // "stripe", "cryptomus", "manual"
   amount        Float
-  currency      String
-
   status        PaymentStatus
+  transactionId String?       // stripe paymentIntentId or crypto txHash
+  proofUrl      String?       // screenshot for manual crypto payments
+  approvedBy    String?       // admin userId
+  approvedAt    DateTime?
+  currency      String
   paidAt        DateTime?
-  createdAt     DateTime @default(now())
+  
+  @@index([orderId])
 }
+
+model Shipment {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  carrier       String?  // "DHL", "FedEx"
+  trackingNumber String?
+  shippedAt     DateTime?
+  estimatedDelivery DateTime?
+  deliveredAt   DateTime?
+  status    String
+  
+  @@index([orderId])
+}
+
+
 
 
 model Cart {
@@ -524,28 +573,4 @@ model Review {
   product   Product @relation(fields: [productId], references: [id])
 
   createdAt DateTime @default(now())
-}
-
-model ProductCertificate {
-  id        String @id @default(cuid())
-  productId String
-  url       String
-
-  product   Product @relation(fields: [productId], references: [id])
-}
-
-
-
-model Shipment {
-  id        String @id @default(cuid())
-  orderId   String
-
-  carrier   String  // DHL, FedEx
-  trackingNumber String?
-  status    String
-
-  shippedAt DateTime?
-  deliveredAt DateTime?
-
-  order     Order @relation(fields: [orderId], references: [id])
 }

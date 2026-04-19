@@ -103,6 +103,8 @@ const OptionsModal = ({ product, options, onClose, onConfirm }: OptionsModalProp
 
 const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) => {
 
+  console.log("product in card:", product); // Debug log to check product data
+
   const [timeLeft, setTimeLeft] = useState("");
   const [open, setOpen] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);

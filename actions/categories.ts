@@ -4,26 +4,56 @@ import { db } from "@/prisma/db";
 import { CategoryProps } from "@/types/types";
 import { revalidatePath } from "next/cache";
 
-export async function createCategory(data: CategoryProps) {
-  const slug = data.slug;
+
+type CreateCategoryInput = {
+  title: string;
+  slug: string;
+  description?: string | null;
+  imageUrl?: string | null;
+};
+
+type ActionResult<T = any> = {
+  success: boolean;
+  data: T | null;
+  error: string | null;
+};
+
+export async function createCategory(data: CreateCategoryInput): Promise<ActionResult> {
+  const { slug } = data;
+
   try {
+    // Check for existing category
     const existingCategory = await db.category.findUnique({
-      where: {
-        slug,
-      },
+      where: { slug },
     });
+
     if (existingCategory) {
-      return existingCategory;
+      return {
+        success: false,
+        data: null,
+        error: "A category with this name already exists.",
+      };
     }
+
+    // Create new category
     const newCategory = await db.category.create({
       data,
     });
-    // console.log(newCategory);
+
     revalidatePath("/dashboard/categories");
-    return newCategory;
-  } catch (error) {
-    console.log(error);
-    return null;
+
+    return {
+      success: true,
+      data: newCategory,
+      error: null,
+    };
+  } catch (error: any) {
+    console.error("Create category error:", error);
+    return {
+      success: false,
+      data: null,
+      error: error.message || "Failed to create category",
+    };
   }
 }
 export async function getAllCategories() {
