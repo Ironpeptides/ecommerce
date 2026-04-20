@@ -11,6 +11,7 @@ import useUser from '../../hooks/useUser';
 import useLocationTracking from '../../hooks/useLocationTracking';
 import useDeviceTracking from '../../hooks/useDeviceTracking';
 import { createFetchSlug } from '../../utils/slugify';
+import { useRouter, useSearchParams } from "next/navigation";
 
 // ─── Reusable Options Modal ───────────────────────────────────────────────────
 
@@ -18,6 +19,7 @@ interface ProductOption {
   label: string;
   value: string;
   price?: number;
+  originalVariant: any; // Add this to hold the full object
 }
 
 interface OptionsModalProps {
@@ -40,8 +42,10 @@ const OptionsModal = ({ product, options, onClose, onConfirm }: OptionsModalProp
         {/* Header */}
         <div className='flex items-center justify-between px-5 py-4 border-b border-white/10'>
           <div>
-            <h2 className='text-sm font-semibold text-gray-100 line-clamp-1'>{product?.title}</h2>
-            <p className='text-xs text-emerald-500 mt-0.5'>{product?.shop?.name}</p>
+            {/* Real field: product.name */}
+            <h2 className='text-sm font-semibold text-gray-100 line-clamp-1'>{product?.name}</h2>
+            {/* Real field: product.category?.title (category is now an object) */}
+            <p className='text-xs text-emerald-500 mt-0.5'>{product?.category?.title}</p>
           </div>
           <button
             onClick={onClose}
@@ -103,8 +107,6 @@ const OptionsModal = ({ product, options, onClose, onConfirm }: OptionsModalProp
 
 const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) => {
 
-  console.log("product in card:", product); // Debug log to check product data
-
   const [timeLeft, setTimeLeft] = useState("");
   const [open, setOpen] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
@@ -119,26 +121,59 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
   const cart = useStore((state: any) => state.cart);
   const isInCart = cart.some((item: any) => item.id === product.id);
   const { user } = useUser();
+    const router       = useRouter();
 
-  // Derive options from product data, with a sensible fallback
-  const productOptions: ProductOption[] = product?.options?.length
-    ? product.options
-    : [
-        { label: '10mg  3ml',   value: '10mg-3ml',   price: product?.sale_price },
-        { label: '30mg  3ml',   value: '30mg-3ml',   price: product?.sale_price * 1.5 },
-        { label: '60mg  3ml',   value: '60mg-3ml',   price: product?.sale_price * 2 },
-        { label: '120mg – 10ml', value: '120mg-10ml', price: product?.sale_price * 3.5 },
-      ];
+  // Build options from real variants shape:
+  // variant: { id, name, value, quantity, unit, price, stock, sku, productId }
+  
+
+      const productOptions: ProductOption[] = product?.variants?.length
+  ? product.variants.map((v: any) => ({
+      label: `${v.value}${v.unit ? ' ' + v.unit : ''}`,
+      value: v.id,
+      price: v.price,
+      originalVariant: v, // Pass the whole variant object here
+    }))
+  : [
+      // Fallback (for the fallback, you'll have to mock a variant structure)
+      { 
+        label: '10mg 3ml', 
+        value: '10mg-3ml', 
+        price: product?.salePrice,
+        originalVariant: { value: '10mg', unit: '3ml', price: product?.salePrice } 
+      },
+      { label: '30mg  3ml',    value: '30mg-3ml',    price: product?.salePrice * 1.5
+        , originalVariant: { value: '10mg', unit: '3ml', price: product?.salePrice } 
+       }
+      ,
+      { label: '60mg  3ml',    value: '60mg-3ml',    price: product?.salePrice * 2,
+        originalVariant: { value: '10mg', unit: '3ml', price: product?.salePrice } 
+       },
+      { label: '120mg – 10ml', value: '120mg-10ml',  price: product?.salePrice * 3.5,originalVariant: { value: '10mg', unit: '3ml', price: product?.salePrice }  },
+      
+    ];
 
   const handleOptionConfirm = (selected: ProductOption) => {
-    addToCart(
-      { ...product, quantity: 1, selectedOption: selected, sale_price: selected.price ?? product.sale_price },
-      user, location, deviceInfo
-    );
-    setOptionsOpen(false);
-  };
+  addToCart(
+    { 
+      ...product, 
+      quantity: 1, 
+      // Instead of just 'selected', pass the structured variant details
+      selectedVariant: {
+        id: selected.value,
+        ...selected.originalVariant
+      },
+      salePrice: selected.price ?? product.salePrice 
+    },
+    user, 
+    location, 
+    deviceInfo
+  );
+  setOptionsOpen(false);
+};
 
   useEffect(() => {
+   
     if (isEvent && product?.ending_date) {
       const calc = () => {
         const diff = new Date(product.ending_date).getTime() - Date.now();
@@ -154,6 +189,9 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
     }
   }, [isEvent, product?.ending_date]);
 
+  
+  const isLowStock = product?.stock <= (product?.lowStock ?? 5);
+
   return (
     <>
       <div className='group w-full bg-white/5 border border-white/10 rounded-xl overflow-hidden relative transition-all duration-300 hover:border-emerald-500/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.5)]'>
@@ -165,17 +203,27 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
               Special Offer
             </div>
           )}
-          {product?.stock <= 5 && (
+        
+          {isLowStock && (
             <div className='bg-amber-500/10 border border-amber-500/50 text-amber-500 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider backdrop-blur-md'>
               Limited Stock
             </div>
           )}
+         
+          {product?.isFeatured && !isEvent && (
+            <div className='bg-purple-600/20 border border-purple-500/40 text-purple-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider backdrop-blur-md'>
+              Featured
+            </div>
+          )}
         </div>
 
-        {/* Action Icons — now includes cart */}
+        {/* Action Icons */}
         <div className='absolute z-20 flex flex-col gap-2 right-3 top-3 translate-x-10 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300'>
           <button
-            onClick={() => isWishlisted ? removeFromWishList(product.id, user, location, deviceInfo) : addToWishList({ ...product, quantity: 1 }, user, location, deviceInfo)}
+            onClick={() => isWishlisted
+              ? removeFromWishList(product.id, user, location, deviceInfo)
+              : addToWishList({ ...product, quantity: 1 }, user, location, deviceInfo)
+            }
             className='bg-black/60 backdrop-blur-md border border-white/10 rounded-full p-2 text-white hover:bg-emerald-600 transition-colors shadow-xl'
             title='Wishlist'
           >
@@ -190,7 +238,6 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
             <Eye size={18} />
           </button>
 
-          {/* ← New cart icon */}
           <button
             onClick={() => !isInCart && addToCart({ ...product, quantity: 1 }, user, location, deviceInfo)}
             disabled={isInCart}
@@ -205,14 +252,15 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
           </button>
         </div>
 
-        {/* Image */}
+        {/* Image — slug unchanged, no shop relation so slug-only link */}
         <Link
-          href={`/product/${createFetchSlug(product?.shop?.name || '', product?.slug || '')}`}
+          href={`/product/${product?.slug || ''}`}
           className='block relative aspect-square overflow-hidden bg-[#121214]'
         >
           <Image
-            src={product?.images[0]?.url || ""}
-            alt={product?.title}
+            src={product?.images?.[0]?.url || ""}
+          
+            alt={product?.name || "Product image"}
             fill
             className='object-cover transition-transform duration-500 group-hover:scale-110 opacity-90 group-hover:opacity-100'
           />
@@ -220,27 +268,31 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
 
         {/* Content */}
         <div className='p-4 space-y-2'>
-          <Link
-            href={`/shop/${product?.shop?.id}`}
-            className='text-emerald-500 text-[11px] uppercase font-bold tracking-widest hover:text-emerald-400 transition-colors'
-          >
-            {product?.shop?.name}
-          </Link>
 
-          <Link href={`/product/${createFetchSlug(product?.shop?.name || '', product?.slug || '')}`}>
+          <p className='text-emerald-500 text-[11px] uppercase font-bold tracking-widest'>
+            {product?.category?.title ?? "Uncategorized"}
+          </p>
+
+          <Link href={`/product/${product?.slug || ''}`}>
             <h3 className='text-sm font-medium text-gray-100 line-clamp-1 group-hover:text-emerald-400 transition-colors'>
-              {product?.title}
+             
+              {product?.name}
             </h3>
           </Link>
-
           <div className='flex items-center gap-1 opacity-80 scale-90 origin-left'>
-            <Ratings rating={product?.ratings} />
+            <Ratings
+  rating={
+    product?.reviews?.length
+      ? product.reviews.reduce((sum: number, r: any) => sum + (r.rating ?? 0), 0) / product.reviews.length
+      : 0
+  }
+/>
           </div>
 
           <div className='flex justify-between items-end pt-2 border-t border-white/5'>
             <div className='flex flex-col'>
-              <span className='text-xs text-gray-500 line-through'>${product?.regular_price}</span>
-              <span className='text-lg font-bold text-white'>${product?.sale_price}</span>
+              <span className='text-xs text-gray-500 line-through'>${product?.price?.toFixed(2)}</span>
+              <span className='text-lg font-bold text-white'>${product?.salePrice?.toFixed(2)}</span>
             </div>
 
             <button
@@ -256,14 +308,14 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
               {isInCart ? 'In Cart' : 'Add'}
             </button>
           </div>
-
-          {/* ← Select option button */}
-          <button
-            onClick={() => setOptionsOpen(true)}
-            className='w-full mt-1 py-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-bold uppercase tracking-wider hover:bg-emerald-500/20 transition-colors'
-          >
-            Select option
-          </button>
+          {product?.variants?.length > 0 && (
+            <button
+              onClick={() => setOptionsOpen(true)}
+              className='w-full mt-1 py-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-bold uppercase tracking-wider hover:bg-emerald-500/20 transition-colors'
+            >
+              Select option
+            </button>
+          )}
 
           {isEvent && timeLeft && (
             <div className='mt-2 flex items-center gap-2 py-1.5 px-2 bg-emerald-500/10 rounded-md border border-emerald-500/20'>
@@ -273,12 +325,18 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
               </span>
             </div>
           )}
+
+          {/* Proceed to Checkout Button */}
+          <button 
+          onClick={() => router.push("/cart")}
+          className='w-full mt-2 py-2 rounded-lg bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black shadow-lg shadow-yellow-900/20 active:scale-[0.98]'>
+            Proceed to checkout
+          </button>
         </div>
 
         {open && <ProductDetailsCard data={product} setOpen={setOpen} />}
       </div>
 
-      {/* Options Modal rendered outside the card to avoid z-index clipping */}
       {optionsOpen && (
         <OptionsModal
           product={product}

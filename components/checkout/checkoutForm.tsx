@@ -4,17 +4,28 @@ import React from "react";
 import type { PaymentMethod } from "../../app/checkout/checkoutContent";
 import StripePaymentForm from "../../app/checkout/stripepaymentform";
 import CryptoPaymentForm from "../../app/checkout/cryptopaymentform";
-import "dotenv/config";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
+
+interface PricingConfig {
+  salesTaxRate: number;
+  creditCardFee: number;
+  cryptoDiscount: number;
+  subDiscount: number;
+  shippingCost: number;
+  freeShippingMin: number;
+}
 
 interface CheckoutFormProps {
   clientSecret: string;
   cartItems: any[];
   coupon: any;
   sessionId: string | null;
+  orderId: string | null;
   paymentMethod: PaymentMethod;
   isSubscriber: boolean;
+  pricingConfig: PricingConfig | null;
+  onSwitchToCrypto?: () => void;
 }
 
 const CheckoutForm = ({
@@ -24,8 +35,12 @@ const CheckoutForm = ({
   sessionId,
   paymentMethod,
   isSubscriber,
+  pricingConfig,
+  onSwitchToCrypto,
 }: CheckoutFormProps) => {
-  const sharedProps = { cartItems, coupon, sessionId, isSubscriber };
+  const sharedProps = { cartItems, coupon, sessionId, isSubscriber, pricingConfig };
+
+  console.log("Shared Props:", sharedProps);
 
   if (paymentMethod === "stripe") {
     if (!clientSecret) {
@@ -52,12 +67,15 @@ const CheckoutForm = ({
           },
         }}
       >
-        <StripePaymentForm clientSecret={clientSecret} {...sharedProps} />
+        <StripePaymentForm
+          clientSecret={clientSecret}
+          onSwitchToCrypto={onSwitchToCrypto}
+          {...sharedProps}
+        />
       </Elements>
     );
   }
 
-  // Crypto — zero Stripe involvement
   return <CryptoPaymentForm {...sharedProps} />;
 };
 

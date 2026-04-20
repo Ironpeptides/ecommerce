@@ -8,6 +8,7 @@ declare module "next-auth" {
       id: string;
       firstName?: string;
       lastName?: string;
+      subscriptionStatus?: string;
       phone?: string;
       roles?: Role[];
       orgId?: string;
@@ -23,6 +24,7 @@ declare module "next-auth" {
     orgId?: string;
     orgName?: string | null;
     lastName?: string;
+    subscriptionStatus?: string;
     phone?: string;
     role?: string;
     roles?: Role[];
@@ -38,6 +40,7 @@ declare module "next-auth/jwt" {
     id: string;
     firstName?: string;
     lastName?: string;
+    subscriptionStatus?: string;
     role?: string;
     phone?: string;
     roles?: Role[];

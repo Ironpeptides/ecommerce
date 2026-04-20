@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Hero from '@/components/hero'
 import SectionTitle from '@/components/section/section-title'
 import ProductCard from '../../components/cards/product-card'
@@ -8,91 +8,45 @@ import ShopCard from '../../components/cards/shop.card';
 import TrustBar from '@/components/frontend/trust-bar';
 import { getProducts, getProductVariants, getProductBatches, getProductCategories } from "@/actions/products"; // Adjust import path as needed
 import { getTopShops } from "@/actions/shops";
-import { getEvents } from "@/actions/events";
+import { getEvents } from "@/actions/events"; 
+const page = ({ orgId }: { orgId?: string }) => {
 
-
-// Skeleton Loader Component
-const SkeletonCard = () => (
-  <div className="group relative rounded-2xl border border-white/5 bg-white/[0.02] overflow-hidden animate-pulse">
-    <div className="aspect-square bg-white/5" />
-    <div className="p-4 space-y-3">
-      <div className="h-4 bg-white/5 rounded w-3/4" />
-      <div className="h-3 bg-white/5 rounded w-1/2" />
-      <div className="h-4 bg-white/5 rounded w-1/4" />
-    </div>
-  </div>
-);
-
-const SkeletonGrid = ({ count = 5 }: { count?: number }) => (
-  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-    {[...Array(count)].map((_, i) => (
-      <SkeletonCard key={i} />
-    ))}
-  </div>
-);
-
-// Error State Component
-const ErrorState = ({ message, onRetry }: { message: string; onRetry?: () => void }) => (
-  <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-    <div className="text-red-400/80 mb-3">
-      <svg className="w-12 h-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-      </svg>
-    </div>
-    <p className="text-zinc-400 text-sm">{message}</p>
-    {onRetry && (
-      <button 
-        onClick={onRetry}
-        className="mt-4 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-sm text-zinc-300"
-      >
-        Try Again
-      </button>
-    )}
-  </div>
-);
-
-const Page = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [latestProducts, setLatestProducts] = useState<any[]>([]);
   const [shops, setShops] = useState<any[]>([]);
   const [offers, setOffers] = useState<any[]>([]);
-  
   const [loading, setLoading] = useState({
     products: true,
     latest: true,
     shops: true,
-    offers: true
+    offers: true,
   });
-  
-  const [error, setError] = useState({
-    products: null as string | null,
-    latest: null as string | null,
-    shops: null as string | null,
-    offers: null as string | null
+  const [error, setError] = useState<{ products: string | null; latest: string | null; shops: string | null; offers: string | null }>({
+    products: null,
+    latest: null,
+    shops: null,
+    offers: null,
   });
 
-  const orgId = process.env.NEXT_PUBLIC_ORG_ID || 'default-org-id'; // Adjust as needed
-
-  // Fetch products with variants, batches, and categories
+  // Fetch suggested products
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(prev => ({ ...prev, products: true }));
         const [productsData, variantsData, batchesData, categoriesData] = await Promise.all([
-          getProducts(orgId).then((res) => res ?? []),
-          getProductVariants(orgId).then((res) => res ?? []),
-          getProductBatches(orgId).then((res) => res ?? []),
-          getProductCategories(orgId).then((res) => res ?? []),
+          getProducts(orgId).then((res: any) => res ?? []),
+          getProductVariants(orgId).then((res: any) => res ?? []),
+          getProductBatches(orgId).then((res: any) => res ?? []),
+          getProductCategories(orgId).then((res: any) => res ?? []),
         ]);
-        
-        // Enrich products with variants, batches, and categories
+
         const enrichedProducts = productsData.map((product: any) => ({
           ...product,
           variants: variantsData.filter((v: any) => v.productId === product.id),
           batches: batchesData.filter((b: any) => b.productId === product.id),
           category: categoriesData.find((c: any) => c.id === product.categoryId),
         }));
-        
+
         setProducts(enrichedProducts);
         setError(prev => ({ ...prev, products: null }));
       } catch (err) {
@@ -111,20 +65,15 @@ const Page = () => {
     const fetchLatestProducts = async () => {
       try {
         setLoading(prev => ({ ...prev, latest: true }));
-        // Assuming you have a getLatestProducts function
-        // If not, you can filter products by date
-        const allProducts = await getProducts(orgId).then((res) => res ?? []);
+        const allProducts = await getProducts(orgId).then((res: any) => res ?? []);
         const latest = allProducts
           .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
           .slice(0, 8);
-        
         setLatestProducts(latest);
         setError(prev => ({ ...prev, latest: null }));
       } catch (err) {
         console.error('Error fetching latest products:', err);
         setError(prev => ({ ...prev, latest: 'Failed to load latest products' }));
-        // Keep static fallback
-        
       } finally {
         setLoading(prev => ({ ...prev, latest: false }));
       }
@@ -138,7 +87,7 @@ const Page = () => {
     const fetchShops = async () => {
       try {
         setLoading(prev => ({ ...prev, shops: true }));
-        const shopsData = await getTopShops(orgId).then((res) => res ?? []);
+        const shopsData = await getTopShops(orgId).then((res: any) => res ?? []);
         setShops(shopsData);
         setError(prev => ({ ...prev, shops: null }));
       } catch (err) {
@@ -157,13 +106,12 @@ const Page = () => {
     const fetchOffers = async () => {
       try {
         setLoading(prev => ({ ...prev, offers: true }));
-        const eventsData = await getEvents(orgId).then((res) => res ?? []);
+        const eventsData = await getEvents(orgId).then((res: any) => res ?? []);
         setOffers(eventsData);
         setError(prev => ({ ...prev, offers: null }));
       } catch (err) {
         console.error('Error fetching offers:', err);
         setError(prev => ({ ...prev, offers: 'Failed to load offers' }));
-        
       } finally {
         setLoading(prev => ({ ...prev, offers: false }));
       }
@@ -175,23 +123,20 @@ const Page = () => {
   // Retry handlers
   const retryProducts = () => {
     setLoading(prev => ({ ...prev, products: true }));
-    // Re-run the fetch effect by forcing re-fetch
     const fetchProducts = async () => {
       try {
         const [productsData, variantsData, batchesData, categoriesData] = await Promise.all([
-          getProducts(orgId).then((res) => res ?? []),
-          getProductVariants(orgId).then((res) => res ?? []),
-          getProductBatches(orgId).then((res) => res ?? []),
-          getProductCategories(orgId).then((res) => res ?? []),
+          getProducts(orgId).then((res: any) => res ?? []),
+          getProductVariants(orgId).then((res: any) => res ?? []),
+          getProductBatches(orgId).then((res: any) => res ?? []),
+          getProductCategories(orgId).then((res: any) => res ?? []),
         ]);
-        
         const enrichedProducts = productsData.map((product: any) => ({
           ...product,
           variants: variantsData.filter((v: any) => v.productId === product.id),
           batches: batchesData.filter((b: any) => b.productId === product.id),
           category: categoriesData.find((c: any) => c.id === product.categoryId),
         }));
-        
         setProducts(enrichedProducts);
         setError(prev => ({ ...prev, products: null }));
       } catch (err) {
@@ -207,8 +152,8 @@ const Page = () => {
     setLoading(prev => ({ ...prev, shops: true }));
     const fetchShops = async () => {
       try {
-        const shopsData = await getTopShops(orgId).then((res) => res ?? []);
-        setShops( shopsData);
+        const shopsData = await getTopShops(orgId).then((res: any) => res ?? []);
+        setShops(shopsData);
         setError(prev => ({ ...prev, shops: null }));
       } catch (err) {
         setError(prev => ({ ...prev, shops: 'Failed to load shops' }));
@@ -219,13 +164,7 @@ const Page = () => {
     fetchShops();
   };
 
-  // Smooth scroll handler
-  const handleViewAll = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
+  
 
   return (
     <main className="min-h-screen text-white">
@@ -233,35 +172,36 @@ const Page = () => {
       <TrustBar />
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16 space-y-24">
+
         {/* ── Suggested Products ── */}
-        <section aria-label="Suggested Products" id="suggested-products">
+        <section aria-label="Suggested Products">
           <div className="flex items-center justify-between mb-8">
             <SectionTitle title="Suggested for Your Research" />
-            <button 
-              onClick={() => handleViewAll('suggested-products')}
-              className="text-emerald-400 text-sm font-medium hover:text-emerald-300 transition-all duration-200 hover:translate-x-0.5 group flex items-center gap-1"
-            >
-              View All 
-              <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
+            <button className="text-emerald-400 text-sm font-medium hover:text-emerald-300 transition-colors">
+              View All →
             </button>
           </div>
 
           {loading.products ? (
-            <SkeletonGrid count={5} />
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-64 bg-white/5 animate-pulse rounded-2xl border border-white/5" />
+              ))}
+            </div>
           ) : error.products ? (
-            <ErrorState message={error.products} onRetry={retryProducts} />
-          ) : products?.length === 0 ? (
-            <div className="text-center py-12 text-zinc-500">No products available at the moment.</div>
+            <div className="flex flex-col items-center gap-3 py-12 text-zinc-500">
+              <p>{error.products}</p>
+              <button
+                onClick={retryProducts}
+                className="text-emerald-400 text-sm hover:text-emerald-300 transition-colors"
+              >
+                Try again
+              </button>
+            </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-              {products?.map((product: any, index: number) => (
-                <div 
-                  key={product.id || index} 
-                  className="animate-fadeInUp"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <ProductCard product={product} />
-                </div>
+              {products?.map((product: any) => (
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           )}
@@ -271,25 +211,20 @@ const Page = () => {
         <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
         {/* ── Latest Arrivals ── */}
-        <section aria-label="Latest Arrivals" id="latest-arrivals">
+        <section aria-label="Latest Arrivals">
           <div className="mb-8">
             <SectionTitle title="Latest Arrivals" />
           </div>
-          
           {loading.latest ? (
-            <SkeletonGrid count={4} />
-          ) : error.latest ? (
-            <ErrorState message={error.latest} />
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-64 bg-white/5 animate-pulse rounded-2xl border border-white/5" />
+              ))}
+            </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-              {latestProducts?.map((product: any, index: number) => (
-                <div 
-                  key={product.id || index} 
-                  className="animate-fadeInUp"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <ProductCard product={product} />
-                </div>
+              {latestProducts?.map((product: any) => (
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           )}
@@ -298,7 +233,7 @@ const Page = () => {
         {/* ── Partner Labs ── */}
         <section
           aria-label="Trusted Partners"
-          className="relative rounded-3xl border border-white/10 p-8 md:p-12 overflow-hidden transition-all duration-300 hover:border-white/20"
+          className="relative rounded-3xl border border-white/10 p-8 md:p-12 overflow-hidden"
           style={{
             background: "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)",
             boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
@@ -316,28 +251,30 @@ const Page = () => {
           {loading.shops ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-32 bg-white/5 animate-pulse rounded-2xl" />
+                <div key={i} className="h-32 bg-white/5 animate-pulse rounded-2xl border border-white/5" />
               ))}
             </div>
           ) : error.shops ? (
-            <ErrorState message={error.shops} onRetry={retryShops} />
+            <div className="flex flex-col items-center gap-3 py-8 text-zinc-500">
+              <p>{error.shops}</p>
+              <button
+                onClick={retryShops}
+                className="text-emerald-400 text-sm hover:text-emerald-300 transition-colors"
+              >
+                Try again
+              </button>
+            </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-              {shops?.map((shop: any, index: number) => (
-                <div 
-                  key={shop.id || index} 
-                  className="animate-fadeInUp"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <ShopCard shop={shop} />
-                </div>
+              {shops?.map((shop: any) => (
+                <ShopCard key={shop.id} shop={shop} />
               ))}
             </div>
           )}
         </section>
 
         {/* ── Offers ── */}
-        <section aria-label="Limited Time Offers" id="offers">
+        <section aria-label="Limited Time Offers">
           <div className="flex items-center gap-4 mb-10">
             <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
             <div className="flex items-center gap-2">
@@ -351,47 +288,25 @@ const Page = () => {
           </div>
 
           {loading.offers ? (
-            <SkeletonGrid count={4} />
-          ) : error.offers ? (
-            <ErrorState message={error.offers} />
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-64 bg-white/5 animate-pulse rounded-2xl border border-white/5" />
+              ))}
+            </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-              {offers?.map((product: any, index: number) => (
-                <div 
-                  key={product.id || index} 
-                  className="animate-fadeInUp"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <ProductCard product={product} isEvent={true} />
-                </div>
+              {offers?.map((product: any) => (
+                <ProductCard key={product.id} product={product} isEvent={true} />
               ))}
             </div>
           )}
         </section>
+
       </div>
 
       <div className="pb-20" />
-
-      {/* Animation styles */}
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .animate-fadeInUp {
-          animation: fadeInUp 0.5s ease-out forwards;
-          opacity: 0;
-        }
-      `}</style>
     </main>
   );
 }
 
-export default Page;
+export default page;

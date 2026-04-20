@@ -69,7 +69,7 @@ export default function LoginForm() {
           <div className="grid gap-2  mt-10 md:mt-0">
             <h1 className="text-3xl font-bold">Login to your Account</h1>
             <p className="text-muted-foreground text-sm">
-              Welcome Back to <span className="text-blue-600">Next Admin</span>
+              Welcome Back to <span className="text-blue-600">IronPeptides</span>
             </p>
           </div>
           <div className="">

@@ -1,6 +1,9 @@
 // import {useQuery} from "@tanstack/react-query";
 // import axiosInstance from "../utils/axiosinstance";
 
+import { useSession } from "next-auth/react";
+
+
 // --- Static User Data ---
 const staticUser = {
     id: 1,
@@ -29,7 +32,9 @@ const useUser = ()=>{
     //     retry: 1,
     // });
 
-    const user = staticUser;
+    const { data: session } = useSession();
+
+    const user = session?.user;
     const isLoading = false;
     const isError = false;
     const refetch = () => {};
