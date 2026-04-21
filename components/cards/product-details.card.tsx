@@ -76,7 +76,7 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
   const handleCheckout = () => {
     handleAddToCart();
     setOpen(false);
-    router.push('/checkout');
+    router.push('/cart');
   };
 
   return (

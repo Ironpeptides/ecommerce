@@ -4,6 +4,7 @@ import React from "react";
 import type { PaymentMethod } from "../../app/checkout/checkoutContent";
 import StripePaymentForm from "../../app/checkout/stripepaymentform";
 import CryptoPaymentForm from "../../app/checkout/cryptopaymentform";
+import ManualPaymentForm from "../../app/checkout/manualpaymentform"
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
@@ -38,45 +39,41 @@ const CheckoutForm = ({
   pricingConfig,
   onSwitchToCrypto,
 }: CheckoutFormProps) => {
-  const sharedProps = { cartItems, coupon, sessionId, isSubscriber, pricingConfig };
+  const sharedProps = { cartItems, coupon, sessionId, isSubscriber, pricingConfig, paymentMethod };
 
-  console.log("Shared Props:", sharedProps);
 
+
+  const manualProps = {
+    cartItems: cartItems,
+    coupon: coupon,
+    isSubscriber: isSubscriber,
+    pricingConfig: pricingConfig,
+    paymentMethod: paymentMethod
+  };
+
+  // 1. Stripe Logic
   if (paymentMethod === "stripe") {
     if (!clientSecret) {
-      return (
-        <div className="flex justify-center items-center py-10">
-          <p className="text-gray-400 text-sm">Preparing card payment...</p>
-        </div>
-      );
+      return <div className="py-10 text-center text-gray-400">Preparing card payment...</div>;
     }
-
     return (
-      <Elements
-        stripe={stripePromise}
-        options={{
-          clientSecret,
-          appearance: {
-            theme: "night",
-            variables: {
-              colorPrimary: "#7c3aed",
-              colorBackground: "#0a0a0c",
-              colorText: "#f3f4f6",
-              fontFamily: "system-ui, sans-serif",
-            },
-          },
-        }}
-      >
-        <StripePaymentForm
-          clientSecret={clientSecret}
-          onSwitchToCrypto={onSwitchToCrypto}
-          {...sharedProps}
+      <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: "night" } }}>
+        <StripePaymentForm 
+          clientSecret={clientSecret} 
+          onSwitchToCrypto={onSwitchToCrypto} 
+          {...sharedProps} 
         />
       </Elements>
     );
   }
 
-  return <CryptoPaymentForm {...sharedProps} />;
+  // 2. Automated Crypto (Cryptomus)
+  if (paymentMethod === "crypto") {
+    return <CryptoPaymentForm {...sharedProps} />;
+  }
+
+  // 3. Manual Methods (Venmo, Manual Crypto, etc.)
+  return <ManualPaymentForm {...manualProps} />;
 };
 
 export default CheckoutForm;

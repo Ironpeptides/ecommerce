@@ -4,6 +4,12 @@ import {
 } from "lucide-react";
 import React, { useState } from "react";
 
+import useUser from '../../hooks/useUser';
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+
+
 const fmt = (n: number) => `$${n.toFixed(2)}`;
 
 interface PricingConfig {
@@ -64,12 +70,20 @@ const CryptoPaymentForm = ({
   pricingConfig,
 }: CryptoPaymentFormProps) => {
   const [loading,          setLoading]          = useState(false);
+  const [manualLoading,    setManualLoading]    = useState(false);
   const [errorMsg,         setErrorMsg]         = useState<string | null>(null);
   const [cryptoInvoice,    setCryptoInvoice]    = useState<CryptoInvoice | null>(null);
   const [copied,           setCopied]           = useState(false);
   const [showHowTo,        setShowHowTo]        = useState(false);
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
   const [confirming,       setConfirming]       = useState(false);
+
+ const searchParams = useSearchParams();
+ const orderId = searchParams.get("orderId");
+
+  const { user } = useUser();
+
+  const router = useRouter();
 
   // Helper function to get the correct price for an item
   const getItemPrice = (item: any) => {
@@ -109,7 +123,7 @@ const CryptoPaymentForm = ({
     shippingCost,
     freeShippingMin,
     creditCardFee,
-    cryptoWalletAddress = "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0", // Default example address
+    cryptoWalletAddress = "bc1qzrves68udmxxx9245j6pltsjs9rfr43tmp0x8u", // Default example address
   } = pricingConfig;
 
   // ── Price maths with variant support ─────────────────────────────────────
@@ -157,32 +171,47 @@ const CryptoPaymentForm = ({
     }
   };
 
-  const handleConfirmPayment = async () => {
-    setConfirming(true);
+  const handleManualPayment = async (method: string) => {
+    setManualLoading(true);
     setErrorMsg(null);
+    
+    if(!user){
+      toast.error("You must be logged in to submit a manual payment.");
+      setManualLoading(false);
+      return;
+    }
+    
     try {
-      const res = await fetch("/api/order/confirm-crypto-payment", {
+      const response = await fetch("/api/order/manual-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sessionId,
-          orderTotal: grandTotal.toFixed(2),
+          orderId,
+          userId: user.id, 
+          paymentMethod: method, // e.g., "Venmo"
+          sessionData: cartItems, // This is your object array from the prompt
+          couponCode: coupon?.code,
+          isSubscriber,
+          notes: "I have sent the funds via the provided address.",
         }),
       });
-      
-      if (!res.ok) throw new Error("Failed to confirm payment");
-      
-      setPaymentConfirmed(true);
-      // Optionally redirect after confirmation
-      setTimeout(() => {
-        window.location.href = `/payment-success?sessionId=${sessionId}`;
-      }, 2000);
-    } catch {
-      setErrorMsg("Failed to confirm payment. Please contact support.");
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("Notification sent! We will verify your payment shortly.");
+        router.push(`/payment-success?orderId=${data.orderId}`);
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error) {
+      toast.error("Failed to submit payment notification.");
     } finally {
-      setConfirming(false);
+      setManualLoading(false);
     }
   };
+
+
 
   return (
     <div className="flex justify-center items-start px-4 pb-16">
@@ -357,8 +386,8 @@ const CryptoPaymentForm = ({
                   </div>
                   <button
                     onClick={handleGenerateInvoice}
-                    disabled={loading}
-                    className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-500 hover:to-emerald-600 rounded-xl font-bold disabled:opacity-50 transition-all"
+                    disabled={loading || manualLoading}
+                    className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-500 hover:to-emerald-600 rounded-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
                     {loading ? (
                       <><Loader2 className="animate-spin w-4 h-4" /> Creating invoice…</>
@@ -425,12 +454,12 @@ const CryptoPaymentForm = ({
 
                   {!paymentConfirmed ? (
                     <button
-                      onClick={handleConfirmPayment}
-                      disabled={confirming}
-                      className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold rounded-xl transition-all disabled:opacity-50"
+                      onClick={() => handleManualPayment("manual_crypto")}
+                      disabled={manualLoading || loading}
+                      className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {confirming ? (
-                        <><Loader2 className="animate-spin w-4 h-4" /> Confirming…</>
+                      {manualLoading ? (
+                        <><Loader2 className="animate-spin w-4 h-4" /> Processing your request…</>
                       ) : (
                         <>I have paid — Please confirm my order <CheckCircle size={16} /></>
                       )}

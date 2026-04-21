@@ -42,7 +42,9 @@ export default async function Dashboard() {
           ))}
         </div> */}
       </div>
-      <DashboardMain />
+
+      <UnifiedDashboard user={user} />
+      {/* <DashboardMain /> */}
     </main>
   );
 }

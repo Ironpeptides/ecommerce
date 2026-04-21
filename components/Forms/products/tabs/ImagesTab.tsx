@@ -230,7 +230,7 @@ export function ImagesTab({ product }: Props) {
               <UploadDropzone
                 endpoint="productImageUploader"
                 onClientUploadComplete={(res) => {
-                  // FIX: Use 'url' instead of 'ufsUrl'
+                  
                   res.forEach((file) => handleImageUploaded(file.url));
                 }}
                 onUploadError={(err) => {

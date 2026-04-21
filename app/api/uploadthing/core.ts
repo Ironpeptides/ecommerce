@@ -36,6 +36,10 @@ export const ourFileRouter = {
     return { uploadedBy: "JB", url: file.url };
   }),
 
+  paymentProofUploader: f({ image: { maxFileSize: "8MB", maxFileCount: 2 } }).onUploadComplete(async ({ metadata, file }) => {
+      return { url: file.url };
+    }),
+
   fileUploads: f({
     image: { maxFileSize: "1MB", maxFileCount: 4 },
     pdf: { maxFileSize: "1MB", maxFileCount: 4 },

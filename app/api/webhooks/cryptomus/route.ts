@@ -1,8 +1,8 @@
 // app/api/webhooks/cryptomus/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { db } from "@/prisma/db";
+import { sendOrderConfirmationEmails } from "@/lib/mail-service";
 import "dotenv/config";
 
 const CRYPTOMUS_PAYMENT_API_KEY = process.env.CRYPTOMUS_PAYMENT_API_KEY!;
@@ -21,59 +21,60 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
+    // 1. Signature Verification
     if (!verifySign(body, body.sign)) {
       console.error("Cryptomus webhook: Invalid signature");
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
-    const { orderNumber, status, uuid, amount, currency } = body;
+    const { orderId, status, uuid, amount, currency } = body;
 
-    if (!orderNumber) {
-      console.error("Cryptomus webhook: Missing orderNumber");
-      return NextResponse.json({ error: "Missing orderNumber" }, { status: 400 });
+    if (!orderId) {
+      console.error("Cryptomus webhook: Missing orderId");
+      return NextResponse.json({ error: "Missing orderId" }, { status: 400 });
     }
 
-    // Handle successful payment
+    // 2. Handle successful payment
     if (status === "paid" || status === "paid_over") {
       await db.$transaction(async (tx) => {
-        // 1. Find the existing order
+        // Find existing order + include items for the receipt
         const existingOrder = await tx.order.findUnique({
-          where: { orderNumber: orderNumber },
+          where: { id: orderId },
+          include: { items: true },
         });
 
         if (!existingOrder) {
-          console.error(`Cryptomus webhook: Order with orderNumber ${orderNumber} not found`);
+          console.error(`Cryptomus webhook: Order ${orderId} not found`);
           throw new Error("Order not found");
         }
 
-        // 2. Update the Order
+        // Update Order
         const updatedOrder = await tx.order.update({
           where: { id: existingOrder.id },
           data: {
             paymentStatus: "PAID",
             paymentMethod: "cryptomus",
-            // You can store uuid if you want to track it
-            paymentSessionId: uuid || null,        // or add a field like cryptomusUuid if preferred
+            paymentIntentId: uuid, // Store UUID as reference
             buyerPaidAt: new Date(),
-            orderStatus: "CONFIRMED",              // Change to "PROCESSING" if you prefer
-            totalAmount: parseFloat(amount || "0"), // In case it differs slightly
+            orderStatus: "CONFIRMED",
+            totalAmount: parseFloat(amount || "0"),
           },
         });
 
-        // 3. Create Payment record
+        // Create Payment record
         await tx.payment.create({
           data: {
             orderId: updatedOrder.id,
             method: "cryptomus",
             amount: parseFloat(amount || "0"),
             status: "PAID",
-            transactionId: uuid,                    // Cryptomus UUID as transaction reference
+            transactionId: uuid,
             currency: (currency || "USD").toUpperCase(),
             paidAt: new Date(),
           },
         });
 
-        // 4. Add to Order Status History
+        // Add history
         await tx.orderStatusHistory.create({
           data: {
             orderId: updatedOrder.id,
@@ -83,41 +84,67 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        // 5. Clear the user's cart
+        // Clear Cart
         await tx.cart.deleteMany({
           where: { userId: existingOrder.userId },
         });
 
-        console.log(`✅ Cryptomus payment confirmed for order ${updatedOrder.orderNumber} (UUID: ${uuid})`);
+        
+        
+        // Fetch Buyer details
+        const buyer = await tx.user.findUnique({
+          where: { id: existingOrder.userId },
+          select: { email: true, firstName: true }
+        });
+  const admins = await tx.user.findMany({
+  where: { roles: { some: { roleName: "admin" } } },
+  select: { email: true }
+});
+const adminEmails = admins.map(a => a.email);
+
+  // 6. Send Emails
+  if (buyer && adminEmails.length > 0) {
+  await sendOrderConfirmationEmails({
+    buyerEmail: buyer.email,
+    buyerName: buyer.firstName || "Customer",
+    adminEmails: adminEmails, // Passing the array here
+    orderNumber: updatedOrder.orderNumber,
+    totalAmount: updatedOrder.totalAmount,
+    items: existingOrder.items.map(i => ({ 
+      name: i.productName, 
+      quantity: i.quantity, 
+      price: i.price 
+    }))
+  });
+}
+        
+        // --- END NOTIFICATION LOGIC ---
+
+        console.log(`✅ Cryptomus success: ${updatedOrder.orderNumber}`);
       });
     }
 
-    // Handle other statuses (optional but recommended)
+    // 3. Handle failures
     else if (status === "cancel" || status === "fail") {
-      await db.order.update({
-        where: { orderNumber: orderNumber },
+      const updated = await db.order.update({
+        where: { id: orderId },
         data: {
           paymentStatus: "FAILED",
           orderStatus: "CANCELLED",
         },
       });
 
-      // Optional: Add history entry
-      const failedOrder = await db.order.findUnique({ where: { orderNumber: orderNumber } });
-      if (failedOrder) {
-        await db.orderStatusHistory.create({
-          data: {
-            orderId: failedOrder.id,
-            status: "CANCELLED",
-            note: `Cryptomus payment ${status} (UUID: ${uuid})`,
-          },
-        });
-      }
+      await db.orderStatusHistory.create({
+        data: {
+          orderId: updated.id,
+          status: "CANCELLED",
+          note: `Cryptomus payment ${status} (UUID: ${uuid})`,
+        },
+      });
 
-      console.log(`❌ Cryptomus payment ${status} for order ${orderNumber}`);
+      console.log(`❌ Cryptomus ${status}: ${orderId}`);
     }
 
-    // Cryptomus requires 200 response
     return NextResponse.json({ ok: true });
   } catch (err: any) {
     console.error("Cryptomus webhook error:", err);

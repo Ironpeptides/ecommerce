@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { stripe } from "../../order/create-payment-intent/route"; 
 import { db } from "@/prisma/db";
+import { sendOrderConfirmationEmails } from "@/lib/mail-service";
 
 export async function POST(req: NextRequest) {
   try {
@@ -49,87 +50,93 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Missing required metadata: userId" }, { status: 400 });
       }
 
-      if (!orderId && !orderNumber) {
-        console.error("Missing required metadata: orderId or orderNumber");
+      if (!orderId) {
+        console.error("Missing required metadata: orderId");
         return NextResponse.json(
-          { error: "Missing required metadata: orderId or orderNumber" },
+          { error: "Missing required metadata: orderId" },
           { status: 400 }
         );
       }
 
       // Use a transaction to keep everything atomic
       await db.$transaction(async (tx) => {
-        // 1. Find the existing order — try orderId first, fall back to orderNumber
-        const existingOrder = await (async () => {
-          if (orderId) {
-            return tx.order.findUnique({
-              where: { id: orderId },
-              include: { items: true },
-            });
-          }
-          return tx.order.findUnique({
-            where: { orderNumber },
-            include: { items: true },
-          });
-        })();
+  // 1. Find Order (existing logic)
+  const existingOrder = await tx.order.findUnique({
+    where: { id: orderId },
+    include: { items: true },
+  });
 
-        if (!existingOrder) {
-          const identifier = orderId ? `id=${orderId}` : `orderNumber=${orderNumber}`;
-          console.error(`Order not found: ${identifier}`);
-          throw new Error("Order not found");
-        }
+  if (!existingOrder) throw new Error("Order not found");
 
-        // 2. Update the main Order
-        const updatedOrder = await tx.order.update({
-          where: { id: existingOrder.id },
-          data: {
-            paymentStatus: "PAID",
-            paymentMethod: "stripe",
-            paymentIntentId: paymentIntent.id,
-            buyerPaidAt: new Date(),
-            orderStatus: "CONFIRMED",           
-            subtotal: parseFloat(subtotal || "0"),
-            shippingFee: shippingFee ? parseFloat(shippingFee) : existingOrder.shippingFee,
-            taxAmount: taxAmount ? parseFloat(taxAmount) : existingOrder.taxAmount,
-            discountAmount: discountAmount ? parseFloat(discountAmount) : existingOrder.discountAmount,
-            totalAmount: paymentIntent.amount / 100, // Stripe sends amount in cents
-            couponCode: couponCode || null,
-            notes: notes || existingOrder.notes,
-          },
+  // 2. Update Order & Status (existing logic)
+  const updatedOrder = await tx.order.update({
+    where: { id: existingOrder.id },
+    data: {
+      paymentStatus: "PAID",
+      paymentMethod: "stripe",
+      paymentIntentId: paymentIntent.id,
+      buyerPaidAt: new Date(),
+      orderStatus: "CONFIRMED",
+      totalAmount: paymentIntent.amount / 100,
+    },
+  });
+
+  // 3. Clear Cart
+  await tx.cart.deleteMany({ where: { userId } });
+
+  // 4. Create Audit Logs (Payment & History)
+  await tx.payment.create({
+    data: {
+      orderId: updatedOrder.id,
+      method: "stripe",
+      amount: paymentIntent.amount / 100,
+      status: "PAID",
+      transactionId: paymentIntent.id,
+      currency: paymentIntent.currency.toUpperCase(),
+      paidAt: new Date(),
+    },
+  });
+
+  await tx.orderStatusHistory.create({
+    data: {
+      orderId: updatedOrder.id,
+      status: "CONFIRMED",
+      note: "Payment succeeded via Stripe",
+      changedBy: userId,
+    },
+  });
+
+
+  // 5. Fetch Buyer and Admin
+  const buyer = await tx.user.findUnique({
+          where: { id: existingOrder.userId },
+          select: { email: true, firstName: true }
         });
+  const admins = await tx.user.findMany({
+  where: { roles: { some: { roleName: "admin" } } },
+  select: { email: true }
+});
+const adminEmails = admins.map(a => a.email);
 
-        // 3. Create Payment record for audit
-        await tx.payment.create({
-          data: {
-            orderId: updatedOrder.id,
-            method: "stripe",
-            amount: paymentIntent.amount / 100,
-            status: "PAID",
-            transactionId: paymentIntent.id,
-            currency: paymentIntent.currency.toUpperCase(),
-            paidAt: new Date(),
-          },
-        });
-
-        // 4. Add to status history
-        await tx.orderStatusHistory.create({
-          data: {
-            orderId: updatedOrder.id,
-            status: "CONFIRMED",
-            note: "Payment succeeded via Stripe",
-            changedBy: userId,
-          },
-        });
-
-        // 5. Clear the user's cart
-        await tx.cart.deleteMany({
-          where: { userId },
-        });
-
-        console.log(`Order ${updatedOrder.orderNumber} payment confirmed successfully`);
-      });
+  // 6. Send Emails
+  if (buyer && adminEmails.length > 0) {
+  await sendOrderConfirmationEmails({
+    buyerEmail: buyer.email,
+    buyerName: buyer.firstName || "Customer",
+    adminEmails: adminEmails, // Passing the array here
+    orderNumber: updatedOrder.orderNumber,
+    totalAmount: updatedOrder.totalAmount,
+    items: existingOrder.items.map(i => ({ 
+      name: i.productName, 
+      quantity: i.quantity, 
+      price: i.price 
+    }))
+  });
+}
+});
     }
 
+    
     // ─── Handle failed payment ─────────────────────────────────────────────
     if (event.type === "payment_intent.payment_failed") {
       const paymentIntent = event.data.object as Stripe.PaymentIntent;

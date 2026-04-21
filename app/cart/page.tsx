@@ -307,7 +307,7 @@ const CartPage = () => {
         toast.success("Order placed successfully!");
 
         if (paymentMethod === 'cod') {
-            router.push(`/order-confirmation?orderId=${createdOrder.id}`);
+            router.push(`/payment-success?orderId=${createdOrder.id}`);
         } else {
             // Pass both — sessionId is what you verify, orderId ties to the record
             router.push(`/checkout?orderId=${createdOrder.id}&sessionId=${sessionId}`);
