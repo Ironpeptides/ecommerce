@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/prisma/db";
 
 
-export async function POST_WISHLIST(req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
     const { userId, productId } = await req.json();
  

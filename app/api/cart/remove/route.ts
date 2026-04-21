@@ -4,7 +4,7 @@ import { db } from "@/prisma/db";
 
 
 
-export async function DELETE_CART(req: NextRequest) {
+export async function DELETE(req: NextRequest) {
   try {
     const { userId, productId } = await req.json();
  
