@@ -27,12 +27,21 @@ export default async function EditProductPage({
 }: {
  params: Promise<{ slug: string }> | { slug: string };
 }) {
-    const { slug } = await params;
+  const { slug } = await params;
 
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  console.log("product",product )
+  // Transform the product data to ensure certificates is always an array
+  const transformedProduct = {
+    ...product,
+    // If certificates is null or an object, convert to array
+    certificates: product.certificates 
+      ? (Array.isArray(product.certificates) ? product.certificates : [product.certificates])
+      : [],
+  };
+
+  console.log("product", transformedProduct);
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
@@ -79,27 +88,27 @@ export default async function EditProductPage({
         </TabsList>
 
         <TabsContent value="basic">
-          <BasicInfoTab product={product} />
+          <BasicInfoTab product={transformedProduct} />
         </TabsContent>
 
         <TabsContent value="pricing">
-          <PricingTab product={product} />
+          <PricingTab product={transformedProduct} />
         </TabsContent>
 
         <TabsContent value="images">
-          <ImagesTab product={product} />
+          <ImagesTab product={transformedProduct} />
         </TabsContent>
 
         <TabsContent value="variants">
-          <VariantsTab product={product} />
+          <VariantsTab product={transformedProduct} />
         </TabsContent>
 
         <TabsContent value="batches">
-          <BatchesTab product={product} />
+          <BatchesTab product={transformedProduct} />
         </TabsContent>
 
         <TabsContent value="advanced">
-          <AdvancedTab product={product} />
+          <AdvancedTab product={transformedProduct} />
         </TabsContent>
       </Tabs>
     </div>

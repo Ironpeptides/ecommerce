@@ -18,9 +18,17 @@ function revalidateProductPaths(slug?: string, productId?: string) {
 // PRODUCTS
 // ============================================================
 
+function normalizeProduct(p: any) {
+  return {
+    ...p,
+    category: p.category ? { id: p.category.id, name: p.category.title } : null,
+  };
+}
+
+
 export async function getProducts(orgId?: string) {
   try {
-    return await db.product.findMany({
+    const products = await db.product.findMany({
       include: {
         images: { orderBy: { order: "asc" } },
         variants: true,
@@ -31,6 +39,8 @@ export async function getProducts(orgId?: string) {
       },
       orderBy: { createdAt: "desc" },
     });
+
+    return products.map(normalizeProduct);
   } catch (error) {
     console.error("Error fetching products:", error);
     return [];
@@ -464,14 +474,23 @@ export async function deleteProductBatch(batchId: string) {
 // CATEGORIES
 // ============================================================
 
+function normalizeCategory(c: any) {
+  return {
+    ...c,
+    name: c.title,
+  };
+}
+
 export async function getProductCategories(orgId?: string) {
   try {
-    return await db.category.findMany({
+    const categories = await db.category.findMany({
       include: {
         _count: { select: { products: true } },
       },
       orderBy: { createdAt: "asc" },
     });
+
+    return categories.map(normalizeCategory);
   } catch (error) {
     console.error("Error fetching categories:", error);
     return [];
