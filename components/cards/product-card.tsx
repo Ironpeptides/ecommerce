@@ -251,8 +251,6 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
             <ShoppingBag size={18} />
           </button>
         </div>
-
-        {/* Image — slug unchanged, no shop relation so slug-only link */}
         <Link
           href={`/product/${product?.slug || ''}`}
           className='block relative aspect-square overflow-hidden bg-[#121214]'

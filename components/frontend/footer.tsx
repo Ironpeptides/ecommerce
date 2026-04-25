@@ -8,28 +8,27 @@ import Logo from "../global/Logo";
 export default function Footer() {
   const navItems = [
     { label: "Home", href: "/" },
-    { label: "Catalog", href: "/catalog" },
-    { label: "Research Blog", href: "/blog" },
-    { label: "Lab Partners", href: "/partners" },
+    { label: "Catalog", href: "#suggested-products" },
+    /* { label: "Research Blog", href: "/blog" },
+    { label: "Lab Partners", href: "/partners" }, */
     { label: "About Us", href: "/about" },
     { label: "Contact", href: "/contact" },
   ];
 
   const catalogItems = [
-    { label: "Recovery Peptides", href: "/catalog?category=recovery" },
-    { label: "Growth Peptides", href: "/catalog?category=growth" },
+    { label: "Recovery Peptides", href: "#suggested-products" },
+    /* { label: "Growth Peptides", href: "/catalog?category=growth" },
     { label: "Cognitive Peptides", href: "/catalog?category=cognitive" },
     { label: "Longevity & Anti-Aging", href: "/catalog?category=longevity" },
     { label: "Hormonal Support", href: "/catalog?category=hormonal" },
-    { label: "Research Bundles", href: "/catalog?category=bundle" },
+    { label: "Research Bundles", href: "/catalog?category=bundle" }, */
   ];
 
   const complianceItems = [
-    { label: "Privacy Policy", href: "/privacy" },
-    { label: "Terms & Conditions", href: "/terms" },
-    { label: "Shipping Policy", href: "/shipping" },
-    { label: "Refund Policy", href: "/refunds" },
-    { label: "Accessibility", href: "/accessibility" },
+    { label: "Privacy Policy", href: "/legal/privacy-policy" },
+    { label: "Terms & Conditions", href: "/legal/terms-of-service" },
+    { label: "Shipping Policy", href: "/legal/shipping-policy" },
+    { label: "Refund Policy", href: "/legal/refund-policy" },
   ];
 
   const router = useRouter();
@@ -66,7 +65,7 @@ export default function Footer() {
               Talk to an Expert
             </button>
             <ThemeButton
-              href="/catalog"
+              href="/"
               title="Browse Catalog"
             />
           </div>
@@ -171,7 +170,7 @@ export default function Footer() {
                   {[
                     { label: "support@peptidestore.com", href: "mailto:support@peptidestore.com" },
                     { label: "Live Chat (Mon–Fri, 9–5 EST)", href: "/contact" },
-                    { label: "Order Tracking", href: "/tracking" },
+                    /* { label: "Order Tracking", href: "/tracking" }, */
                   ].map((item) => (
                     <li key={item.label}>
                       <Link

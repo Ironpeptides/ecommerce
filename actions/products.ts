@@ -5,6 +5,11 @@ import { db } from "@/prisma/db";
 import { revalidatePath } from "next/cache";
 import { getAuthenticatedUser } from "@/config/useAuth";
 
+interface GetProductBySlugResponse {
+  success: boolean;
+  data?: any;
+  error?: string;
+}
 // ─── helpers ────────────────────────────────────────────────────────────────
 
 function revalidateProductPaths(slug?: string, productId?: string) {
@@ -66,6 +71,10 @@ export async function getProductById(id: string) {
   }
 }
 
+
+
+
+
 export async function getProductBySlug(slug: string) {
   try {
     return await db.product.findUnique({
@@ -82,6 +91,85 @@ export async function getProductBySlug(slug: string) {
   } catch (error) {
     console.error("Error fetching product by slug:", error);
     return null;
+  }
+}
+
+export async function getRelatedProducts(productId: string, categoryId: string | null, limit: number = 4) {
+  try {
+    if (!categoryId) return [];
+    
+    return await db.product.findMany({
+      where: {
+        categoryId: categoryId,
+        id: { not: productId }, // Exclude current product
+      },
+      include: {
+        images: { orderBy: { order: "asc" }, take: 1 }, // Just get first image for display
+        category: true,
+        variants: {
+          take: 1, // Just get first variant for price display
+        },
+      },
+      take: limit,
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching related products:", error);
+    return [];
+  }
+}
+
+// Optional: Get product with transformed types (handles null values)
+export async function getProductWithDefaults(slug: string) {
+  try {
+    const product = await db.product.findUnique({
+      where: { slug },
+      include: {
+        images: { orderBy: { order: "asc" } },
+        variants: true,
+        batches: { orderBy: { manufacturedAt: "desc" } },
+        category: true,
+        certificates: true,
+        reviews: true,
+      },
+    });
+    
+    if (!product) return null;
+    
+    // Transform the product to ensure no null values where you expect strings
+    return {
+      ...product,
+      description: product.description || "",
+      category: product.category ? {
+        ...product.category,
+        description: product.category.description || "",
+        imageUrl: product.category.imageUrl || "",
+      } : null,
+    };
+  } catch (error) {
+    console.error("Error fetching product by slug:", error);
+    return null;
+  }
+}
+// Optional: Helper function to prefetch multiple products
+export async function prefetchProducts(slugs: string[]) {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+                    (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://yourdomain.com');
+    
+    const promises = slugs.map(slug => 
+      fetch(`${baseUrl}/api/products/slug/${slug}`, {
+        next: { revalidate: 60 }
+      })
+    );
+    
+    await Promise.all(promises);
+    return true;
+  } catch (error) {
+    console.error("Error prefetching products:", error);
+    return false;
   }
 }
 

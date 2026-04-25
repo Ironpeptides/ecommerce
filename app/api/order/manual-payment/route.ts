@@ -43,12 +43,32 @@ export async function POST(req: NextRequest) {
         include: { variants: true }
       });
 
-      // 2. Fetch Constants (You can pull these from DB or Env)
-      const salesTaxRate = 0.1; // 10%
-      const shippingCost = 15;
-      const freeShippingMin = 200;
-      const subDiscount = 0.15; // 15%
-      const cryptoDiscount = 0.05; // 5% for paying manual crypto
+      // 2. Fetch Pricing Config from the same source as other components
+      let pricingConfig;
+      try {
+        const configRes = await fetch(
+          `${process.env.NEXT_PUBLIC_APP_URL}/api/checkout/pricing-config`
+        );
+        pricingConfig = configRes.ok
+          ? await configRes.json()
+          : {
+              salesTaxRate: 0.10,
+              cryptoDiscount: 0.15,
+              subDiscount: 0.20,
+              shippingCost: 11.00,
+              freeShippingMin: 200.00,
+            };
+      } catch {
+        pricingConfig = {
+          salesTaxRate: 0.10,
+          cryptoDiscount: 0.15,
+          subDiscount: 0.20,
+          shippingCost: 11.00,
+          freeShippingMin: 200.00,
+        };
+      }
+
+      const { salesTaxRate, cryptoDiscount, subDiscount, shippingCost, freeShippingMin } = pricingConfig;
 
       // 3. Calculate rawSubtotal from DB prices
       let rawSubtotal = 0;
@@ -74,16 +94,23 @@ export async function POST(req: NextRequest) {
       const couponDiscount = coupon?.discountValue ?? 0;
       
       const afterCoupon = Math.max(0, rawSubtotal - couponDiscount);
+      
+      // Apply subscriber discount (subDiscount is already a decimal: 0.20 = 20%)
       const subDiscountAmt = isSubscriber ? afterCoupon * subDiscount : 0;
       const afterSub = afterCoupon - subDiscountAmt;
       
       // Only apply crypto discount if they are actually paying with crypto
+      // cryptoDiscount is already a decimal: 0.15 = 15%
       const isCrypto = paymentMethod.toLowerCase().includes("crypto");
       const cryptoDiscountAmt = isCrypto ? afterSub * cryptoDiscount : 0;
       const afterPaymentAdj = afterSub - cryptoDiscountAmt;
       
+      // Shipping calculation
       const shipping = afterPaymentAdj >= freeShippingMin ? 0 : shippingCost;
+      
+      // Tax calculation (salesTaxRate is already a decimal: 0.10 = 10%)
       const tax = afterPaymentAdj * salesTaxRate;
+      
       const grandTotal = afterPaymentAdj + shipping + tax;
 
       let finalOrder;

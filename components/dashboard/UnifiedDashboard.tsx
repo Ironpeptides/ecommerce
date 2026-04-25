@@ -179,7 +179,7 @@ function getQuickActions(user: AuthenticatedUser): QuickAction[] {
   if (hasPermission(user, "orders.create")) {
     actions.push({
       label: "New Order",
-      href: "/dashboard/orders/new",
+      href: "/",
       icon: ShoppingCart,
       permission: "orders.create",
     });
@@ -188,7 +188,7 @@ function getQuickActions(user: AuthenticatedUser): QuickAction[] {
   if (hasPermission(user, "wishlist.create")) {
     actions.push({
       label: "Add to Wishlist",
-      href: "/dashboard/wishlist",
+      href: "/wishlist",
       icon: Heart,
       permission: "wishlist.create",
     });
@@ -206,7 +206,7 @@ function getQuickActions(user: AuthenticatedUser): QuickAction[] {
   if (hasPermission(user, "support.create")) {
     actions.push({
       label: "Contact Support",
-      href: "/dashboard/support/new",
+      href: "/contact",
       icon: HeadphonesIcon,
       permission: "support.create",
     });

@@ -2,19 +2,24 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import {
-  Bell,
   ChevronDown,
   ChevronRight,
   ExternalLink,
   Plus,
-  Power,
+  ShoppingCart,
+  Heart,
+  Star,
+  Package,
+  User,
+  HeadphonesIcon,
+  ShoppingBag,
+  LayoutGrid,
 } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Logo from "../global/Logo";
@@ -23,30 +28,106 @@ import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import { NotificationMenu } from "../NotificationMenu";
 import { UserDropdownMenu } from "../UserDropdownMenu";
-// import { NotificationMenu } from "../frontend/NotificationMenu";
-// import { Notification } from "@prisma/client";
 
+// ─── Buyer sidebar links (static, permission-free — already scoped by role) ───
+const buyerSidebarLinks: ISidebarLink[] = [
+  {
+    title: "My Orders",
+    href: "/dashboard/orders/buyer",
+    icon: Package,
+    permission: "orders.read",
+    dropdown: false,
+  },
+  {
+    title: "Wishlist",
+    href: "/wishlist",
+    icon: Heart,
+    permission: "wishlist.read",
+    dropdown: false,
+  },
+  {
+    title: "Cart",
+    href: "/cart",
+    icon: ShoppingCart,
+    permission: "cart.read",
+    dropdown: false,
+  },
+  {
+    title: "Checkout",
+    href: "/cart",
+    icon: ShoppingBag,
+    permission: "checkout.read",
+    dropdown: false,
+  },
+  {
+    title: "My Reviews",
+    href: "/dashboard/buyer/reviews",
+    icon: Star,
+    permission: "reviews.read",
+    dropdown: false,
+  },
+  {
+    title: "Support",
+    href: "/contact",
+    icon: HeadphonesIcon,
+    permission: "support.read",
+    dropdown: false,
+  },
+  {
+    title: "Profile",
+    href: "/dashboard/profile",
+    icon: User,
+    permission: "profile.read",
+    dropdown: false,
+  },
+  {
+    title: "Browse Store",
+    href: "/",
+    icon: LayoutGrid,
+    permission: "categories.read",
+    dropdown: false,
+  },
+];
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 interface SidebarProps {
   session: Session;
   notifications?: Notification[];
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/**
+ * Returns true when the signed-in user has the "buyer" role.
+ * Relies on session.user.roles (array) populated by your NextAuth callbacks.
+ */
+function detectBuyer(user: Session["user"]): boolean {
+  // Prefer explicit roles array when available
+  if (Array.isArray((user as any).roles)) {
+    return (user as any).roles.some(
+      (r: { roleName: string }) => r.roleName === "buyer"
+    );
+  }
+  // Fallback: check flat permissions — buyers have "cart.read", staff never do
+  return (user as any).permissions?.includes("cart.read") ?? false;
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 export default function Sidebar({ session, notifications = [] }: SidebarProps) {
   const router = useRouter();
-  const [openDropdownIndex, setOpenDropdownIndex] = useState<number | null>(
-    null
-  );
+  const [openDropdownIndex, setOpenDropdownIndex] = useState<number | null>(null);
   const pathname = usePathname();
   const user = session.user;
 
-  // Helper function to check if user has permission
-  const hasPermission = (permission: string): boolean => {
-    return user.permissions?.includes(permission) ?? false;
-  };
+  // ── Role detection ──────────────────────────────────────────────────────────
+  const isBuyer = detectBuyer(user);
 
-  // Filter sidebar links based on permissions
-  const filterSidebarLinks = (links: ISidebarLink[]): ISidebarLink[] => {
-    return links
+  // ── Permission helpers (staff only) ────────────────────────────────────────
+  const hasPermission = (permission: string): boolean =>
+    (user as any).permissions?.includes(permission) ?? false;
+
+  const filterSidebarLinks = (links: ISidebarLink[]): ISidebarLink[] =>
+    links
       .filter((link) => hasPermission(link.permission))
       .map((link) => ({
         ...link,
@@ -58,9 +139,11 @@ export default function Sidebar({ session, notifications = [] }: SidebarProps) {
         (link) =>
           !link.dropdown || (link.dropdownMenu && link.dropdownMenu.length > 0)
       );
-  };
 
-  const filteredLinks = filterSidebarLinks(sidebarLinks);
+  // ── Pick the right link list ────────────────────────────────────────────────
+  const activeLinks: ISidebarLink[] = isBuyer
+    ? buyerSidebarLinks
+    : filterSidebarLinks(sidebarLinks);
 
   async function handleLogout() {
     try {
@@ -74,23 +157,33 @@ export default function Sidebar({ session, notifications = [] }: SidebarProps) {
   return (
     <div className="fixed top-0 left-0 h-full w-[220px] lg:w-[280px] border-r bg-muted/40 hidden md:block overflow-y-auto">
       <div className="flex h-full max-h-screen flex-col gap-2">
+        {/* ── Header ─────────────────────────────────────────────────────────── */}
         <div className="flex flex-shrink-0 h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
           <Logo href="/dashboard" />
           <NotificationMenu notifications={notifications} />
         </div>
+
+        {/* ── Optional buyer badge ────────────────────────────────────────────── */}
+        {isBuyer && (
+          <div className="mx-4 mt-1 rounded-md bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
+            Buyer Portal
+          </div>
+        )}
+
+        {/* ── Navigation ─────────────────────────────────────────────────────── */}
         <div className="flex-1">
           <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-            {filteredLinks.map((item, i) => {
+            {activeLinks.map((item, i) => {
               const Icon = item.icon;
               const isHrefIncluded =
                 item.dropdownMenu &&
                 item.dropdownMenu.some((link) => link.href === pathname);
-
               const isOpen = openDropdownIndex === i;
 
               return (
                 <div key={i}>
                   {item.dropdown ? (
+                    // ── Collapsible dropdown (staff links only) ───────────────
                     <Collapsible open={isOpen}>
                       <CollapsibleTrigger
                         onClick={() => setOpenDropdownIndex(isOpen ? null : i)}
@@ -108,14 +201,13 @@ export default function Sidebar({ session, notifications = [] }: SidebarProps) {
                         )}
                       </CollapsibleTrigger>
                       <CollapsibleContent className="dark:bg-slate-950 rounded mt-1">
-                        {item.dropdownMenu?.map((menuItem, i) => (
+                        {item.dropdownMenu?.map((menuItem, j) => (
                           <Link
-                            key={i}
+                            key={j}
                             href={menuItem.href}
                             className={cn(
                               "mx-4 flex items-center gap-3 rounded-lg px-3 py-1 text-muted-foreground transition-all hover:text-primary justify-between text-xs ml-6",
-                              pathname === menuItem.href &&
-                                "bg-muted text-primary"
+                              pathname === menuItem.href && "bg-muted text-primary"
                             )}
                           >
                             {menuItem.title}
@@ -127,6 +219,7 @@ export default function Sidebar({ session, notifications = [] }: SidebarProps) {
                       </CollapsibleContent>
                     </Collapsible>
                   ) : (
+                    // ── Flat link ─────────────────────────────────────────────
                     <Link
                       href={item.href ?? "#"}
                       className={cn(
@@ -141,23 +234,22 @@ export default function Sidebar({ session, notifications = [] }: SidebarProps) {
                 </div>
               );
             })}
-            <Link
-              href="/"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              target="_blank"
-            >
-              <ExternalLink className="h-4 w-4" />
-              Live Website
-            </Link>
+
+            {/* ── Live website link (staff only) ─────────────────────────────── */}
+            
+              <Link
+                href="/"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                target="_blank"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Live Website
+              </Link>
+          
           </nav>
         </div>
 
-        {/* <div className="mt-auto p-4">
-          <Button onClick={handleLogout} size="sm" className="w-full">
-            <Power className="h-4 w-4 mr-2" />
-            Logout
-          </Button>
-        </div> */}
+        {/* ── User menu ──────────────────────────────────────────────────────── */}
         <div className="p-4">
           <UserDropdownMenu
             username={session?.user?.name ?? ""}

@@ -174,7 +174,7 @@ const page = ({ orgId }: { orgId?: string }) => {
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16 space-y-24">
 
         {/* ── Suggested Products ── */}
-        <section aria-label="Suggested Products">
+        <section aria-label="Suggested Products" id="suggested-products">
           <div className="flex items-center justify-between mb-8">
             <SectionTitle title="Suggested for Your Research" />
             <button className="text-emerald-400 text-sm font-medium hover:text-emerald-300 transition-colors">
@@ -274,7 +274,7 @@ const page = ({ orgId }: { orgId?: string }) => {
         </section>
 
         {/* ── Offers ── */}
-        <section aria-label="Limited Time Offers">
+        {/* <section aria-label="Limited Time Offers">
           <div className="flex items-center gap-4 mb-10">
             <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
             <div className="flex items-center gap-2">
@@ -300,7 +300,7 @@ const page = ({ orgId }: { orgId?: string }) => {
               ))}
             </div>
           )}
-        </section>
+        </section> */}
 
       </div>
 

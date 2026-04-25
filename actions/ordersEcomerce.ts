@@ -67,6 +67,38 @@ export async function getOrderById(id: string) {
   }
 }
 
+
+/**
+ * Fetch orders belonging to a specific buyer, optionally filtered by status.
+ * Used exclusively by the buyer-facing dashboard — never returns other users' orders.
+ */
+export async function getOrdersByBuyer(
+  buyerId: string,
+  filter: "all" | "pending" | "shipped" | "completed" | "refunds"
+) {
+  const statusMap = {
+    all:       {},
+    pending:   { orderStatus: { in: [OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.PROCESSING] } },
+    shipped:   { orderStatus: OrderStatus.SHIPPED },
+    completed: { orderStatus: OrderStatus.DELIVERED },
+    refunds:   { orderStatus: { in: [OrderStatus.CANCELLED, OrderStatus.REFUNDED] } },
+  };
+
+  try {
+    return await db.order.findMany({
+      where: {
+        userId: buyerId,                  // ← scope to this buyer only
+        ...statusMap[filter],
+      },
+      include: orderInclude,
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    console.error(`Error fetching buyer orders (${filter}):`, error);
+    return [];
+  }
+}
+
 // Buyer-scoped — only returns orders belonging to the authenticated user
 export async function getMyOrders() {
   try {

@@ -82,58 +82,61 @@ const orderId = searchParams.get("orderId");
   const fmt = (n: number) => `$${n.toFixed(2)}`;
 
   // Calculate breakdown with proper order of operations
-  const calculateBreakdown = () => {
-    // 1. Calculate raw subtotal using variant prices
-    const rawSubtotal = cartItems.reduce((sum, item) => {
-      const price = getItemPrice(item);
-      const quantity = Number(item.quantity) || 1;
-      return sum + (price * quantity);
-    }, 0);
+  // Calculate breakdown with proper order of operations
+const calculateBreakdown = () => {
+  // 1. Calculate raw subtotal using variant prices
+  const rawSubtotal = cartItems.reduce((sum, item) => {
+    const price = getItemPrice(item);
+    const quantity = Number(item.quantity) || 1;
+    return sum + (price * quantity);
+  }, 0);
 
-    // 2. Apply coupon discount
-    const couponDiscount = coupon?.discountAmount || coupon?.discountPercent 
-      ? (coupon.discountAmount || (rawSubtotal * (coupon.discountPercent / 100)))
-      : 0;
-    const afterCoupon = rawSubtotal - couponDiscount;
+  // 2. Apply coupon discount
+  const couponDiscount = coupon?.discountAmount || coupon?.discountPercent 
+    ? (coupon.discountAmount || (rawSubtotal * (coupon.discountPercent / 100)))
+    : 0;
+  const afterCoupon = rawSubtotal - couponDiscount;
 
-    // 3. Apply subscriber discount
-    const subDiscountAmt = isSubscriber && pricingConfig?.subDiscount 
-      ? afterCoupon * (pricingConfig.subDiscount / 100)
-      : 0;
-    const afterSubDiscount = afterCoupon - subDiscountAmt;
+  // 3. Apply subscriber discount (subDiscount is already a decimal: 0.20 = 20%)
+  const subDiscountAmt = isSubscriber && pricingConfig?.subDiscount 
+    ? afterCoupon * pricingConfig.subDiscount  // Remove the / 100
+    : 0;
+  const afterSubDiscount = afterCoupon - subDiscountAmt;
 
-    // 4. Apply payment method discount (crypto only)
-    const paymentDiscount = (paymentMethod === "crypto" || paymentMethod === "manual_crypto") && pricingConfig?.cryptoDiscount
-      ? afterSubDiscount * (pricingConfig.cryptoDiscount / 100)
-      : 0;
-    const afterPaymentDiscount = afterSubDiscount - paymentDiscount;
+  console.log("pricingConfig", pricingConfig);
 
-    // 5. Calculate shipping (based on discounted subtotal)
-    const shipping = pricingConfig?.shippingCost && afterPaymentDiscount < (pricingConfig.freeShippingMin || Infinity)
-      ? pricingConfig.shippingCost
-      : 0;
+  // 4. Apply payment method discount (crypto only) (cryptoDiscount is already a decimal: 0.15 = 15%)
+  const paymentDiscount = (paymentMethod === "crypto" || paymentMethod === "manual_crypto") && pricingConfig?.cryptoDiscount
+    ? afterSubDiscount * pricingConfig.cryptoDiscount  // Remove the / 100
+    : 0;
+  const afterPaymentDiscount = afterSubDiscount - paymentDiscount;
 
-    // 6. Calculate tax (on discounted subtotal, before shipping)
-    const tax = pricingConfig?.salesTaxRate 
-      ? afterPaymentDiscount * (pricingConfig.salesTaxRate / 100)
-      : 0;
+  // 5. Calculate shipping (based on discounted subtotal)
+  const shipping = pricingConfig?.shippingCost && afterPaymentDiscount < (pricingConfig.freeShippingMin || Infinity)
+    ? pricingConfig.shippingCost
+    : 0;
 
-    // 7. Calculate grand total
-    const grandTotal = afterPaymentDiscount + shipping + tax;
+  // 6. Calculate tax (salesTaxRate is already a decimal: 0.10 = 10%)
+  const tax = pricingConfig?.salesTaxRate 
+    ? afterPaymentDiscount * pricingConfig.salesTaxRate  // Remove the / 100
+    : 0;
 
-    return {
-      rawSubtotal,
-      couponDiscount,
-      afterCoupon,
-      subDiscountAmt,
-      afterSubDiscount,
-      paymentDiscount,
-      afterPaymentDiscount,
-      shipping,
-      tax,
-      grandTotal
-    };
+  // 7. Calculate grand total
+  const grandTotal = afterPaymentDiscount + shipping + tax;
+
+  return {
+    rawSubtotal,
+    couponDiscount,
+    afterCoupon,
+    subDiscountAmt,
+    afterSubDiscount,
+    paymentDiscount,
+    afterPaymentDiscount,
+    shipping,
+    tax,
+    grandTotal
   };
+};
 
   const breakdown = calculateBreakdown();
   const totalAmount = breakdown.grandTotal.toFixed(2);
@@ -229,7 +232,7 @@ const orderId = searchParams.get("orderId");
           setPaymentDetails({
             address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
             identifier: "Bitcoin",
-            instructions: "Send the exact amount in BTC to the address above. The network may take 10-30 minutes to confirm.",
+            instructions: "Send the exact amount in BTC to the address below. The network may take 10-30 minutes to confirm.",
             network: "Bitcoin Network",
             minAmount: 0.001
           });
@@ -275,6 +278,8 @@ const orderId = searchParams.get("orderId");
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Submission failed");
+
+      console.log("data", data)
 
       toast.success("Payment submitted for verification!");
       router.push(`/payment-success?orderId=${data.orderId}&manual=true`);
@@ -360,7 +365,7 @@ const orderId = searchParams.get("orderId");
             {breakdown.paymentDiscount > 0 && (
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-400">
-                  Crypto Discount ({((pricingConfig?.cryptoDiscount || 0)).toFixed(0)}%)
+                  Crypto Discount ({(((pricingConfig?.cryptoDiscount * 100) || 0)).toFixed(0)}%)
                 </span>
                 <span className="text-green-400 font-mono">-{fmt(breakdown.paymentDiscount)}</span>
               </div>
@@ -377,7 +382,7 @@ const orderId = searchParams.get("orderId");
             {/* Tax */}
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-400">
-                Tax ({((pricingConfig?.salesTaxRate || 0)).toFixed(1)}%)
+                Tax ({(((pricingConfig?.salesTaxRate * 100) || 0)).toFixed(1)}%)
               </span>
               <span className="text-white font-mono">{fmt(breakdown.tax)}</span>
             </div>

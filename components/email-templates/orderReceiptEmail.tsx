@@ -33,7 +33,7 @@ export const OrderReceiptEmail = ({
           <Text style={styles.body_text}>
             {isAdmin 
               ? `A new order has been placed and paid for. Total: $${totalAmount.toFixed(2)}`
-              : `We've received your payment for order #${orderNumber}. Your items are being prepared for shipment.`}
+              : `We've received your invoice for order #${orderNumber}. Your items are being prepared for shipment after verification of payment`}
           </Text>
 
           <Section style={styles.featureBox}>

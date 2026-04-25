@@ -86,6 +86,8 @@ model User {
   organisation                 Organisation?     @relation(fields: [orgId], references: [id], onDelete: Cascade)
   wishlists                    Wishlist?
   roles                        Role[]            @relation("UserRoles")
+  marketerCoupons              Coupon[]          @relation("MarketerCoupons")
+  marketerCommissions          Commission[]      @relation("MarketerCommissions")
 }
 
 model Organisation {
@@ -329,6 +331,7 @@ model Order {
   statusHistory     OrderStatusHistory[]
   payments          Payment[]
   shipments         Shipment[]
+  commissions       Commission[]
 
   @@index([userId])
   @@index([orderStatus])
@@ -399,9 +402,35 @@ model Coupon {
   usageCount     Int          @default(0)
   expiresAt      DateTime?
   isActive       Boolean      @default(true)
-  orders         Order[]
+
+  // Marketer/affiliate link
+  marketerId     String?
+  marketer       User?        @relation("MarketerCoupons", fields: [marketerId], references: [id])
+  commissionRate Float? // e.g. 0.10 = 10% commission per sale
+  commissions    Commission[]
+
+  orders Order[]
 
   @@index([code])
+}
+
+model Commission {
+  id         String           @id @default(cuid())
+  createdAt  DateTime         @default(now())
+  coupon     Coupon           @relation(fields: [couponId], references: [id])
+  couponId   String
+  order      Order            @relation(fields: [orderId], references: [id])
+  orderId    String
+  marketer   User             @relation("MarketerCommissions", fields: [marketerId], references: [id])
+  marketerId String
+  amount     Float // commission amount earned
+  status     CommissionStatus @default(PENDING)
+}
+
+enum CommissionStatus {
+  PENDING
+  APPROVED
+  PAID
 }
 
 model Payment {

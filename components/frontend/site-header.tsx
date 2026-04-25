@@ -31,6 +31,7 @@ import {
   Gavel,
   ShieldAlert,
   X,
+  ReceiptText,
 } from "lucide-react";
 import Logo from "../global/Logo";
 import { Session } from "next-auth";
@@ -39,16 +40,16 @@ import { getInitials } from "@/lib/generateInitials";
 import { useStore } from "@/store";
 
 const shopCategories = [
-  { icon: Dna, title: "Peptides", description: "Analytical grade amino acid sequences.", href: "/category/peptides" },
-  { icon: FlaskConical, title: "SARMs", description: "Tissue-specific receptor ligands for study.", href: "/category/sarms" },
-  { icon: Microscope, title: "Research Chemicals", description: "Laboratory reagents & compounds.", href: "/category/research-chemicals" },
+  { icon: Dna, title: "Peptides", description: "Analytical grade amino acid sequences.", href: "#suggested-products" },
+  { icon: ReceiptText, title: "Refund & Return Policy", href: "/legal/refund-policy" },
 ];
 
 const complianceLinks = [
-  { icon: ShieldAlert, title: "Research Use Policy", href: "/legal/ruo-policy" },
-  { icon: Gavel, title: "Terms of Service", href: "/legal/terms" },
+  { icon: ShieldAlert, title: "Research Use Policy", href: "/legal/research-use-policy" },
+  { icon: Gavel, title: "Terms of Service", href: "/legal/terms-of-service" },
   { icon: FileWarning, title: "Refund & Return Policy", href: "/legal/refund-policy" },
   { icon: Scale, title: "Shipping & Import", href: "/legal/shipping-policy" },
+  
 ];
 
 export default function SiteHeader({ session }: { session: Session | null }) {
@@ -69,6 +70,14 @@ export default function SiteHeader({ session }: { session: Session | null }) {
                 <Link href="/" legacyBehavior passHref>
                   <NavigationMenuLink className="h-9 px-4 py-2 text-sm font-bold text-gray-400 hover:text-blue-400 transition-colors uppercase tracking-tight">
                     Home
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <Link href="/about-us" legacyBehavior passHref>
+                  <NavigationMenuLink className="h-9 px-4 py-2 text-sm font-bold text-gray-400 hover:text-blue-400 transition-colors uppercase tracking-tight">
+                    About Us
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
@@ -110,6 +119,13 @@ export default function SiteHeader({ session }: { session: Session | null }) {
                     ))}
                   </div>
                 </NavigationMenuContent>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link href="/" legacyBehavior passHref>
+                  <NavigationMenuLink className="h-9 px-4 py-2 text-sm font-bold text-gray-400 hover:text-blue-400 transition-colors uppercase tracking-tight">
+                    Contact Us
+                  </NavigationMenuLink>
+                </Link>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>

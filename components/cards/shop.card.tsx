@@ -93,7 +93,8 @@ const ShopCard: React.FC<ShopCardProps> = ({shop}) => {
             {/* Visit Button - Flat design with icon rotation */}
             <div className='mt-5 pt-3 border-t border-white/5'>
                 <Link
-                href={`/shop/${shop.id}`}
+                //href={`/shop/${shop.id}`}
+                href={`/`}
                 className='inline-flex items-center gap-1.5 text-xs text-white font-bold tracking-tight bg-white/5 hover:bg-emerald-600 px-5 py-2.5 rounded-full transition-all active:scale-95'
                 >
                     Access Laboratory Data

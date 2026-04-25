@@ -44,7 +44,7 @@ export default async function BuyerOrderDetailPage({
     <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Link href="/orders" className="text-muted-foreground hover:text-foreground">
+        <Link href="/dashboard/orders/buyer" className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>

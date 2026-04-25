@@ -17,6 +17,8 @@ import {
   HeadphonesIcon,
   Users,
   User,
+  ShoppingBag,
+  HeartIcon,
 } from "lucide-react";
 
 export interface ISidebarLink {
@@ -153,14 +155,14 @@ export const sidebarLinks: ISidebarLink[] = [
       },
     ],
   },
-  {
+ /*  {
     title: "Blogs",
     icon: Book,
     dropdown: false,
     href: "/dashboard/blogs",
     permission: "blogs.read",
-  },
-  {
+  }, */
+ /*  {
     title: "Settings",
     href: "/dashboard/settings",
     icon: Settings,
@@ -188,8 +190,8 @@ export const sidebarLinks: ISidebarLink[] = [
       },
     ],
     permission: "settings.read",
-  },
-  {
+  }, */
+ /*  {
     title: "Reports",
     icon: BarChart4,
     dropdown: true,
@@ -217,5 +219,13 @@ export const sidebarLinks: ISidebarLink[] = [
         permission: "reports.read",
       },
     ],
-  },
+  }, */
+];
+
+
+
+export const buyerSidebarLinks: ISidebarLink[] = [
+  { title: "My Orders", dropdown: false, href: "/orders/buyer", icon: ShoppingBag, permission: "buyer.orders" },
+  { title: "Wishlist",  dropdown: false, href: "/wishlist", icon: HeartIcon,  permission: "buyer.wishlist" },
+  { title: "Profile",   dropdown: false, href: "/profile",  icon: User,        permission: "buyer.profile" },
 ];

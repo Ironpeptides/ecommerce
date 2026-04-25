@@ -8,6 +8,7 @@ import { Suspense } from "react";
 interface PaymentSuccessPageProps {
   searchParams: Promise<{
     sessionId?: string;
+    orderId?: string;
     payment_intent?: string;
     redirect_status?: string;
   }>;
@@ -15,7 +16,7 @@ interface PaymentSuccessPageProps {
 
 export default async function PaymentSuccessPage({ searchParams }: PaymentSuccessPageProps) {
   const params = await searchParams;
-  const { sessionId, payment_intent, redirect_status } = params;
+  const { sessionId, payment_intent, redirect_status, orderId } = params;
   const isSuccessful = redirect_status === "succeeded";
 
   return (
@@ -67,7 +68,7 @@ export default async function PaymentSuccessPage({ searchParams }: PaymentSucces
                   <div className="flex justify-between">
                     <span className="text-slate-400">Order ID:</span>
                     <span className="text-slate-200 font-mono text-xs">
-                      {sessionId?.slice(0, 8) || "N/A"}...
+                      {sessionId?.slice(0, 8) || orderId?.slice(0, 8)|| "N/A"}...
                     </span>
                   </div>
                   <div className="flex justify-between">

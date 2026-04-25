@@ -1,16 +1,15 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import useUser from '../../hooks/useUser';
 import useLocationTracking from '../../hooks/useLocationTracking';
 import useDeviceTracking from '../../hooks/useDeviceTracking';
 import Link from 'next/link';
 import { useStore } from '../../store';
 import Image from 'next/image';
-import { Loader2, Trash2, ShoppingBag, ArrowRight, CreditCard, Truck, Tag, X, Shield, AlertTriangle, CheckCircle2, Circle, FlaskConical, Package, Plus } from 'lucide-react';
-import {toast} from 'sonner';
-
+import { Loader2, Trash2, ShoppingBag, ArrowRight, CreditCard, Truck, Tag, X, Shield, AlertTriangle, CheckCircle2, Circle, FlaskConical, Package, Plus, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { createOrder } from '@/actions/orders';
 import { getShippingAddresses, createShippingAddress } from '@/actions/shipping';
@@ -52,6 +51,13 @@ const CartPage = () => {
     const [agreedNotHuman, setAgreedNotHuman] = useState(false);
     const bothAgreed = agreedAge && agreedNotHuman;
 
+    // Validation state
+    const [validationErrors, setValidationErrors] = useState<string[]>([]);
+    const [showValidationSummary, setShowValidationSummary] = useState(false);
+    const summaryRef = useRef<HTMLDivElement>(null);
+    const complianceSectionRef = useRef<HTMLDivElement>(null);
+    const addressSectionRef = useRef<HTMLDivElement>(null);
+
     // Calculate subtotal and total
     const subtotal = cart.reduce((total: number, item: any) => {
         const unitPrice = item?.selectedVariant?.price ?? item?.salePrice ?? 0;
@@ -83,13 +89,10 @@ const CartPage = () => {
     };
 
     const handleAddNewAddress = async () => {
-       
         if (!newAddress.fullName || !newAddress.addressLine1 || !newAddress.city || !newAddress.postalCode) {
             toast.error("Please fill in all required fields");
             return;
         }
-
-        console.log("User", user)
 
         if (!user?.id) return;
         
@@ -97,7 +100,7 @@ const CartPage = () => {
             const created = await createShippingAddress({
                 ...newAddress,
                 userId: user.id,
-                isDefault: addresses.length === 0 // Make default if first address
+                isDefault: addresses.length === 0
             });
             toast.success("Address added successfully");
             await fetchShippingAddresses();
@@ -126,33 +129,30 @@ const CartPage = () => {
         
         setLoading(true);
         try {
-            // Validate coupon with API
             const validation = await validateCoupon(couponCode, subtotal);
             
-            
             if (!validation.isValid || !validation.coupon) {
-                 setCouponError(validation.message || "Invalid coupon code");
+                setCouponError(validation.message || "Invalid coupon code");
                 setDiscountAmount(0);
                 setAppliedCoupon(null);
                 return;
-                }
-            // Calculate discount amount
-            const coupon = validation.coupon;
+            }
             
+            const coupon = validation.coupon;
             let discount = 0;
             if (coupon.discountType === "PERCENTAGE") {
-            discount = (subtotal * coupon.discountValue) / 100;
+                discount = (subtotal * coupon.discountValue) / 100;
                 if (coupon.maxDiscount) {
-                discount = Math.min(discount, coupon.maxDiscount);
-               }
-                } else {
-                  discount = coupon.discountValue;
-               }
+                    discount = Math.min(discount, coupon.maxDiscount);
+                }
+            } else {
+                discount = coupon.discountValue;
+            }
 
-             setDiscountAmount(discount);
-             setAppliedCoupon(coupon);
-             setCouponError("");
-             toast.success(`Coupon "${couponCode}" applied successfully!`);
+            setDiscountAmount(discount);
+            setAppliedCoupon(coupon);
+            setCouponError("");
+            toast.success(`Coupon "${couponCode}" applied successfully!`);
         } catch (error) {
             console.error("Error applying coupon:", error);
             setCouponError("Failed to validate coupon");
@@ -171,7 +171,6 @@ const CartPage = () => {
         toast.success("Coupon removed");
     };
 
-    // Update compliance status in DB
     const updateComplianceStatus = async () => {
         if (!user?.id) return;
         
@@ -185,141 +184,180 @@ const CartPage = () => {
         }
     };
 
-    // Save compliance whenever checkboxes change
     useEffect(() => {
         if (user?.id && (agreedAge || agreedNotHuman)) {
             updateComplianceStatus();
         }
     }, [agreedAge, agreedNotHuman, user]);
 
+    const validateForm = (): boolean => {
+        const errors: string[] = [];
+        
+        if (cart.length === 0) {
+            errors.push("Your cart is empty");
+        }
+        
+        if (addresses.length === 0) {
+            errors.push("Please add a shipping address");
+        } else if (!selectedAddressId) {
+            errors.push("Please select a shipping address");
+        }
+        
+        if (!agreedAge) {
+            errors.push("Please confirm you are 18 years or older");
+        }
+        
+        if (!agreedNotHuman) {
+            errors.push("Please confirm this product is not for human consumption");
+        }
+        
+        setValidationErrors(errors);
+        return errors.length === 0;
+    };
+
+    const handleProceedToCheckout = () => {
+        // Clear previous errors
+        setValidationErrors([]);
+        
+        // Validate the form
+        const isValid = validateForm();
+        
+        if (!isValid) {
+            setShowValidationSummary(true);
+            
+            // Show toast with the first error
+            toast.error(validationErrors[0] || "Please fill in all required fields", {
+                description: validationErrors.length > 1 
+                    ? `And ${validationErrors.length - 1} more issue(s) to resolve` 
+                    : undefined,
+                duration: 5000,
+            });
+            
+            // Auto-scroll to the first issue
+            setTimeout(() => {
+                if (!agreedAge || !agreedNotHuman) {
+                    complianceSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else if (addresses.length === 0 || !selectedAddressId) {
+                    addressSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    summaryRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 300);
+            
+            return;
+        }
+        
+        // If valid, proceed with checkout
+        placeOrder();
+    };
+
     const placeOrder = async () => {
-    if (!user) return router.push('/login');
-    
-    if (!bothAgreed) {
-        toast.error("Please agree to both compliance statements before proceeding.");
-        return;
-    }
-    if (addresses.length === 0) {
-        toast.error("Please add a shipping address before proceeding.");
-        return;
-    }
-    if (!selectedAddressId) {
-        toast.error("Please select a shipping address.");
-        return;
-    }
-    if (cart.length === 0) {
-        toast.error("Your cart is empty.");
-        return;
-    }
-
-    setLoading(true);
-
-    try {
-        // ── 1. Create payment session first ──────────────────────────────────
-        const sessionCart = cart.map((item: any) => ({
-  id: item.id,
-  title: item.name,
-  quantity: item.quantity || 1,
-  // Priority: 1. Variant Price, 2. Product Sale Price, 3. Zero
-  sale_price: item?.selectedVariant?.price ?? item?.salePrice ?? 0,
-  
-  // Clean up the variant display logic
-  selectedOptions: item?.selectedVariant ? {
-    // Check if the value already contains the unit to avoid "5ml ml"
-    variant: item.selectedVariant.value.includes(item.selectedVariant.unit)
-      ? item.selectedVariant.value
-      : `${item.selectedVariant.value}${item.selectedVariant.unit ? ` ${item.selectedVariant.unit}` : ''}`,
-    variantId: item.selectedVariant.id // Useful for the backend to have the ID
-  } : undefined,
-
-  // Keep the full object if your backend needs it for logic
-  selectedVariant: item?.selectedVariant || undefined 
-}));
-
-        const sessionRes = await fetch('/api/order/create-payment-session', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                cart: sessionCart,
-                selectedAddressId,
-                coupon: appliedCoupon
-                    ? { code: appliedCoupon.code, discountAmount: discountAmount }
-                    : null,
-            }),
-        });
-
-        if (!sessionRes.ok) {
-            const err = await sessionRes.json();
-            throw new Error(err.error || "Failed to create payment session");
+        if (!user) return router.push('/login');
+        
+        if (cart.length === 0) {
+            toast.error("Your cart is empty.");
+            return;
         }
 
-        const { sessionId } = await sessionRes.json();
+        setLoading(true);
 
-        // ── 2. Create order, attaching the sessionId ──────────────────────────
-        const orderItems = cart.map((item: any) => {
-            const unitPrice = item?.selectedVariant?.price ?? item?.salePrice ?? 0;
-            const variantInfo = item?.selectedVariant
-                ? `${item.selectedVariant.value}${item.selectedVariant.unit ? ` ${item.selectedVariant.unit}` : ''}`
-                : item?.selectedOption?.label || '';
-
-            return {
-                productId: item.id,
-                productName: item.name,
-                productImage: item.images?.[0]?.url || null,
-                variantInfo,
+        try {
+            const sessionCart = cart.map((item: any) => ({
+                id: item.id,
+                title: item.name,
                 quantity: item.quantity || 1,
-                price: unitPrice,
-                subTotal: unitPrice * (item.quantity || 1),
+                sale_price: item?.selectedVariant?.price ?? item?.salePrice ?? 0,
+                selectedOptions: item?.selectedVariant ? {
+                    variant: item.selectedVariant.value.includes(item.selectedVariant.unit)
+                        ? item.selectedVariant.value
+                        : `${item.selectedVariant.value}${item.selectedVariant.unit ? ` ${item.selectedVariant.unit}` : ''}`,
+                    variantId: item.selectedVariant.id
+                } : undefined,
+                selectedVariant: item?.selectedVariant || undefined 
+            }));
+
+            const sessionRes = await fetch('/api/order/create-payment-session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    cart: sessionCart,
+                    selectedAddressId,
+                    coupon: appliedCoupon
+                        ? { code: appliedCoupon.code, discountAmount: discountAmount }
+                        : null,
+                }),
+            });
+
+            if (!sessionRes.ok) {
+                const err = await sessionRes.json();
+                throw new Error(err.error || "Failed to create payment session");
+            }
+
+            const { sessionId } = await sessionRes.json();
+
+            const orderItems = cart.map((item: any) => {
+                const unitPrice = item?.selectedVariant?.price ?? item?.salePrice ?? 0;
+                const variantInfo = item?.selectedVariant
+                    ? `${item.selectedVariant.value}${item.selectedVariant.unit ? ` ${item.selectedVariant.unit}` : ''}`
+                    : item?.selectedOption?.label || '';
+
+                return {
+                    productId: item.id,
+                    productName: item.name,
+                    productImage: item.images?.[0]?.url || null,
+                    variantInfo,
+                    quantity: item.quantity || 1,
+                    price: unitPrice,
+                    subTotal: unitPrice * (item.quantity || 1),
+                };
+            });
+
+            const orderData = {
+                userId: user.id,
+                items: orderItems,
+                subtotal,
+                discountAmount,
+                totalAmount: total,
+                couponCode: appliedCoupon?.code || null,
+                shippingAddressId: selectedAddressId,
+                paymentMethod: paymentMethod === 'online' ? 'stripe' : 'cod',
+                termsAccepted: bothAgreed,
+                orderStatus: 'PENDING',
+                paymentStatus: 'UNPAID',
+                paymentSessionId: sessionId,
+                metadata: {
+                    location,
+                    deviceInfo,
+                    userAgent: navigator.userAgent,
+                },
             };
-        });
 
-        const orderData = {
-            userId: user.id,
-            items: orderItems,
-            subtotal,
-            discountAmount,
-            totalAmount: total,
-            couponCode: appliedCoupon?.code || null,
-            shippingAddressId: selectedAddressId,
-            paymentMethod: paymentMethod === 'online' ? 'stripe' : 'cod',
-            termsAccepted: bothAgreed,
-            orderStatus: 'PENDING',
-            paymentStatus: 'UNPAID',
-            paymentSessionId: sessionId,
-            metadata: {
-                location,
-                deviceInfo,
-                userAgent: navigator.userAgent,
-            },
-        };
+            const createdOrder = await createOrder(orderData);
 
-        const createdOrder = await createOrder(orderData);
+            await fetch('/api/order/create-payment-session', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId, orderId: createdOrder.id }),
+            });
 
-        await fetch('/api/order/create-payment-session', {
-               method: 'PATCH',
-               headers: { 'Content-Type': 'application/json' },
-               body: JSON.stringify({ sessionId, orderId: createdOrder.id }),
-              });
+            if (!createdOrder?.id) throw new Error("Failed to create order");
 
-        if (!createdOrder?.id) throw new Error("Failed to create order");
+            clearCart(user, location, deviceInfo);
+            toast.success("Order placed successfully!");
 
-        clearCart(user, location, deviceInfo);
-        toast.success("Order placed successfully!");
+            if (paymentMethod === 'cod') {
+                router.push(`/payment-success?orderId=${createdOrder.id}`);
+            } else {
+                router.push(`/checkout?orderId=${createdOrder.id}&sessionId=${sessionId}`);
+            }
 
-        if (paymentMethod === 'cod') {
-            router.push(`/payment-success?orderId=${createdOrder.id}`);
-        } else {
-            // Pass both — sessionId is what you verify, orderId ties to the record
-            router.push(`/checkout?orderId=${createdOrder.id}&sessionId=${sessionId}`);
+        } catch (error: any) {
+            console.error("Error placing order:", error);
+            toast.error(error.message || "Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
         }
-
-    } catch (error: any) {
-        console.error("Error placing order:", error);
-        toast.error(error.message || "Something went wrong. Please try again.");
-    } finally {
-        setLoading(false);
-    }
-};
+    };
 
     const decreaseQuantity = (id: string) => {
         useStore.setState((state: any) => ({
@@ -344,9 +382,13 @@ const CartPage = () => {
         toast.success("Item removed from cart");
     };
 
+    const dismissValidation = () => {
+        setShowValidationSummary(false);
+    };
+
     if(!user){
-      return router.push('/login');
-        }
+        return router.push('/login');
+    }
 
     return (
         <div className='min-h-screen bg-gradient-to-b from-[#121214] to-[#0a0a0c]'>
@@ -496,6 +538,37 @@ const CartPage = () => {
                                     Order Summary
                                 </h2>
 
+                                {/* Validation Summary */}
+                                {showValidationSummary && validationErrors.length > 0 && (
+                                    <div ref={summaryRef} className='p-4 bg-red-500/10 border border-red-500/20 rounded-xl space-y-3 animate-in slide-in-from-top-2'>
+                                        <div className='flex items-center justify-between'>
+                                            <div className='flex items-center gap-2'>
+                                                <AlertCircle size={16} className='text-red-400' />
+                                                <h3 className='text-sm font-semibold text-red-400'>
+                                                    Please resolve the following:
+                                                </h3>
+                                            </div>
+                                            <button 
+                                                onClick={dismissValidation}
+                                                className='text-gray-500 hover:text-gray-300 transition-colors'
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </div>
+                                        <ul className='space-y-2'>
+                                            {validationErrors.map((error, index) => (
+                                                <li key={index} className='flex items-start gap-2 text-sm text-red-300'>
+                                                    <span className='text-red-400 mt-0.5'>•</span>
+                                                    <span>{error}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <p className='text-xs text-gray-500 italic'>
+                                            Fix these issues to proceed with your order
+                                        </p>
+                                    </div>
+                                )}
+
                                 {/* Price Breakdown */}
                                 <div className='space-y-3'>
                                     <div className='flex justify-between items-center text-gray-400 text-sm'>
@@ -570,13 +643,20 @@ const CartPage = () => {
                                 </div>
 
                                 {/* Shipping Address */}
-                                <div className='space-y-2'>
+                                <div ref={addressSectionRef} className='space-y-2'>
                                     <div className='flex justify-between items-center'>
-                                        <label className='block text-xs font-semibold text-gray-400 uppercase tracking-widest'>
+                                        <label className={`text-xs font-semibold uppercase tracking-widest flex items-center gap-1.5 ${validationErrors.some(e => e.includes('address')) ? 'text-red-400' : 'text-gray-400'}`}>
                                             Shipping Address
+                                            {validationErrors.some(e => e.includes('address')) && (
+                                                <span className='text-red-400'>*</span>
+                                            )}
                                         </label>
                                         <button
-                                            onClick={() => setShowAddressForm(!showAddressForm)}
+                                            onClick={() => {
+                                                setShowAddressForm(!showAddressForm);
+                                                // Clear address validation error when user starts adding
+                                                setValidationErrors(prev => prev.filter(e => !e.includes('address')));
+                                            }}
                                             className='text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1'
                                         >
                                             <Plus size={12} /> Add New
@@ -590,53 +670,53 @@ const CartPage = () => {
                                                 placeholder="Full Name *"
                                                 value={newAddress.fullName}
                                                 onChange={(e) => setNewAddress({...newAddress, fullName: e.target.value})}
-                                                className='w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm'
+                                                className='w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-emerald-500/60 transition-colors'
                                             />
                                             <input
                                                 type="tel"
                                                 placeholder="Phone"
                                                 value={newAddress.phone}
                                                 onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})}
-                                                className='w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm'
+                                                className='w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-emerald-500/60 transition-colors'
                                             />
                                             <input
                                                 type="text"
                                                 placeholder="Address Line 1 *"
                                                 value={newAddress.addressLine1}
                                                 onChange={(e) => setNewAddress({...newAddress, addressLine1: e.target.value})}
-                                                className='w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm'
+                                                className='w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-emerald-500/60 transition-colors'
                                             />
                                             <input
                                                 type="text"
                                                 placeholder="Address Line 2"
                                                 value={newAddress.addressLine2}
                                                 onChange={(e) => setNewAddress({...newAddress, addressLine2: e.target.value})}
-                                                className='w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm'
+                                                className='w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-emerald-500/60 transition-colors'
                                             />
                                             <input
                                                 type="text"
                                                 placeholder="City *"
                                                 value={newAddress.city}
                                                 onChange={(e) => setNewAddress({...newAddress, city: e.target.value})}
-                                                className='w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm'
+                                                className='w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-emerald-500/60 transition-colors'
                                             />
                                             <input
                                                 type="text"
                                                 placeholder="State"
                                                 value={newAddress.state}
                                                 onChange={(e) => setNewAddress({...newAddress, state: e.target.value})}
-                                                className='w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm'
+                                                className='w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-emerald-500/60 transition-colors'
                                             />
                                             <input
                                                 type="text"
                                                 placeholder="Postal Code *"
                                                 value={newAddress.postalCode}
                                                 onChange={(e) => setNewAddress({...newAddress, postalCode: e.target.value})}
-                                                className='w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm'
+                                                className='w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-emerald-500/60 transition-colors'
                                             />
                                             <button
                                                 onClick={handleAddNewAddress}
-                                                className='w-full py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 text-sm font-semibold'
+                                                className='w-full py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 text-sm font-semibold transition-all duration-200'
                                             >
                                                 Save Address
                                             </button>
@@ -645,9 +725,17 @@ const CartPage = () => {
                                     
                                     {addresses?.length !== 0 && !showAddressForm ? (
                                         <select
-                                            className='w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-emerald-500/60 transition-colors cursor-pointer'
+                                            className={`w-full px-3 py-2.5 bg-white/5 border rounded-lg text-white text-sm focus:outline-none focus:border-emerald-500/60 transition-colors cursor-pointer ${
+                                                validationErrors.some(e => e.includes('address')) 
+                                                    ? 'border-red-500/50 focus:border-red-500' 
+                                                    : 'border-white/10'
+                                            }`}
                                             value={selectedAddressId}
-                                            onChange={(e) => setSelectedAddressId(e.target.value)}
+                                            onChange={(e) => {
+                                                setSelectedAddressId(e.target.value);
+                                                // Clear address validation error when user selects
+                                                setValidationErrors(prev => prev.filter(err => !err.includes('address')));
+                                            }}
                                         >
                                             {addresses?.map((address: any) => (
                                                 <option key={address.id} value={address.id} className='bg-[#121214]'>
@@ -657,8 +745,19 @@ const CartPage = () => {
                                             ))}
                                         </select>
                                     ) : !showAddressForm && (
-                                        <div className='p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg'>
-                                            <p className='text-sm text-yellow-400'>
+                                        <div className={`p-3 rounded-lg border ${
+                                            validationErrors.some(e => e.includes('address'))
+                                                ? 'bg-red-500/10 border-red-500/20'
+                                                : 'bg-yellow-500/10 border-yellow-500/20'
+                                        }`}>
+                                            <p className={`text-sm flex items-center gap-2 ${
+                                                validationErrors.some(e => e.includes('address')) ? 'text-red-400' : 'text-yellow-400'
+                                            }`}>
+                                                {validationErrors.some(e => e.includes('address')) ? (
+                                                    <AlertCircle size={14} />
+                                                ) : (
+                                                    <AlertTriangle size={14} />
+                                                )}
                                                 Please add a shipping address to place your order.
                                             </p>
                                         </div>
@@ -685,24 +784,51 @@ const CartPage = () => {
                                 </div>
 
                                 {/* ── Compliance Checkboxes ── */}
-                                <div className='space-y-3 pt-1'>
-                                    <div className='flex items-start gap-1 pb-2 border-b border-white/10'>
-                                        <Shield size={13} className='text-amber-400 mt-0.5 shrink-0' />
-                                        <p className='text-[11px] font-semibold text-amber-400 uppercase tracking-widest'>
+                                <div ref={complianceSectionRef} className='space-y-3 pt-1'>
+                                    <div className={`flex items-start gap-1 pb-2 border-b ${
+                                        validationErrors.some(e => e.includes('18 years') || e.includes('human consumption'))
+                                            ? 'border-red-500/20'
+                                            : 'border-white/10'
+                                    }`}>
+                                        <Shield size={13} className={`${
+                                            validationErrors.some(e => e.includes('18 years') || e.includes('human consumption'))
+                                                ? 'text-red-400'
+                                                : 'text-amber-400'
+                                        } mt-0.5 shrink-0`} />
+                                        <p className={`text-[11px] font-semibold uppercase tracking-widest ${
+                                            validationErrors.some(e => e.includes('18 years') || e.includes('human consumption'))
+                                                ? 'text-red-400'
+                                                : 'text-amber-400'
+                                        }`}>
                                             Compliance required
                                         </p>
                                     </div>
 
                                     <button
-                                        onClick={() => setAgreedAge(!agreedAge)}
-                                        className={`w-full flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all duration-200 ${agreedAge ? 'bg-emerald-500/10 border-emerald-500/40' : 'bg-white/5 border-white/10 hover:border-white/20'}`}
+                                        onClick={() => {
+                                            setAgreedAge(!agreedAge);
+                                            // Clear age validation error
+                                            if (!agreedAge) {
+                                                setValidationErrors(prev => prev.filter(e => !e.includes('18 years')));
+                                            }
+                                        }}
+                                        className={`w-full flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all duration-200 ${
+                                            validationErrors.some(e => e.includes('18 years'))
+                                                ? 'bg-red-500/10 border-red-500/40'
+                                                : agreedAge 
+                                                    ? 'bg-emerald-500/10 border-emerald-500/40' 
+                                                    : 'bg-white/5 border-white/10 hover:border-white/20'
+                                        }`}
                                     >
                                         <div className='mt-0.5 shrink-0'>
-                                            {agreedAge ? <CheckCircle2 size={17} className='text-emerald-400' /> : <Circle size={17} className='text-gray-500' />}
+                                            {agreedAge ? <CheckCircle2 size={17} className='text-emerald-400' /> : <Circle size={17} className={validationErrors.some(e => e.includes('18 years')) ? 'text-red-400' : 'text-gray-500'} />}
                                         </div>
                                         <div>
-                                            <p className={`text-sm font-semibold leading-snug ${agreedAge ? 'text-emerald-300' : 'text-gray-300'}`}>
+                                            <p className={`text-sm font-semibold leading-snug ${agreedAge ? 'text-emerald-300' : validationErrors.some(e => e.includes('18 years')) ? 'text-red-300' : 'text-gray-300'}`}>
                                                 I confirm I am 18 years or older
+                                                {validationErrors.some(e => e.includes('18 years')) && (
+                                                    <span className='text-red-400 ml-1'>*</span>
+                                                )}
                                             </p>
                                             <p className='text-[11px] text-gray-500 mt-0.5 leading-relaxed'>
                                                 By checking this, you declare that you meet the minimum age requirement to purchase this product.
@@ -711,15 +837,30 @@ const CartPage = () => {
                                     </button>
 
                                     <button
-                                        onClick={() => setAgreedNotHuman(!agreedNotHuman)}
-                                        className={`w-full flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all duration-200 ${agreedNotHuman ? 'bg-emerald-500/10 border-emerald-500/40' : 'bg-white/5 border-white/10 hover:border-white/20'}`}
+                                        onClick={() => {
+                                            setAgreedNotHuman(!agreedNotHuman);
+                                            // Clear human consumption validation error
+                                            if (!agreedNotHuman) {
+                                                setValidationErrors(prev => prev.filter(e => !e.includes('human consumption')));
+                                            }
+                                        }}
+                                        className={`w-full flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all duration-200 ${
+                                            validationErrors.some(e => e.includes('human consumption'))
+                                                ? 'bg-red-500/10 border-red-500/40'
+                                                : agreedNotHuman 
+                                                    ? 'bg-emerald-500/10 border-emerald-500/40' 
+                                                    : 'bg-white/5 border-white/10 hover:border-white/20'
+                                        }`}
                                     >
                                         <div className='mt-0.5 shrink-0'>
-                                            {agreedNotHuman ? <CheckCircle2 size={17} className='text-emerald-400' /> : <Circle size={17} className='text-gray-500' />}
+                                            {agreedNotHuman ? <CheckCircle2 size={17} className='text-emerald-400' /> : <Circle size={17} className={validationErrors.some(e => e.includes('human consumption')) ? 'text-red-400' : 'text-gray-500'} />}
                                         </div>
                                         <div>
-                                            <p className={`text-sm font-semibold leading-snug ${agreedNotHuman ? 'text-emerald-300' : 'text-gray-300'}`}>
+                                            <p className={`text-sm font-semibold leading-snug ${agreedNotHuman ? 'text-emerald-300' : validationErrors.some(e => e.includes('human consumption')) ? 'text-red-300' : 'text-gray-300'}`}>
                                                 I understand this is not for human consumption
+                                                {validationErrors.some(e => e.includes('human consumption')) && (
+                                                    <span className='text-red-400 ml-1'>*</span>
+                                                )}
                                             </p>
                                             <p className='text-[11px] text-gray-500 mt-0.5 leading-relaxed'>
                                                 This product is intended for research purposes only and must not be ingested or used on humans.
@@ -727,7 +868,7 @@ const CartPage = () => {
                                         </div>
                                     </button>
 
-                                    {!bothAgreed && (
+                                    {!bothAgreed && !validationErrors.some(e => e.includes('18 years') || e.includes('human consumption')) && (
                                         <div className='flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl'>
                                             <AlertTriangle size={14} className='text-amber-400 shrink-0 mt-0.5' />
                                             <p className='text-[11px] text-amber-400 leading-relaxed'>
@@ -737,14 +878,14 @@ const CartPage = () => {
                                     )}
                                 </div>
 
-                                {/* Checkout Button */}
+                                {/* Checkout Button - Now always clickable */}
                                 <button
-                                    onClick={placeOrder}
-                                    disabled={!bothAgreed || addresses.length === 0 || loading}
+                                    onClick={handleProceedToCheckout}
+                                    disabled={loading}
                                     className={`w-full flex items-center justify-center gap-2 py-3.5 font-semibold rounded-xl transition-all duration-300 ${
-                                        bothAgreed && addresses.length > 0 && !loading
-                                            ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-500 hover:to-emerald-600 shadow-lg shadow-emerald-900/20 active:scale-[0.98]'
-                                            : 'bg-white/5 text-gray-600 border border-white/10 cursor-not-allowed'
+                                        loading
+                                            ? 'bg-white/5 text-gray-600 border border-white/10 cursor-not-allowed'
+                                            : 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-500 hover:to-emerald-600 shadow-lg shadow-emerald-900/20 active:scale-[0.98]'
                                     }`}
                                 >
                                     {loading
@@ -752,6 +893,18 @@ const CartPage = () => {
                                         : <><Shield size={16} /> {paymentMethod === 'cod' ? 'Place Order' : 'Proceed to Checkout'}</>
                                     }
                                 </button>
+
+                                {/* Subtle hint */}
+                                {(!bothAgreed || addresses.length === 0) && !showValidationSummary && (
+                                    <p className='text-center text-xs text-gray-600'>
+                                        {!bothAgreed && addresses.length === 0 
+                                            ? 'Complete compliance & add address to continue'
+                                            : !bothAgreed 
+                                                ? 'Complete compliance checks to continue' 
+                                                : 'Add shipping address to continue'
+                                        }
+                                    </p>
+                                )}
 
                                 <Link href="/" className='flex items-center justify-center gap-2 text-gray-500 hover:text-emerald-400 transition-colors text-sm'>
                                     Continue Shopping <ArrowRight size={13} />
