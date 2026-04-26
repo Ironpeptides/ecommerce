@@ -33,7 +33,7 @@ interface ProductVariant {
   name: string;
   value: string;
   unit: string;
-  price: number;
+  price: number | null;
   stock: number;
   sku: string;
 }
@@ -68,9 +68,9 @@ interface Product {
   slug: string;
   description: string; 
   price: number | null;
-  salePrice: number;
+  salePrice: number | null;
   stock: number;
-  categoryId: string | null;
+  categoryId?: string | null;
   category: ProductCategory | null;
   images: ProductImage[];
   variants: ProductVariant[];
@@ -85,6 +85,10 @@ interface ProductClientProps {
   product: Product;
   relatedProducts: Product[];
 }
+
+
+
+
 
 export function ProductClient({ product, relatedProducts }: ProductClientProps) {
   const router = useRouter();
@@ -116,10 +120,14 @@ export function ProductClient({ product, relatedProducts }: ProductClientProps) 
     return item.id === product.id && !item.selectedVariant;
   });
 
-  // Calculate current price based on variant
-  const currentPrice = selectedVariant?.price ?? product.salePrice;
-  const originalPrice = selectedVariant ? product.price : product.price;
-  const hasDiscount = originalPrice > currentPrice;
+  
+const currentPrice = selectedVariant?.price ?? product.salePrice ?? 0;
+
+
+const originalPrice = product.price ?? 0;
+
+const hasDiscount = originalPrice > currentPrice;
+
 
   // Stock check
   const currentStock = selectedVariant?.stock ?? product.stock;
@@ -303,9 +311,12 @@ export function ProductClient({ product, relatedProducts }: ProductClientProps) 
                       disabled={variant.stock <= 0}
                     >
                       {variant.value} {variant.unit}
-                      {variant.price !== product.salePrice && (
-                        <span className="ml-2 text-xs text-emerald-500">${variant.price.toFixed(2)}</span>
-                      )}
+                     {variant.price != null && variant.price !== product.salePrice && (
+                     <span className="ml-2 text-xs text-emerald-500">
+                     ${variant.price.toFixed(2)}
+                     </span>
+)}
+
                     </button>
                   ))}
                 </div>

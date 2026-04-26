@@ -34,7 +34,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { sidebarLinks, ISidebarLink } from "@/config/sidebar";
 
-// Types matching your existing user structure
+
+import { getAllDashboardStats, getWishlistStats } from "@/actions/statistics";
+
 export interface UserRole {
   id: string;
   displayName: string;
@@ -157,10 +159,11 @@ function getDashboardLinksFromSidebar(user: AuthenticatedUser): DashboardLink[] 
       let icon = link.icon;
       // @ts-ignore - handle icon mapping
       const iconName = link.icon.name || link.icon.toString().split(' ')[1];
+      const isBuyer = user.roles.some(r => r.roleName === "buyer");
       
       links.push({
         label: link.title,
-        href: link.href || "#",
+        href:  isBuyer && link.title == "Orders" ? "/dashboard/orders/buyer" : link.href || "#",
         icon: link.icon,
         description: descriptionMap[link.title] || `Access ${link.title.toLowerCase()}`,
         badge: link.badge,
@@ -197,7 +200,7 @@ function getQuickActions(user: AuthenticatedUser): QuickAction[] {
   if (hasPermission(user, "reviews.create")) {
     actions.push({
       label: "Write Review",
-      href: "/dashboard/reviews/new",
+      href: "/dashboard/reviews",
       icon: Star,
       permission: "reviews.create",
     });
@@ -233,76 +236,84 @@ function getQuickActions(user: AuthenticatedUser): QuickAction[] {
   return actions;
 }
 
-// Get stats based on user permissions
-function getUserStats(user: AuthenticatedUser) {
-  const stats = [];
+export function useDashboardStats(user: AuthenticatedUser) {
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getAllDashboardStats().then((data) => {
+      setStats(data);
+      setLoading(false);
+    });
+  }, []);
+
   const permissions = getUserPermissions(user);
-  
-  if (permissions.has("orders.read")) {
-    stats.push({
+  const cards = [];
+
+  if (permissions.has("orders.read") && stats?.orders) {
+    cards.push({
       label: "Total Orders",
-      value: "24",
-      trend: "+12% this month",
-      trendUp: true,
+      value: stats.orders.count.toLocaleString(),
+      trend: stats.orders.trendLabel,
+      trendUp: stats.orders.trendUp,
       icon: ShoppingCart,
     });
   }
-  
-  if (permissions.has("wishlist.read")) {
-    stats.push({
+
+  if (permissions.has("wishlist.read") && stats?.wishlist) {
+    cards.push({
       label: "Wishlist Items",
-      value: "8",
+      value: stats.wishlist.count.toLocaleString(),
       icon: Heart,
     });
   }
-  
-  if (permissions.has("reviews.read")) {
-    stats.push({
+
+  if (permissions.has("reviews.read") && stats?.reviews) {
+    cards.push({
       label: "Reviews Given",
-      value: "5",
+      value: stats.reviews.count.toLocaleString(),
       icon: Star,
     });
   }
-  
-  if (permissions.has("support.read")) {
-    stats.push({
+
+  if (permissions.has("support.read") && stats?.support) {
+    cards.push({
       label: "Support Tickets",
-      value: "2",
+      value: stats.support.count.toLocaleString(),
       icon: HeadphonesIcon,
     });
   }
-  
-  if (permissions.has("sales.read")) {
-    stats.push({
+
+  if (permissions.has("sales.read") && stats?.revenue) {
+    cards.push({
       label: "Total Revenue",
-      value: "$12,450",
-      trend: "+8% vs last month",
-      trendUp: true,
+      value: stats.revenue.formatted,
+      trend: stats.revenue.trendLabel,
+      trendUp: stats.revenue.trendUp,
       icon: DollarSign,
     });
   }
-  
-  if (permissions.has("products.read")) {
-    stats.push({
+
+  if (permissions.has("products.read") && stats?.products) {
+    cards.push({
       label: "Active Products",
-      value: "342",
+      value: stats.products.count.toLocaleString(),
       icon: Layers,
     });
   }
-  
-  if (permissions.has("customers.read")) {
-    stats.push({
+
+  if (permissions.has("customers.read") && stats?.customers) {
+    cards.push({
       label: "Total Customers",
-      value: "1,284",
-      trend: "+5%",
-      trendUp: true,
+      value: stats.customers.count.toLocaleString(),
+      trend: stats.customers.trendLabel,
+      trendUp: stats.customers.trendUp,
       icon: Users,
     });
   }
-  
-  return stats;
-}
 
+  return { cards, stats, loading };
+}
 // Role configuration
 const ROLE_CONFIG: Record<string, { label: string; badgeClass: string; icon: React.ElementType }> = {
   admin: {
@@ -367,6 +378,7 @@ function WelcomeHero({ user }: { user: AuthenticatedUser }) {
       : null;
   }, [user.roles]);
 
+  
   // ── Formatted Time ────────────────────────────────────────────────────────
   // Updated to include seconds
   const formattedTime = new Intl.DateTimeFormat("en-US", {
@@ -464,7 +476,9 @@ export default function UnifiedDashboard({ user }: UnifiedDashboardProps) {
   
   const dashboardLinks = useMemo(() => getDashboardLinksFromSidebar(user), [user]);
   const quickActions = useMemo(() => getQuickActions(user), [user]);
-  const stats = useMemo(() => getUserStats(user), [user]);
+  const { cards: stats } = useDashboardStats(user);
+
+  const isBuyer = user.roles.some(r => r.roleName === "buyer");
   
   // Get pending orders count for buyer
   const pendingOrders = useMemo(() => {
@@ -474,6 +488,7 @@ export default function UnifiedDashboard({ user }: UnifiedDashboardProps) {
   }
   return 0;
 }, [userPermissions]);
+
 
   const wishlistCount = userPermissions.has("wishlist.read") ? 8 : 0;
 
@@ -487,7 +502,7 @@ export default function UnifiedDashboard({ user }: UnifiedDashboardProps) {
           <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30 px-4 py-3">
             <p className="text-sm text-blue-800 dark:text-blue-300 flex items-center gap-2">
               <Bell className="h-4 w-4" />
-              You have {pendingOrders} pending order that need attention.
+              You may have {/* {pendingOrders} */} a pending order that need attention.
             </p>
           </div>
         )}
@@ -496,7 +511,7 @@ export default function UnifiedDashboard({ user }: UnifiedDashboardProps) {
           <div className="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 px-4 py-3">
             <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
               <Heart className="h-4 w-4 text-rose-500" />
-              You have {wishlistCount} items in your wishlist.
+              You may  have {/* {wishlistCount} */} items in your wishlist. Add to cart!
             </p>
           </div>
         )}
@@ -588,10 +603,18 @@ export default function UnifiedDashboard({ user }: UnifiedDashboardProps) {
                     <p className="font-medium text-sm text-gray-900 dark:text-white">{link.label}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{link.description}</p>
                   </div>
-                  <div className="mt-4 flex items-center gap-1 text-xs font-medium text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                    Go to {link.label}
-                    <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-                  </div>
+
+<div className="mt-4 flex items-center gap-1 text-xs font-medium text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
+  <a
+    href={isBuyer ? "/dashboard/orders/buyer" : link.label}
+    className="flex items-center gap-1"
+  >
+    Go to {isBuyer ? "Buyer Portal" : link.label}
+    <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+  </a>
+</div>
+
+
                 </div>
               </button>
             ))}

@@ -6,16 +6,24 @@ import { DiscountType } from "@prisma/client";
 // GET single coupon
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const couponId = (await params).id;
     const user = await getAuthenticatedUser();
-    if (!user || user.role !== "ADMIN") {
+    
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
+    
+    // Check if the user has an admin role
+    const isAdmin = user.roles?.some(r => r.roleName.toLowerCase() === "admin") ?? false;
+    
+    if (!isAdmin) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const coupon = await db.coupon.findUnique({
-      where: { id: params.id },
+      where: { id: couponId },
       include: {
         marketer: { select: { id: true, name: true, email: true } },
         commissions: {
@@ -43,13 +51,24 @@ export async function GET(
 // PATCH — update coupon
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const couponId = (await params).id;
     const user = await getAuthenticatedUser();
-    if (!user || user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+
+    console.log("couponCodeId", couponId)
+
+if (!user) {
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+}
+
+// Check if the user has an admin role
+const isAdmin = user.roles?.some(r => r.roleName.toLowerCase() === "admin") ?? false;
+
+if (!isAdmin) {
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+}
 
     const body = await req.json();
     const {
@@ -67,17 +86,17 @@ export async function PATCH(
     } = body;
 
     // If code is changing, check uniqueness
-    if (code) {
+    /* if (code) {
       const existing = await db.coupon.findFirst({
-        where: { code: code.toUpperCase(), NOT: { id: params.id } },
+        where: { code: code.toUpperCase(), NOT: { id: couponId } },
       });
       if (existing) {
         return NextResponse.json({ error: "Coupon code already exists" }, { status: 409 });
       }
-    }
+    } */
 
     const coupon = await db.coupon.update({
-      where: { id: params.id },
+      where: { id: couponId },
       data: {
         ...(code && { code: code.toUpperCase().trim() }),
         ...(description !== undefined && { description }),
@@ -106,15 +125,24 @@ export async function PATCH(
 // DELETE coupon
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const couponId = (await params).id;
     const user = await getAuthenticatedUser();
-    if (!user || user.role !== "ADMIN") {
+    
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    
+    // Check if the user has an admin role
+    const isAdmin = user.roles?.some(r => r.roleName.toLowerCase() === "admin") ?? false;
+    
+    if (!isAdmin) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    await db.coupon.delete({ where: { id: params.id } });
+    await db.coupon.delete({ where: { id: couponId } });
 
     return NextResponse.json({ message: "Coupon deleted" });
   } catch (error) {

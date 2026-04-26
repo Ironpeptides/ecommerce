@@ -88,7 +88,11 @@ model User {
   roles                        Role[]            @relation("UserRoles")
   marketerCoupons              Coupon[]          @relation("MarketerCoupons")
   marketerCommissions          Commission[]      @relation("MarketerCommissions")
+  subscription   Subscription?
+  notificationPreferences NotificationPreference?
 }
+
+
 
 model Organisation {
   id             String    @id @default(cuid())
@@ -122,6 +126,64 @@ model Invite {
   @@map("invites")
 }
 
+
+model Subscription {
+  id                String             @id @default(cuid())
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  userId            String             @unique
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  stripeCustomerId      String?        @unique
+  stripeSubscriptionId  String?        @unique
+  stripePriceId         String?
+  paymentMethod         String?        // e.g. "Visa •••• 4242"
+  paymentMethodBrand    String?        // e.g. "visa" | "mastercard"
+  paymentMethodLast4    String?
+
+  status            SubscriptionStatus @default(INACTIVE)
+  plan              String             @default("Pro")       // e.g. "Pro", "Enterprise"
+  amount            Float              @default(39)
+  currency          String             @default("usd")
+  interval          String             @default("month")
+
+  startDate         DateTime?
+  renewalDate       DateTime?
+  cancelledAt       DateTime?
+  trialEndsAt       DateTime?
+
+  @@map("subscriptions")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  CANCELLED
+  PAST_DUE
+  TRIALING
+}
+
+model NotificationPreference {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Email
+  emailMarketing     Boolean @default(true)
+  emailOrderUpdates  Boolean @default(true)
+  emailSecurity      Boolean @default(true)
+  emailNewsletter    Boolean @default(false)
+
+  // In-app
+  inAppOrders        Boolean @default(true)
+  inAppMessages      Boolean @default(true)
+  inAppPromotions    Boolean @default(false)
+
+  updatedAt DateTime @updatedAt
+
+  @@map("notification_preferences")
+}
 model Category {
   id          String    @id @default(cuid())
   title       String
@@ -506,8 +568,10 @@ model Review {
   rating    Int
   comment   String?
   createdAt DateTime @default(now())
-  product   Product  @relation(fields: [productId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, productId])
+  @@map("reviews")
 }
 
 enum UserRoles {

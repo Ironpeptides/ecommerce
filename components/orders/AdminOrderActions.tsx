@@ -39,7 +39,10 @@ export function AdminOrderActions({ order }: Props) {
   const [isPending, startTransition] = useTransition();
   const [savingNote, setSavingNote] = useState(false);
 
-  const isPendingApproval = order.paymentStatus === "PENDING_APPROVAL";
+  const isPendingApproval = ["PENDING_APPROVAL", "UNPAID", "PARTIALLY_PAID"].includes(order.paymentStatus);
+
+
+  
 
   function handleStatusChange() {
     if (selectedStatus === order.orderStatus) return;

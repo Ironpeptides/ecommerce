@@ -40,9 +40,19 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const user = await getAuthenticatedUser();
-    if (!user || user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+
+if (!user) {
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+}
+
+// Check if the user has an admin role
+const isAdmin = user.roles?.some(r => r.roleName.toLowerCase() === "admin") ?? false;
+
+if (!isAdmin) {
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+}
+
+
 
     const body = await req.json();
     const {

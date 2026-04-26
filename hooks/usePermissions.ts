@@ -1,18 +1,21 @@
+// hooks/usePermissions.ts
 "use client";
 
-import { useSession } from "next-auth/react";
+type Session = {
+  user?: {
+    permissions?: string[];
+  };
+} | null;
 
-export function usePermission() {
-  const { data: session } = useSession();
+export function usePermission(session: Session) {
+  const permissions = session?.user?.permissions;
 
   const hasPermission = (permission: string): boolean => {
-    const permissions = session?.user?.permissions;
     if (!permissions) return false;
     return permissions.includes(permission);
   };
 
   const hasAnyPermission = (permissionsList: string[]): boolean => {
-    const permissions = session?.user?.permissions;
     if (!permissions) return false;
     return permissionsList.some((permission) =>
       permissions.includes(permission)
@@ -20,7 +23,6 @@ export function usePermission() {
   };
 
   const hasAllPermissions = (permissionsList: string[]): boolean => {
-    const permissions = session?.user?.permissions;
     if (!permissions) return false;
     return permissionsList.every((permission) =>
       permissions.includes(permission)

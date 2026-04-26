@@ -775,11 +775,11 @@ const CartPage = () => {
                                             <CreditCard size={16} className={paymentMethod === 'online' ? 'text-emerald-400' : 'text-gray-400'} />
                                             <span className={`text-sm font-medium ${paymentMethod === 'online' ? 'text-emerald-300' : 'text-gray-300'}`}>Online Payment</span>
                                         </label>
-                                        <label className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'cod' ? 'bg-emerald-500/10 border-emerald-500/40' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}>
+                                        {/* <label className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'cod' ? 'bg-emerald-500/10 border-emerald-500/40' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}>
                                             <input type="radio" name="paymentMethod" value="cod" checked={paymentMethod === "cod"} onChange={(e) => setPaymentMethod(e.target.value)} className='accent-emerald-500' />
                                             <Truck size={16} className={paymentMethod === 'cod' ? 'text-emerald-400' : 'text-gray-400'} />
                                             <span className={`text-sm font-medium ${paymentMethod === 'cod' ? 'text-emerald-300' : 'text-gray-300'}`}>Cash on Delivery</span>
-                                        </label>
+                                        </label> */}
                                     </div>
                                 </div>
 

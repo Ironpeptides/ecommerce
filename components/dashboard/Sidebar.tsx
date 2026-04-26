@@ -61,7 +61,7 @@ const buyerSidebarLinks: ISidebarLink[] = [
   },
   {
     title: "My Reviews",
-    href: "/dashboard/buyer/reviews",
+    href: "/dashboard/reviews",
     icon: Star,
     permission: "reviews.read",
     dropdown: false,

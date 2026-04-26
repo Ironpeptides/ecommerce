@@ -1,82 +1,107 @@
-// app/product/[slug]/page.tsx
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getProductBySlug, getRelatedProducts } from "@/actions/products";
 import { ProductClient } from "./product-client";
 
-// Define proper types that match your Prisma schema with null handling
-type ProductWithRelations = NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>;
+type RawProduct = NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>;
+type RawRelated = Awaited<ReturnType<typeof getRelatedProducts>>[number];
 
-// Transform the product to ensure string fields are never null
-function transformProduct(product: ProductWithRelations) {
+// For related products (simplified product data)
+
+
+function transformProduct(p: RawProduct) {
   return {
-    ...product,
-    description: product.description || "",
-    category: product.category ? {
-      ...product.category,
-      description: product.category.description || "",
-      imageUrl: product.category.imageUrl || "",
+    ...p,
+    description:      p.description  ?? "",
+    casNumber:        p.casNumber    ?? null,
+    formula:          p.formula      ?? null,
+    molarMass:        p.molarMass    ?? null,
+    category: p.category ? {
+      ...p.category,
+      description: p.category.description ?? "",
+      imageUrl:    p.category.imageUrl    ?? "",
     } : null,
-    images: product.images.map((img: any) => ({
-      ...img,
-      alt: img.alt || "",
+    images:   p.images.map((img) => ({ url: img.url, alt: img.alt ?? "" })),
+    variants: p.variants.map((v) => ({
+      ...v,
+      unit:  v.unit  ?? "",
+      sku:   v.sku   ?? "",
     })),
-    reviews: product.reviews.map((review: any) => ({
-      ...review,
-      comment: review.comment || "",
+    reviews: p.reviews.map((r) => ({
+      id:        r.id,
+      rating:    r.rating,
+      comment:   r.comment   ?? "",
+      userId:    r.userId,
+      productId: r.productId,
+      createdAt: r.createdAt,
+      userName:  r.user?.name ?? "Anonymous",
+      userImage: r.user?.image ?? null,
     })),
+    batches: p.batches.map((b) => ({
+      ...b,
+      purity:         b.purity         ?? null,
+      coaUrl:         b.coaUrl         ?? null,
+      manufacturedAt: b.manufacturedAt ?? null,
+      expiryDate:     b.expiryDate     ?? null,
+      quantity:       b.quantity       ?? null,
+    })),
+    certificates: p.certificates ?? [],
   };
 }
 
-// Generate metadata
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+function transformRelated(p: RawRelated) {
+  return {
+    ...p,
+    description: p.description ?? "",
+    casNumber:   p.casNumber   ?? null,
+    formula:     p.formula     ?? null,
+    category: p.category ? {
+      ...p.category,
+      description: p.category.description ?? "",
+      imageUrl:    p.category.imageUrl    ?? "",
+    } : null,
+    images:   p.images.map((img) => ({ url: img.url, alt: img.alt ?? "" })),
+    variants: p.variants.map((v) => ({ ...v, unit: v.unit ?? "", sku: v.sku ?? "" })),
+    reviews:  p.reviews.map((r) => ({
+      id: "", rating: r.rating, comment: "", userId: "",
+      productId: "", createdAt: new Date(), userName: "",
+    })),
+    batches:      [],
+    certificates: [],
+  };
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
-  
-  if (!product) {
-    return {
-      title: "Product Not Found",
-      description: "The requested product could not be found.",
-    };
-  }
-  
+  if (!product) return { title: "Product Not Found" };
   return {
-    title: `${product.name} | [Site Name]`,
-    description: product.description?.substring(0, 160) || "",
+    title: `${product.name} | Iron Peptides Innovation`,
+    description: product.description?.substring(0, 160) ?? "",
     openGraph: {
-      title: product.name,
-      description: product.description?.substring(0, 160) || "",
-      images: product.images?.[0]?.url ? [product.images[0].url] : [],
+      title:       product.name,
+      description: product.description?.substring(0, 160) ?? "",
+      images:      product.images?.[0]?.url ? [product.images[0].url] : [],
     },
   };
 }
 
-export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ProductPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
-  
-  // Fetch product using your action
-  const rawProduct = await getProductBySlug(slug);
-  
-  if (!rawProduct) {
-    notFound();
-  }
-  
-  // Transform the product to handle null values
-  const product = transformProduct(rawProduct);
-  
-  // Fetch related products
-  const relatedProducts = await getRelatedProducts(product.id, product.category?.id || null, 4);
-  
-  // Transform related products (convert null descriptions to empty strings)
-  const transformedRelatedProducts = relatedProducts.map((p: any) => ({
-    ...p,
-    description: p.description || "",
-    category: p.category ? {
-      ...p.category,
-      description: p.category.description || "",
-      imageUrl: p.category.imageUrl || "",
-    } : null,
-  }));
-  
-  return <ProductClient product={product} relatedProducts={transformedRelatedProducts} />;
+  const raw = await getProductBySlug(slug);
+  if (!raw) notFound();
+
+  const product  = transformProduct(raw);
+  const rawRelated = await getRelatedProducts(raw.id, raw.category?.id ?? null, 4);
+  const relatedProducts = rawRelated.map(transformRelated);
+
+  return <ProductClient product={product} relatedProducts={relatedProducts} />;
 }

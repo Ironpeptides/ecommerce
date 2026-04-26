@@ -67,27 +67,35 @@ export function UserDropdownMenu({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuItem onClick={handleUpgrade} className="cursor-pointer">
-          <Sparkles className="mr-2 h-4 w-4" />
-          <span>Upgrade to Pro</span>
-        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => router.push("/dashboard/profile?tab=profile")}
+          >
             <Settings className="mr-2 h-4 w-4" />
             <span>Account</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => router.push("/dashboard/profile?tab=billing")}
+          >
             <CreditCard className="mr-2 h-4 w-4" />
             <span>Billing</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+           className="cursor-pointer"
+            onClick={() => router.push("/dashboard/profile?tab=notifications")}
+          >
             <Bell className="mr-2 h-4 w-4" />
             <span>Notifications</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+        <DropdownMenuItem
+        className="cursor-pointer" 
+        
+        onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>

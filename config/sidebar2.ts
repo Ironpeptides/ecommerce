@@ -55,6 +55,14 @@ export const sidebarLinks: ISidebarLink[] = [
     badge: "Active",
   },
   {
+    title: "Coupons",
+    href: "/dashboard/coupons",
+    icon: ShoppingCart,
+    dropdown: false,
+    permission: "orders.read",
+    badge: "Active",
+  },
+  {
     title: "My Wishlist",
     href: "/dashboard/wishlist",
     icon: Heart,
@@ -116,7 +124,7 @@ export const sidebarLinks: ISidebarLink[] = [
     dropdownMenu: [
       {
         title: "Categories",
-        href: "/dashboard/inventory/categories",
+        href: "/dashboard/products?tab=categories",
         permission: "categories.read",
       },
       {
@@ -126,7 +134,7 @@ export const sidebarLinks: ISidebarLink[] = [
       },
       {
         title: "Stock Levels",
-        href: "/dashboard/inventory/stock",
+        href: "/dashboard/inventory",
         permission: "products.read",
       },
     ],
@@ -145,12 +153,12 @@ export const sidebarLinks: ISidebarLink[] = [
       },
       {
         title: "Customers",
-        href: "/dashboard/sales/customers",
+        href: "/dashboard/sales?tab=customers",
         permission: "customers.read",
       },
       {
         title: "Transactions",
-        href: "/dashboard/sales/transactions",
+        href: "/dashboard/sales?tab=transactions",
         permission: "sales.read",
       },
     ],
@@ -191,35 +199,35 @@ export const sidebarLinks: ISidebarLink[] = [
     ],
     permission: "settings.read",
   }, */
- /*  {
+   {
     title: "Reports",
     icon: BarChart4,
     dropdown: true,
-    href: "/dashboard/reports/products",
+    href: "/dashboard/reports",
     permission: "reports.read",
     dropdownMenu: [
       {
         title: "Product Report",
-        href: "/dashboard/reports/products",
+        href: "/dashboard/reports",
         permission: "reports.read",
       },
-      {
+      /* {
         title: "Inventory Report",
         href: "/dashboard/reports/inventory",
         permission: "reports.read",
-      },
+      }, */
       {
         title: "Customers Report",
-        href: "/dashboard/reports/customers",
+        href: "/dashboard/reports",
         permission: "reports.read",
       },
       {
         title: "Sales Report",
-        href: "/dashboard/reports/sales",
+        href: "/dashboard/reports",
         permission: "reports.read",
       },
     ],
-  }, */
+  }, 
 ];
 
 

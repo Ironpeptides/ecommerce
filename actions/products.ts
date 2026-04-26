@@ -72,54 +72,70 @@ export async function getProductById(id: string) {
 }
 
 
-
-
-
 export async function getProductBySlug(slug: string) {
-  try {
-    return await db.product.findUnique({
-      where: { slug },
-      include: {
-        images: { orderBy: { order: "asc" } },
-        variants: true,
-        batches: { orderBy: { manufacturedAt: "desc" } },
-        category: true,
-        certificates: true,
-        reviews: true,
+  return db.product.findUnique({
+    where: { slug, isActive: true },
+    select: {
+      id: true, name: true, slug: true, description: true,
+      price: true, salePrice: true, stock: true, lowStock: true,
+      casNumber: true, formula: true, molarMass: true,
+      sku: true, isActive: true, isFeatured: true, createdAt: true,
+      updatedAt: true,
+      category: {
+        select: { id: true, title: true, slug: true, description: true, imageUrl: true },
       },
-    });
-  } catch (error) {
-    console.error("Error fetching product by slug:", error);
-    return null;
-  }
+      images: { select: { url: true, alt: true, isPrimary: true, id:true, order:true }, orderBy: { order: "asc" } },
+      variants: {
+        select: { id: true, name: true, value: true, unit: true, price: true, stock: true, sku: true },
+        orderBy: { price: "asc" },
+      },
+      reviews: {
+        select: {
+          id: true, rating: true, comment: true, userId: true,
+          productId: true, createdAt: true,
+          user: { select: { name: true, image: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      },
+      batches: {
+        select: {
+          id: true, batchNumber: true, purity: true, coaUrl: true,
+          manufacturedAt: true, expiryDate: true, quantity: true,
+        },
+        orderBy: { expiryDate: "asc" },
+      },
+      certificates: { select: { id: true, url: true } },
+      _count: { select: { reviews: true, orderItems: true } },
+    },
+  });
 }
 
-export async function getRelatedProducts(productId: string, categoryId: string | null, limit: number = 4) {
-  try {
-    if (!categoryId) return [];
-    
-    return await db.product.findMany({
-      where: {
-        categoryId: categoryId,
-        id: { not: productId }, // Exclude current product
-      },
-      include: {
-        images: { orderBy: { order: "asc" }, take: 1 }, // Just get first image for display
-        category: true,
-        variants: {
-          take: 1, // Just get first variant for price display
-        },
-      },
-      take: limit,
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-  } catch (error) {
-    console.error("Error fetching related products:", error);
-    return [];
-  }
+export async function getRelatedProducts(
+  productId: string,
+  categoryId: string | null,
+  limit = 4
+) {
+  return db.product.findMany({
+    where: {
+      isActive: true,
+      id: { not: productId },
+      ...(categoryId ? { categoryId } : {}),
+    },
+    take: limit,
+    select: {
+      id: true, name: true, slug: true, description: true,
+      price: true, salePrice: true, stock: true, lowStock: true,
+      casNumber: true, formula: true,
+      category: { select: { id: true, title: true, slug: true, description: true, imageUrl: true } },
+      images: { where: { isPrimary: true }, take: 1, select: { url: true, alt: true } },
+      variants: { select: { id: true, name: true, value: true, unit: true, price: true, stock: true, sku: true } },
+      reviews: { select: { rating: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
 }
+
+
 
 // Optional: Get product with transformed types (handles null values)
 export async function getProductWithDefaults(slug: string) {
@@ -650,4 +666,171 @@ export async function deleteCategory(id: string) {
     console.error("Error deleting category:", error);
     return { success: false, error: "Failed to delete category" };
   }
+}
+
+
+
+export type ProductSearchParams = {
+  query?: string;
+  categoryIds?: string[];
+  minPrice?: number;
+  maxPrice?: number;
+  inStock?: boolean;
+  minRating?: number;
+  sortBy?: "newest" | "price_asc" | "price_desc" | "popular" | "rating";
+  page?: number;
+  limit?: number;
+};
+
+export async function searchProducts(params: ProductSearchParams = {}) {
+  const {
+    query,
+    categoryIds,
+    minPrice,
+    maxPrice,
+    inStock,
+    minRating,
+    sortBy = "newest",
+    page = 1,
+    limit = 24,
+  } = params;
+
+  const where: any = { isActive: true };
+
+  // Full-text search across name, description, CAS number, formula
+  if (query?.trim()) {
+    where.OR = [
+      { name:        { contains: query, mode: "insensitive" } },
+      { description: { contains: query, mode: "insensitive" } },
+      { casNumber:   { contains: query, mode: "insensitive" } },
+      { formula:     { contains: query, mode: "insensitive" } },
+      { sku:         { contains: query, mode: "insensitive" } },
+      { category:    { title: { contains: query, mode: "insensitive" } } },
+    ];
+  }
+
+  if (categoryIds?.length) {
+    where.categoryId = { in: categoryIds };
+  }
+
+  if (minPrice !== undefined || maxPrice !== undefined) {
+    where.OR = [
+      {
+        salePrice: {
+          ...(minPrice !== undefined && { gte: minPrice }),
+          ...(maxPrice !== undefined && { lte: maxPrice }),
+        },
+      },
+      {
+        price: {
+          ...(minPrice !== undefined && { gte: minPrice }),
+          ...(maxPrice !== undefined && { lte: maxPrice }),
+        },
+      },
+    ];
+  }
+
+  if (inStock) {
+    where.stock = { gt: 0 };
+  }
+
+  // Rating filter — join reviews
+  if (minRating) {
+    where.reviews = {
+      some: { rating: { gte: minRating } },
+    };
+  }
+
+  const orderBy: any =
+    sortBy === "price_asc"  ? [{ salePrice: "asc"  }, { price: "asc"  }] :
+    sortBy === "price_desc" ? [{ salePrice: "desc" }, { price: "desc" }] :
+    sortBy === "popular"    ? [{ orderItems: { _count: "desc" } }]       :
+    sortBy === "rating"     ? [{ reviews: { _count: "desc" } }]          :
+                              [{ createdAt: "desc" }]; // newest
+
+  const skip = (page - 1) * limit;
+
+  const [products, total] = await Promise.all([
+    db.product.findMany({
+      where,
+      orderBy,
+      skip,
+      take: limit,
+      select: {
+        id: true, name: true, slug: true, description: true,
+        price: true, salePrice: true, stock: true, lowStock: true,
+        casNumber: true, formula: true, molarMass: true,
+        isActive: true, isFeatured: true, createdAt: true,
+        category:  { select: { id: true, title: true, slug: true } },
+        images:    { where: { isPrimary: true }, take: 1, select: { url: true, alt: true } },
+        variants:  { select: { id: true, name: true, value: true, price: true, stock: true, unit: true } },
+        _count:    { select: { reviews: true, orderItems: true } },
+        reviews:   { select: { rating: true } },
+      },
+    }),
+    db.product.count({ where }),
+  ]);
+
+  // Compute average rating per product
+  const enriched = products.map((p) => ({
+    ...p,
+    averageRating: p.reviews.length
+      ? Number((p.reviews.reduce((a, r) => a + r.rating, 0) / p.reviews.length).toFixed(1))
+      : null,
+  }));
+
+  return {
+    products: enriched,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+    hasMore: skip + products.length < total,
+  };
+}
+
+// Used by header quick-search dropdown (lightweight — name + image only)
+export async function quickSearchProducts(query: string) {
+  if (!query.trim() || query.length < 2) return [];
+
+  return db.product.findMany({
+    where: {
+      isActive: true,
+      OR: [
+        { name:      { contains: query, mode: "insensitive" } },
+        { casNumber: { contains: query, mode: "insensitive" } },
+        { formula:   { contains: query, mode: "insensitive" } },
+      ],
+    },
+    take: 6,
+    select: {
+      id: true, name: true, slug: true,
+      salePrice: true, price: true,
+      casNumber: true,
+      images: { where: { isPrimary: true }, take: 1, select: { url: true } },
+      category: { select: { title: true } },
+    },
+  });
+}
+
+// For sidebar filter options
+export async function getFilterOptions() {
+  const [categories, priceAgg] = await Promise.all([
+    db.category.findMany({
+      select: { id: true, title: true, slug: true, _count: { select: { products: true } } },
+      orderBy: { title: "asc" },
+    }),
+    db.product.aggregate({
+      where: { isActive: true },
+      _min: { salePrice: true, price: true },
+      _max: { salePrice: true, price: true },
+    }),
+  ]);
+
+  return {
+    categories,
+    priceRange: {
+      min: Math.floor(Math.min(priceAgg._min.salePrice ?? 0, priceAgg._min.price ?? 0)),
+      max: Math.ceil(Math.max(priceAgg._max.salePrice ?? 999, priceAgg._max.price ?? 999)),
+    },
+  };
 }

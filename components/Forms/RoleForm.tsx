@@ -124,7 +124,7 @@ export default function RoleForm({ editingId, initialData }: RoleFormProps) {
               {permissions.map((module) => (
                 <div
                   key={module.name}
-                  className="border rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow"
+                  className="border rounded-lg text-zinc-900 bg-white shadow-sm hover:shadow-md transition-shadow"
                 >
                   <div className="p-4 space-y-2">
                     <div className="flex items-center justify-between ">

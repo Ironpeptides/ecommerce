@@ -136,7 +136,7 @@ export default async function PaymentSuccessPage({ searchParams }: PaymentSucces
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href={`/orders/${sessionId}`}
+                href={`/dashboard/orders/buyer/${orderId}`}
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition-all transform hover:scale-105"
               >
                 <Package className="w-4 h-4" />

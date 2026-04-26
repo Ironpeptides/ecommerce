@@ -6,6 +6,14 @@ const f = createUploadthing();
 // FileRouter for your app, can contain multiple FileRoutes
 export const ourFileRouter = {
   // Define as many FileRoutes as you like, each with a unique routeSlug
+
+  profileImage: f({ 
+    image: { maxFileSize: "4MB", maxFileCount: 1 } 
+  }).onUploadComplete(async ({ metadata, file }) => {
+    console.log("Profile image uploaded:", file.url);
+    return { uploadedBy: "JB", url: file.url };
+  }),
+
   categoryImage: f({ image: { maxFileSize: "1MB" } }).onUploadComplete(
     async ({ metadata, file }) => {
       console.log("file url", file.url);
@@ -23,9 +31,10 @@ export const ourFileRouter = {
   productImageUploader: f({ 
     image: { maxFileSize: "4MB", maxFileCount: 1 } 
   }).onUploadComplete(async ({ metadata, file }) => {
-    console.log("Product image uploaded:", file.url);
+   
     return { uploadedBy: "JB", url: file.url };
   }),
+  
 
   // ✅ NEW: Certificate uploader (for certificates of analysis)
   certificateUploader: f({

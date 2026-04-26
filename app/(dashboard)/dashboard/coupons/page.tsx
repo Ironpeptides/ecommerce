@@ -8,8 +8,6 @@ export default async function CouponsPage() {
   const [coupons, marketers] = await Promise.all([
     db.coupon.findMany({
       include: {
-        marketerId: true,
-        commissionRate: true, 
         marketer: { select: { id: true, name: true, email: true } },
         _count: { select: { orders: true } },
       },
@@ -17,11 +15,10 @@ export default async function CouponsPage() {
     }),
     // fetch users who are marketers to populate the marketer dropdown
     db.user.findMany({
-      where: { 
-        orgId: user.orgId, 
+      where: {  
         roles: {
           some: {
-            roleName: "MARKETER"
+            roleName: "marketer"
           }
         }
       },

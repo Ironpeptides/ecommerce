@@ -1,17 +1,17 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal, Eye, Copy, Package } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal, Eye, Copy, Package, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
+  DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 
 // ─── Type ─────────────────────────────────────────────────────────────────────
-// Same shape as the admin Order type — no changes needed on the data side.
 export type Order = {
   id: string;
   orderNumber: string;
@@ -26,7 +26,7 @@ export type Order = {
   discountAmount: number;
   buyerPaidAt?: Date | null;
   user: { id: string; name: string; email: string };
-  items: { id: string; productName: string; quantity: number; price: number }[];
+  items: { id: string; productId: string; productName: string; quantity: number; price: number }[];
   shippingAddress?: {
     fullName: string; city: string; country: string;
   } | null;
@@ -53,7 +53,6 @@ const PAYMENT_STATUS_STYLES: Record<string, string> = {
 };
 
 // ─── Buyer-friendly status labels ─────────────────────────────────────────────
-// Translates internal enum values into plain language a customer understands.
 const ORDER_STATUS_LABELS: Record<string, string> = {
   PENDING:    "Order Received",
   CONFIRMED:  "Confirmed",
@@ -103,7 +102,6 @@ export const columns: ColumnDef<Order>[] = [
   },
 
   // ── What they ordered (first item + overflow) ───────────────────────────────
-  // Replaces the admin "Buyer" column — the buyer already knows who they are.
   {
     id: "items",
     header: "Items",
@@ -191,7 +189,7 @@ export const columns: ColumnDef<Order>[] = [
   },
 
   // ── Payment status ──────────────────────────────────────────────────────────
- /*  {
+   {
     accessorKey: "paymentStatus",
     header: "Payment",
     cell: ({ row }) => {
@@ -213,7 +211,7 @@ export const columns: ColumnDef<Order>[] = [
         </div>
       );
     },
-  }, */
+  }, 
 
   // ── Date ────────────────────────────────────────────────────────────────────
   {
@@ -239,8 +237,6 @@ export const columns: ColumnDef<Order>[] = [
   },
 
   // ── Actions ─────────────────────────────────────────────────────────────────
-  // Removed: "Copy buyer email" (that's the buyer themselves — pointless)
-  // Removed: admin detail link → replaced with buyer-facing order detail route
   {
     id: "actions",
     cell: ({ row }) => {
@@ -263,6 +259,27 @@ export const columns: ColumnDef<Order>[] = [
                 View Order
               </Link>
             </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            {/* Write a Review submenu with individual items */}
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <Star className="mr-2 h-3.5 w-3.5" />
+                Write a Review
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                {order.items.map((item) => (
+                  <DropdownMenuItem key={item.id} asChild>
+                    <Link href={`/reviews/${item.productId}`}>
+                      <span className="truncate max-w-[200px]">
+                        {item.productName}
+                      </span>
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
 
             <DropdownMenuSeparator />
 
