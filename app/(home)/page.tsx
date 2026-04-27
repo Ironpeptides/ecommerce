@@ -231,7 +231,7 @@ const page = ({ orgId }: { orgId?: string }) => {
         </section>
 
         {/* ── Partner Labs ── */}
-        <section
+        {/* <section
           aria-label="Trusted Partners"
           className="relative rounded-3xl border border-white/10 p-8 md:p-12 overflow-hidden"
           style={{
@@ -272,7 +272,7 @@ const page = ({ orgId }: { orgId?: string }) => {
             </div>
           )}
         </section>
-
+ */}
         {/* ── Offers ── */}
         {/* <section aria-label="Limited Time Offers">
           <div className="flex items-center gap-4 mb-10">

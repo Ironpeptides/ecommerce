@@ -16,6 +16,7 @@ import {
   Menu, Search, ShoppingCart, Dna, FileWarning,
   Gavel, ShieldAlert, Scale, X, ReceiptText, Loader2,
   Users, Mail, Phone, Building2, Info,
+  MilestoneIcon,
 } from "lucide-react";
 import Logo from "../global/Logo";
 import { Session } from "next-auth";
@@ -25,11 +26,13 @@ import { useStore } from "@/store";
 import { quickSearchProducts } from "@/actions/products";
 
 const shopCategories = [
+  { icon: ShoppingCart, title: "Products", description: "All products we sell at Iron Peptides", href: "/products" },
   { icon: Dna, title: "Peptides", description: "Analytical grade amino acid sequences.", href: "#suggested-products" },
   { icon: ReceiptText, title: "Refund & Return Policy", href: "/legal/refund-policy" },
 ];
 
 const aboutLinks = [
+  { icon: MilestoneIcon, title: "About Us", description: "Get in touch with our support team", href: "/about-us" },
   { icon: Mail, title: "Contact Us", description: "Get in touch with our support team", href: "/contact" },
   { icon: Phone, title: "Support", description: "Technical and customer support", href: "/contact" },
 ];
@@ -212,13 +215,13 @@ export default function SiteHeader({ session }: { session: Session | null }) {
               </NavigationMenuItem>
 
               {/* Products */}
-              <NavigationMenuItem>
+              {/* <NavigationMenuItem>
                 <Link href="/products" legacyBehavior passHref>
                   <NavigationMenuLink className="h-9 px-3 py-2 text-sm font-bold text-gray-400 hover:text-blue-400 transition-colors uppercase tracking-tight">
                     Products
                   </NavigationMenuLink>
                 </Link>
-              </NavigationMenuItem>
+              </NavigationMenuItem> */}
             </NavigationMenuList>
           </NavigationMenu>
         </div>

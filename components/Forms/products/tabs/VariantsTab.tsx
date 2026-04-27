@@ -84,7 +84,7 @@ export function VariantsTab({ product }: Props) {
       try {
         const variant = await addProductVariant(product.id, {
           name: "Quantity",
-          value: `${values.quantity}${values.unit}`,
+          value: `${values.quantity}`,
           quantity: values.quantity,
           unit: values.unit,
           price: values.price,

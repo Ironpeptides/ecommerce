@@ -62,13 +62,13 @@ export const sidebarLinks: ISidebarLink[] = [
     permission: "orders.read",
     badge: "Active",
   },
-  {
+  /* {
     title: "My Wishlist",
     href: "/dashboard/wishlist",
     icon: Heart,
     dropdown: false,
     permission: "wishlist.read",
-  },
+  }, */
   {
     title: "My Reviews",
     href: "/dashboard/reviews",
@@ -76,13 +76,13 @@ export const sidebarLinks: ISidebarLink[] = [
     dropdown: false,
     permission: "reviews.read",
   },
-  {
+ /*  {
     title: "Support Tickets",
     href: "/dashboard/support",
     icon: HeadphonesIcon,
     dropdown: false,
     permission: "support.read",
-  },
+  }, */
   {
     title: "My Profile",
     href: "/dashboard/profile",

@@ -457,6 +457,8 @@ export async function addProductVariant(
     const variant = await db.productVariant.create({
       data: { ...data, productId },
     });
+    console.log("data", data);
+    console.log("variant", variant);
     revalidatePath("/dashboard/products");
     return variant;
   } catch (error) {
