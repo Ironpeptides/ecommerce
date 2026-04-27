@@ -3,7 +3,9 @@ import { Rethink_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import Providers from "@/components/Providers";
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/components/theme-provider";
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 // import FooterBanner from "@/components/Footer";
 const inter = Rethink_Sans({ subsets: ["latin"], display: "swap" });
 
@@ -11,6 +13,8 @@ export const metadata: Metadata = {
   title: "Iron Peptides Innovation",
   description: "Premium-grade research peptides engineered for precision. We provide ultra-high purity peptides for advanced biological study. Engineered for accuracy, delivered with full analytical documentation.",
 };
+
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -21,11 +25,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           enableSystem
           disableTransitionOnChange
         >
-        <Toaster richColors />
-        <Providers>{children}</Providers>  
+          <Toaster richColors />
+          <Providers>{children}</Providers>  
         </ThemeProvider>
-
-          
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

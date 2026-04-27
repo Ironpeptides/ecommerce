@@ -96,8 +96,8 @@ export default async function AdminOrderDetailPage({
                     <Image
                       src={item.productImage}
                       alt={item.productName}
-                      width={52}
-                      height={52}
+                      width={100}
+                      height={100}
                       className="rounded-lg object-cover border"
                     />
                   ) : (
