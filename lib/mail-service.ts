@@ -19,25 +19,24 @@ export async function sendOrderConfirmationEmails({
   totalAmount: number;
   items: any[];
 }) {
-  console.log("Sending order confirmation email to buyer1:", buyerEmail);
+  
   try {
     const buyerResult = await resend.emails.send({
-      from: `Iron Peptides <onboarding@resend.dev>`,
-      to: "simiyunevily@gmail.com",
+      from: `Iron Peptides <info@ironpeptides.fit>`,
+      to: buyerEmail,
       subject: `Order Confirmation #${orderNumber}`,
       react: OrderReceiptEmail({ userFirstname: buyerName, orderNumber, totalAmount, items }),
     });
-    console.log("Buyer email result:", JSON.stringify(buyerResult)); 
+  
 
     const adminResults = await Promise.all(adminEmails.map(email =>
       resend.emails.send({
-        from: `Iron Peptides <onboarding@resend.dev>`,
-        to: "simiyunevily@gmail.com",
+        from: `Iron Peptides <info@ironpeptides.fit>`,
+        to: email,
         subject: `NEW SALE ALERT: #${orderNumber}`,
         react: OrderReceiptEmail({ userFirstname: "Admin", orderNumber, totalAmount, items, isAdmin: true }),
       })
     ));
-    console.log("Admin email results:", JSON.stringify(adminResults)); 
 
   } catch (error) {
     console.error("Failed to send emails:", JSON.stringify(error)); 

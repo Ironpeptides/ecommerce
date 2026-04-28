@@ -122,14 +122,14 @@ export async function createUser(data: UserProps, orgData:OrgData) {
 
       // Find or create default role
       let defaultRole = await tx.role.findFirst({
-        where: { roleName: ADMIN_USER_ROLE.roleName },
+        where: { roleName: BUYER_USER_ROLE.roleName },
       });
 
       // Create default role if it doesn't exist
       if (!defaultRole) {
         defaultRole = await tx.role.create({
           data: {
-            ...ADMIN_USER_ROLE,
+            ...BUYER_USER_ROLE,
             orgId: org.id
           },
         });
@@ -172,8 +172,8 @@ export async function createUser(data: UserProps, orgData:OrgData) {
       const verificationCode = newUser.token??""
 
       const { data, error } = await resend.emails.send({
-      from:  `${phone} <onboarding@resend.dev>`, // "Iron Peptides <simiyunevily@gmail.com>"
-      to: "simiyunevily@gmail.com", //email,
+      from:  `Iron Peptides <info@ironpeptides.fit>`, 
+      to: email,
       subject: "Verify your Account",
       react: VerifyEmail({ verificationCode}),
     });
@@ -754,8 +754,8 @@ export async function sendInvite(data: InviteData) {
       const inviteLink = `${baseUrl}/user-invite/${orgId}?roleId=${roleId}&&email=${email}&&orgName=${orgName}`
       
       const { data, error } = await resend.emails.send({
-      from:  `Iron Peptides <onboarding@resend.dev>`, // "Iron Peptides <simiyunevily@gmail.com>"
-      to: "simiyunevily@gmail.com", //email,
+      from:  `Iron Peptides <info@ironpeptides.fit>`, 
+      to: email,
       subject: `Welcome to ${orgName} - ${roleName} Role Invitation`,
       react: InvitationEmail({ orgName,roleName,inviteLink, userFirstname, invitedBy }),
     });

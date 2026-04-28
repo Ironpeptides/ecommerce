@@ -57,16 +57,16 @@ export async function sendForm(prevState: FormState, formData: FormData): Promis
   const { name, email, institution, subject, message, inquiryType } = parse.data;
 
   try {
-    let recipientEmail = "simiyunevily@gmail.com"  //"research@[sitename].com";
+    let recipientEmail = "jactivations@gmail.com"  //"research@[sitename].com";
     
     if (inquiryType === "bulk" || inquiryType === "institutional") {
-      recipientEmail =   "simiyunevily@gmail.com" //"institutional@[sitename].com";
+      recipientEmail =   "jactivations@gmail.com" //"institutional@[sitename].com";
     } else if (inquiryType === "compliance") {
-      recipientEmail =   "simiyunevily@gmail.com"//"compliance@[sitename].com";
+      recipientEmail =   "jactivations@gmail.com"//"compliance@[sitename].com";
     }
 
     const { error } = await resend.emails.send({
-      from: `${name} <onboarding@resend.dev>`,
+      from: `Iron Peptides <info@ironpeptides.fit>`,
       to: recipientEmail,
       replyTo: email,
       subject: `[${inquiryType.toUpperCase()}] ${subject}`,

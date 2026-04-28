@@ -33,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SpeedInsights />
         <Script
           src="https://vilyo-customer-care-support.vercel.app/widget.js"
-          data-id="0a4659c4-2d1d-4a93-9fdb-87dafa563c80"
+          data-id="229453f0-f0c2-4ef8-95ed-b4d67be6a955"
           strategy="lazyOnload"
         />
       </body>
