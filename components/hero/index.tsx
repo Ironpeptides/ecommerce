@@ -93,8 +93,8 @@ const Hero = () => {
                 playsInline
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105"
               >
-                <source src="/videos/peptide.mp4" type="video/mp4" />
-                <source src="/videos/your-video.webm" type="video/webm" />
+                <source src="/videos/IronPeptidevideo.mp4" type="video/mp4" />
+                <source src="/videos/IronPeptidevideo.webm" type="video/webm" />
               </video>
 
               {/* Data Overlay */}
