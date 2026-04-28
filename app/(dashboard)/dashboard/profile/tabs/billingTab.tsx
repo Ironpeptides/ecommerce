@@ -11,7 +11,8 @@ import {
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
   AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { cancelSubscription, createCheckoutSession } from "@/actions/profile";
+
+import { useRouter } from "next/navigation";
 
 const STATUS_CONFIG: Record<string, { label: string; variant: any; icon: any }> = {
   ACTIVE:    { label: "Active",    variant: "default",     icon: CheckCircle2 },
@@ -30,20 +31,8 @@ export function BillingTab({ user, subscription }: { user: any; subscription: an
   const StatusIcon = cfg.icon;
   const isActive = status === "ACTIVE" || status === "TRIALING";
 
-  const handleCancel = async () => {
-    setCancelling(true);
-    const res = await cancelSubscription(user.id);
-    if (res.success) toast.success("Subscription cancelled — you'll retain access until the period ends");
-    else toast.error(res.error ?? "Failed to cancel");
-    setCancelling(false);
-  };
-
-  const handleSubscribe = async () => {
-    setSubscribing(true);
-    const res = await createCheckoutSession(user.id, user.email);
-    if (res.success && res.url) window.location.href = res.url;
-    else { toast.error(res.error ?? "Failed to start checkout"); setSubscribing(false); }
-  };
+  const router = useRouter()
+  
 
   return (
     <div className="space-y-8">
@@ -76,11 +65,11 @@ export function BillingTab({ user, subscription }: { user: any; subscription: an
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[
             "Unlimited products",
-            "Team members",
-            "Analytics dashboard",
-            "Priority support",
-            "Custom domain",
-            "API access",
+             "1 free vial/month",
+             "20% discount on all purchases",
+             "Priority support",
+             "Full access to research library",
+              "API access",
           ].map((f) => (
             <div key={f} className="flex items-center gap-2 text-sm">
               <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
@@ -118,7 +107,7 @@ export function BillingTab({ user, subscription }: { user: any; subscription: an
                 <AlertDialogFooter>
                   <AlertDialogCancel>Keep Subscription</AlertDialogCancel>
                   <AlertDialogAction
-                    onClick={handleCancel}
+                    onClick={()=>router.push("/dashboard/billing")}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
                     Yes, Cancel
@@ -127,7 +116,7 @@ export function BillingTab({ user, subscription }: { user: any; subscription: an
               </AlertDialogContent>
             </AlertDialog>
           ) : (
-            <Button onClick={handleSubscribe} disabled={subscribing} className="gap-2">
+            <Button onClick={()=>router.push("/dashboard/billing")} disabled={subscribing} className="gap-2">
               {subscribing
                 ? <><Loader2 className="h-4 w-4 animate-spin" />Redirecting...</>
                 : <><Zap className="h-4 w-4" />Subscribe — $39/month</>}

@@ -236,7 +236,8 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
                   <button
                     className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 text-white text-sm font-medium hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 shadow-md"
                     // Real field: data.name instead of data.title
-                    onClick={() => router.push(`/support?productId=${data?.id}&productName=${encodeURIComponent(data?.name ?? '')}`)}
+                    onClick={() => router.push(
+                       `/support?productId=${data?.id}&productName=${encodeURIComponent(data?.name ?? '')}&price=${data?.salePrice ?? ''}`)}
                   >
                     <MessageCircle size={18} />
                     Chat with Support

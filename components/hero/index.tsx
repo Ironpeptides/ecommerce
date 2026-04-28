@@ -38,8 +38,8 @@ const Hero = () => {
 
             <div className="space-y-4">
               <h1 className="text-white text-4xl sm:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.1]">
-                Unlock Your <br />
-                <span className="text-emerald-500 italic font-serif"> Biological Potential</span>
+                Research-Grade Peptides <br />
+                <span className="text-emerald-500 italic font-serif">At an Affordable Price</span>
               </h1>
               
               <p className="text-gray-400 text-base md:text-lg max-w-xl leading-relaxed">

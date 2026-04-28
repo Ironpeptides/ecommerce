@@ -6,6 +6,7 @@ import Providers from "@/components/Providers";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import Script from "next/script";
 // import FooterBanner from "@/components/Footer";
 const inter = Rethink_Sans({ subsets: ["latin"], display: "swap" });
 
@@ -30,6 +31,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />
+        <Script
+          src="https://vilyo-customer-care-support.vercel.app/widget.js"
+          data-id="0a4659c4-2d1d-4a93-9fdb-87dafa563c80"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );

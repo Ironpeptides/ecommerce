@@ -126,42 +126,5 @@ export async function updateNotificationPreferences(
 
 // ── Subscription ──────────────────────────────────────────────────────────────
 
-export async function cancelSubscription(userId: string) {
-  try {
-    const sub = await db.subscription.findUnique({ where: { userId } });
-    if (!sub?.stripeSubscriptionId) {
-      return { success: false, error: "No active subscription found" };
-    }
 
-    // Cancel at period end so they keep access till renewal date
-    await stripe.subscriptions.update(sub.stripeSubscriptionId, {
-      cancel_at_period_end: true,
-    });
 
-    await db.subscription.update({
-      where: { userId },
-      data: { cancelledAt: new Date(), status: "CANCELLED" },
-    });
-
-    revalidatePath("/dashboard/profile");
-    return { success: true };
-  } catch {
-    return { success: false, error: "Failed to cancel subscription" };
-  }
-}
-
-export async function createCheckoutSession(userId: string, email: string) {
-  try {
-    const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      customer_email: email,
-      line_items: [{ price: process.env.STRIPE_PRICE_ID!, quantity: 1 }],
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/profile?tab=billing&success=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/profile?tab=billing`,
-      metadata: { userId },
-    });
-    return { success: true, url: session.url };
-  } catch {
-    return { success: false, error: "Failed to create checkout session" };
-  }
-}
