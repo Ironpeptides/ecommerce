@@ -1,15 +1,10 @@
 "use client";
 
-import { useState, useTransition, useCallback } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
-import { searchProducts, getFilterOptions } from "@/actions/products";
+import { useState, useTransition, useCallback, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -18,65 +13,96 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger,
 } from "@/components/ui/sheet";
 import {
-  Dna, Grid2X2, List, Star, ShoppingCart, SlidersHorizontal,
-  Package, Search, ChevronLeft, ChevronRight, Loader2, FlaskConical,
+  Grid2X2, List, Star, SlidersHorizontal,
+  Search, ChevronLeft, ChevronRight, Loader2, FlaskConical,
 } from "lucide-react";
-import { useStore } from "@/store";
-import useUser from "@/hooks/useUser";
-import useLocationTracking from "@/hooks/useLocationTracking";
-import useDeviceTracking from "@/hooks/useDeviceTracking";
+import { searchProducts } from "@/actions/products";
 import ProductCard from "@/components/cards/product-card";
 
-type Filters = {
+export type SortBy = "newest" | "rating" | "price_asc" | "price_desc" | "popular";
+
+export type Filters = {
   categories: string[];
   minPrice?: number;
   maxPrice?: number;
   inStock: boolean;
   minRating?: number;
-  sortBy: string;
+  sortBy: SortBy;
 };
 
-function StarDisplay({ rating }: { rating: number | null }) {
-  if (!rating) return null;
+const DEFAULT_FILTERS: Filters = {
+  categories: [],
+  inStock: false,
+  minRating: undefined,
+  minPrice: undefined,
+  maxPrice: undefined,
+  sortBy: "newest",
+};
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function Stars({ rating, filled }: { rating: number; filled: boolean }) {
   return (
-    <div className="flex items-center gap-1">
+    <>
       {[1, 2, 3, 4, 5].map((s) => (
-        <Star key={s} className={`h-3 w-3 ${s <= Math.round(rating) ? "fill-yellow-400 text-yellow-400" : "fill-gray-700 text-gray-700"}`} />
+        <Star
+          key={s}
+          className={`h-3 w-3 ${
+            s <= rating
+              ? "fill-yellow-400 text-yellow-400"
+              : "fill-gray-700 text-gray-700"
+          }`}
+        />
       ))}
-      <span className="text-xs text-gray-400 ml-1">{rating}</span>
-    </div>
+    </>
   );
 }
 
-
-
-function FilterSidebar({ filterOptions, filters, onFiltersChange }: {
-  filterOptions: any; filters: Filters; onFiltersChange: (f: Filters) => void;
+function FilterSidebar({
+  filterOptions,
+  filters,
+  onFiltersChange,
+}: {
+  filterOptions: any;
+  filters: Filters;
+  onFiltersChange: (f: Filters) => void;
 }) {
   const { categories, priceRange } = filterOptions;
 
-  const toggleCategory = (id: string) => {
-    const next = filters.categories.includes(id)
-      ? filters.categories.filter((c) => c !== id)
-      : [...filters.categories, id];
-    onFiltersChange({ ...filters, categories: next });
-  };
+  const toggleCategory = useCallback(
+    (id: string) => {
+      const next = filters.categories.includes(id)
+        ? filters.categories.filter((c) => c !== id)
+        : [...filters.categories, id];
+      onFiltersChange({ ...filters, categories: next });
+    },
+    [filters, onFiltersChange]
+  );
 
   return (
     <div className="space-y-6">
       {/* Categories */}
       <div>
-        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Categories</h3>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
+          Categories
+        </h3>
         <div className="space-y-2">
           {categories.map((cat: any) => (
-            <label key={cat.id} className="flex items-center gap-2.5 cursor-pointer group">
+            <label
+              key={cat.id}
+              className="flex items-center gap-2.5 cursor-pointer group"
+            >
               <Checkbox
                 checked={filters.categories.includes(cat.id)}
                 onCheckedChange={() => toggleCategory(cat.id)}
                 className="border-white/20 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
               />
-              <span className="text-sm text-gray-400 group-hover:text-white transition-colors flex-1">{cat.title}</span>
-              <span className="text-[11px] text-gray-600">{cat._count.products}</span>
+              <span className="text-sm text-gray-400 group-hover:text-white transition-colors flex-1">
+                {cat.title}
+              </span>
+              <span className="text-[11px] text-gray-600">
+                {cat._count.products}
+              </span>
             </label>
           ))}
         </div>
@@ -84,17 +110,23 @@ function FilterSidebar({ filterOptions, filters, onFiltersChange }: {
 
       <Separator className="bg-white/10" />
 
-      {/* Price range */}
+      {/* Price */}
       <div>
-        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Price Range</h3>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
+          Price Range
+        </h3>
         <div className="space-y-4">
           <Slider
             min={priceRange.min}
             max={priceRange.max}
             step={1}
-            value={[filters.minPrice ?? priceRange.min, filters.maxPrice ?? priceRange.max]}
-            onValueChange={([min, max]) => onFiltersChange({ ...filters, minPrice: min, maxPrice: max })}
-            className="[&_.slider-thumb]:bg-blue-500"
+            value={[
+              filters.minPrice ?? priceRange.min,
+              filters.maxPrice ?? priceRange.max,
+            ]}
+            onValueChange={([min, max]) =>
+              onFiltersChange({ ...filters, minPrice: min, maxPrice: max })
+            }
           />
           <div className="flex items-center justify-between text-sm text-gray-400">
             <span>${filters.minPrice ?? priceRange.min}</span>
@@ -107,14 +139,20 @@ function FilterSidebar({ filterOptions, filters, onFiltersChange }: {
 
       {/* Stock */}
       <div>
-        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Availability</h3>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
+          Availability
+        </h3>
         <label className="flex items-center gap-2.5 cursor-pointer group">
           <Checkbox
             checked={filters.inStock}
-            onCheckedChange={(v) => onFiltersChange({ ...filters, inStock: !!v })}
+            onCheckedChange={(v) =>
+              onFiltersChange({ ...filters, inStock: !!v })
+            }
             className="border-white/20 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
           />
-          <span className="text-sm text-gray-400 group-hover:text-white transition-colors">In Stock Only</span>
+          <span className="text-sm text-gray-400 group-hover:text-white transition-colors">
+            In Stock Only
+          </span>
         </label>
       </div>
 
@@ -122,19 +160,27 @@ function FilterSidebar({ filterOptions, filters, onFiltersChange }: {
 
       {/* Rating */}
       <div>
-        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Minimum Rating</h3>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
+          Minimum Rating
+        </h3>
         <div className="space-y-2">
           {[4, 3, 2, 1].map((star) => (
-            <label key={star} className="flex items-center gap-2.5 cursor-pointer group">
+            <label
+              key={star}
+              className="flex items-center gap-2.5 cursor-pointer group"
+            >
               <Checkbox
                 checked={filters.minRating === star}
-                onCheckedChange={() => onFiltersChange({ ...filters, minRating: filters.minRating === star ? undefined : star })}
+                onCheckedChange={() =>
+                  onFiltersChange({
+                    ...filters,
+                    minRating: filters.minRating === star ? undefined : star,
+                  })
+                }
                 className="border-white/20 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
               />
               <div className="flex items-center gap-1">
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <Star key={s} className={`h-3 w-3 ${s <= star ? "fill-yellow-400 text-yellow-400" : "fill-gray-700 text-gray-700"}`} />
-                ))}
+                <Stars rating={star} filled />
                 <span className="text-xs text-gray-500 ml-1">& up</span>
               </div>
             </label>
@@ -144,12 +190,11 @@ function FilterSidebar({ filterOptions, filters, onFiltersChange }: {
 
       <Separator className="bg-white/10" />
 
-      {/* Reset */}
       <Button
         variant="outline"
         size="sm"
         className="w-full border-white/10 text-gray-400 hover:text-white hover:border-white/30"
-        onClick={() => onFiltersChange({ categories: [], inStock: false, minRating: undefined, minPrice: undefined, maxPrice: undefined, sortBy: "newest" })}
+        onClick={() => onFiltersChange(DEFAULT_FILTERS)}
       >
         Reset Filters
       </Button>
@@ -157,69 +202,75 @@ function FilterSidebar({ filterOptions, filters, onFiltersChange }: {
   );
 }
 
-export function ProductsClient({ initialResults, filterOptions, initialQuery, initialFilters }: {
-  initialResults: any; filterOptions: any; initialQuery: string; initialFilters: Filters;
+// ─── Main client component ────────────────────────────────────────────────────
+
+export function ProductsClient({
+  initialResults,
+  filterOptions,
+  initialQuery,
+  initialFilters,
+}: {
+  initialResults: any;
+  filterOptions: any;
+  initialQuery: string;
+  initialFilters: Filters;
 }) {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [view, setView] = useState<"grid" | "list">("grid");
   const [results, setResults] = useState(initialResults);
   const [filters, setFilters] = useState<Filters>(initialFilters);
-  const [query] = useState(initialQuery);
 
-  const addToCart = useStore((state: any) => state.addToCart);
-  const { user } = useUser();
-  const location = useLocationTracking();
-  const deviceInfo = useDeviceTracking();
-
-  const applyFilters = useCallback((newFilters: Filters, newPage = 1) => {
-    setFilters(newFilters);
-    startTransition(async () => {
-      const res = await searchProducts({
-        query,
-        categoryIds: newFilters.categories,
-        minPrice: newFilters.minPrice,
-        maxPrice: newFilters.maxPrice,
-        inStock: newFilters.inStock,
-        minRating: newFilters.minRating,
-        sortBy: newFilters.sortBy as any,
-        page: newPage,
+  // `initialQuery` never changes — no need for useState
+  const applyFilters = useCallback(
+    (newFilters: Filters, newPage = 1) => {
+      setFilters(newFilters);
+      startTransition(async () => {
+        const res = await searchProducts({
+          query: initialQuery,
+          categoryIds: newFilters.categories,
+          minPrice: newFilters.minPrice,
+          maxPrice: newFilters.maxPrice,
+          inStock: newFilters.inStock,
+          minRating: newFilters.minRating,
+          sortBy: newFilters.sortBy as any,
+          page: newPage,
+        });
+        setResults(res);
       });
-      setResults(res);
-    });
-  }, [query]);
+    },
+    [initialQuery]
+  );
 
-  const handleAddToCart = (product: any) => {
-    addToCart({ ...product, quantity: 1 }, user, location, deviceInfo);
-  };
+  const resetFilters = useCallback(
+    () => applyFilters(DEFAULT_FILTERS),
+    [applyFilters]
+  );
 
-  const activeFilterCount =
-    filters.categories.length +
-    (filters.inStock ? 1 : 0) +
-    (filters.minRating ? 1 : 0) +
-    (filters.minPrice !== undefined || filters.maxPrice !== undefined ? 1 : 0);
-
-  const sidebar = (
-    <FilterSidebar
-      filterOptions={filterOptions}
-      filters={filters}
-      onFiltersChange={(f) => applyFilters(f)}
-    />
+  // Computed once per filter change, not on every render
+  const activeFilterCount = useMemo(
+    () =>
+      filters.categories.length +
+      (filters.inStock ? 1 : 0) +
+      (filters.minRating ? 1 : 0) +
+      (filters.minPrice !== undefined || filters.maxPrice !== undefined ? 1 : 0),
+    [filters]
   );
 
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-        {/* Page header */}
+        {/* Header */}
         <div className="mb-8">
           {initialQuery ? (
             <>
-              <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">Search Results</p>
+              <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">
+                Search Results
+              </p>
               <h1 className="text-2xl font-bold">
-                Results for <span className="text-blue-400">"{initialQuery}"</span>
+                Results for{" "}
+                <span className="text-blue-400">"{initialQuery}"</span>
               </h1>
-              <p className="text-sm text-gray-500 mt-1">{results.total} product{results.total !== 1 ? "s" : ""} found</p>
             </>
           ) : (
             <>
@@ -227,50 +278,77 @@ export function ProductsClient({ initialResults, filterOptions, initialQuery, in
                 <FlaskConical size={12} /> Catalog
               </p>
               <h1 className="text-2xl font-bold">All Products</h1>
-              <p className="text-sm text-gray-500 mt-1">{results.total} product{results.total !== 1 ? "s" : ""} available</p>
             </>
           )}
+          <p className="text-sm text-gray-500 mt-1">
+            {results.total} product{results.total !== 1 ? "s" : ""}{" "}
+            {initialQuery ? "found" : "available"}
+          </p>
         </div>
 
         <div className="flex gap-8">
           {/* Sidebar — desktop */}
           <aside className="hidden lg:block w-56 flex-shrink-0">
-            <div className="sticky top-28">{sidebar}</div>
+            <div className="sticky top-28">
+              <FilterSidebar
+                filterOptions={filterOptions}
+                filters={filters}
+                onFiltersChange={applyFilters}
+              />
+            </div>
           </aside>
 
-          {/* Main */}
           <div className="flex-1 min-w-0 space-y-5">
-
             {/* Toolbar */}
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <div className="flex items-center gap-2">
                 {/* Mobile filter sheet */}
                 <Sheet>
                   <SheetTrigger asChild>
-                    <Button variant="outline" size="sm" className="lg:hidden border-white/10 text-gray-400 gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="lg:hidden border-white/10 text-gray-400 gap-2"
+                    >
                       <SlidersHorizontal size={14} /> Filters
                       {activeFilterCount > 0 && (
-                        <Badge className="bg-blue-600 text-white text-[10px] h-4 px-1.5 rounded-full">{activeFilterCount}</Badge>
+                        <Badge className="bg-blue-600 text-white text-[10px] h-4 px-1.5 rounded-full">
+                          {activeFilterCount}
+                        </Badge>
                       )}
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="left" className="bg-black border-r border-white/10 text-white w-72 overflow-y-auto">
+                  <SheetContent
+                    side="left"
+                    className="bg-black border-r border-white/10 text-white w-72 overflow-y-auto"
+                  >
                     <SheetHeader className="mb-6">
                       <SheetTitle className="text-white">Filters</SheetTitle>
                     </SheetHeader>
-                    {sidebar}
+                    <FilterSidebar
+                      filterOptions={filterOptions}
+                      filters={filters}
+                      onFiltersChange={applyFilters}
+                    />
                   </SheetContent>
                 </Sheet>
 
                 {activeFilterCount > 0 && (
-                  <Badge variant="outline" className="text-xs border-blue-500/30 text-blue-400">
-                    {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
+                  <Badge
+                    variant="outline"
+                    className="text-xs border-blue-500/30 text-blue-400"
+                  >
+                    {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""}{" "}
+                    active
                   </Badge>
                 )}
               </div>
 
               <div className="flex items-center gap-2 ml-auto">
-                <Select value={filters.sortBy} onValueChange={(v) => applyFilters({ ...filters, sortBy: v })}>
+                <Select
+                  value={filters.sortBy}
+                  onValueChange={(v) => applyFilters({ ...filters, sortBy: v as SortBy })}
+                >
                   <SelectTrigger className="w-40 bg-white/5 border-white/10 text-sm text-gray-300 h-9">
                     <SelectValue />
                   </SelectTrigger>
@@ -284,47 +362,77 @@ export function ProductsClient({ initialResults, filterOptions, initialQuery, in
                 </Select>
 
                 <div className="flex border border-white/10 rounded-lg overflow-hidden">
-                  <Button variant="ghost" size="sm" onClick={() => setView("grid")} className={`h-9 px-3 rounded-none ${view === "grid" ? "bg-blue-600 text-white" : "text-gray-400 hover:text-white"}`}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setView("grid")}
+                    className={`h-9 px-3 rounded-none ${
+                      view === "grid"
+                        ? "bg-blue-600 text-white"
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                  >
                     <Grid2X2 size={15} />
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => setView("list")} className={`h-9 px-3 rounded-none ${view === "list" ? "bg-blue-600 text-white" : "text-gray-400 hover:text-white"}`}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setView("list")}
+                    className={`h-9 px-3 rounded-none ${
+                      view === "list"
+                        ? "bg-blue-600 text-white"
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                  >
                     <List size={15} />
                   </Button>
                 </div>
               </div>
             </div>
 
-            {/* Loading overlay */}
+            {/* Loading */}
             {isPending && (
               <div className="flex items-center justify-center py-20">
                 <Loader2 className="h-8 w-8 text-blue-400 animate-spin" />
               </div>
             )}
 
-            {/* Results */}
+            {/* Empty state */}
             {!isPending && results.products.length === 0 && (
               <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
-                <div className="bg-white/5 rounded-full p-6"><Search className="h-10 w-10 text-gray-600" /></div>
+                <div className="bg-white/5 rounded-full p-6">
+                  <Search className="h-10 w-10 text-gray-600" />
+                </div>
                 <div>
                   <h3 className="font-semibold text-lg">No products found</h3>
-                  <p className="text-gray-500 text-sm mt-1">Try adjusting your filters or search term.</p>
+                  <p className="text-gray-500 text-sm mt-1">
+                    Try adjusting your filters or search term.
+                  </p>
                 </div>
-                <Button variant="outline" className="border-white/10 text-gray-400" onClick={() => applyFilters({ categories: [], inStock: false, sortBy: "newest" })}>
+                <Button
+                  variant="outline"
+                  className="border-white/10 text-gray-400"
+                  onClick={resetFilters}
+                >
                   Clear all filters
                 </Button>
               </div>
             )}
 
-{!isPending && results.products.length > 0 && (
-  <div className={view === "grid"
-    ? "grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4"
-    : "flex flex-col gap-3"
-  }>
-    {results.products.map((product: any) => (
-      <ProductCard key={product.id} product={product} /> 
-    ))}
-  </div>
-)}
+            {/* Grid / List */}
+            {!isPending && results.products.length > 0 && (
+              <div
+                className={
+                  view === "grid"
+                    ? "grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4"
+                    : "flex flex-col gap-3"
+                }
+              >
+                {results.products.map((product: any) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            )}
 
             {/* Pagination */}
             {results.totalPages > 1 && !isPending && (

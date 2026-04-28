@@ -1,24 +1,40 @@
 import { searchProducts, getFilterOptions } from "@/actions/products";
-import { ProductsClient } from "./productsClient";
+import { ProductsClient, type Filters, type SortBy } from "./productsClient";
+
+
+
+const VALID_SORTS = new Set<string>(["newest", "rating", "price_asc", "price_desc", "popular"]);
+
+function parseSortBy(value: string | undefined): SortBy {
+  return (value && VALID_SORTS.has(value) ? value : "newest") as SortBy;
+}
+
+function parseParam(params: Record<string, string | string[] | undefined>, key: string) {
+  const v = params[key];
+  return typeof v === "string" ? v : undefined;
+}
 
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
-  
-  const query      = typeof params.q         === "string" ? params.q : undefined;
-  const categories = typeof params.categories === "string" ? params.categories.split(",").filter(Boolean) : [];
-  const minPrice   = typeof params.minPrice  === "string" ? Number(params.minPrice) : undefined;
-  const maxPrice   = typeof params.maxPrice  === "string" ? Number(params.maxPrice) : undefined;
-  const inStock    = params.inStock === "true";
-  const minRating  = typeof params.rating    === "string" ? Number(params.rating) : undefined;
-  const sortBy     = (params.sort as any)    ?? "newest";
-  const page       = typeof params.page      === "string" ? Number(params.page) : 1;
+
+  const initialFilters: Filters = {
+    categories: parseParam(params, "categories")?.split(",").filter(Boolean) ?? [],
+    minPrice:   params.minPrice  ? Number(params.minPrice)  : undefined,
+    maxPrice:   params.maxPrice  ? Number(params.maxPrice)  : undefined,
+    inStock:    params.inStock === "true",
+    minRating:  params.rating   ? Number(params.rating)    : undefined,
+    sortBy: parseSortBy(parseParam(params, "sort")),
+  };
+
+  const query = parseParam(params, "q") ?? "";
+  const page  = params.page ? Number(params.page) : 1;
 
   const [results, filterOptions] = await Promise.all([
-    searchProducts({ query, categoryIds: categories, minPrice, maxPrice, inStock, minRating, sortBy, page }),
+    searchProducts({ query, ...initialFilters, page }),
     getFilterOptions(),
   ]);
 
@@ -26,8 +42,8 @@ export default async function ProductsPage({
     <ProductsClient
       initialResults={results}
       filterOptions={filterOptions}
-      initialQuery={query ?? ""}
-      initialFilters={{ categories, minPrice, maxPrice, inStock, minRating, sortBy }}
+      initialQuery={query}
+      initialFilters={initialFilters}
     />
   );
 }
