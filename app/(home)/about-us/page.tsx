@@ -17,8 +17,8 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-  title: "About Us  - Ethical Research Peptides",
-  description: "Highest quality research peptides at fair, transparent prices. No price gouging—just analytical-grade compounds for legitimate research.",
+  title: "About Us  - Every Batch. Uncompromising Quality.",
+  description: "Quality isn’t a claim — it’s our standard. Every product is manufactured with precision and held to the highest benchmarks for purity, consistency, and performance.",
 };
 
 export default function AboutPage() {
@@ -104,18 +104,16 @@ export default function AboutPage() {
           <div className="flex flex-col justify-center">
             <div className="inline-flex items-center gap-2 bg-white/5 rounded-full px-4 py-1.5 mb-6 w-fit">
               <FlaskConical className="h-4 w-4 text-gray-400" />
-              <span className="text-xs uppercase tracking-wider text-gray-400">Analytical Standards</span>
+              <span className="text-xs uppercase tracking-wider text-gray-400">Every Batch. Uncompromising Quality.</span>
             </div>
-            <h2 className="text-2xl font-bold text-white mb-4">Every Batch. Independently Verified.</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">Every Batch. Uncompromising Quality.</h2>
             <p className="text-gray-300 leading-relaxed mb-4">
-              Quality isn't a claim—it's documentation. Every product we ship includes a Certificate of Analysis (CoA)
-              with HPLC chromatogram, mass spectrometry data, and purity quantification. We test at ISO-certified
-              facilities, not in-house.
+              Quality isn’t a claim — it’s our standard. Every product is manufactured with precision and held to the highest benchmarks for purity, consistency, and performance.
             </p>
             <ul className="space-y-2 text-gray-300">
-              <li className="flex items-center gap-2"><FileCheck className="h-4 w-4 text-gray-500" /> Batch-specific CoA included</li>
-              <li className="flex items-center gap-2"><FileCheck className="h-4 w-4 text-gray-500" /> Third-party verified results</li>
-              <li className="flex items-center gap-2"><FileCheck className="h-4 w-4 text-gray-500" /> Retention samples held for 24 months</li>
+              <li className="flex items-center gap-2"><FileCheck className="h-4 w-4 text-gray-500" /> Consistent excellence across every batch</li>
+              <li className="flex items-center gap-2"><FileCheck className="h-4 w-4 text-gray-500" /> Produced under strict quality controls</li>
+              <li className="flex items-center gap-2"><FileCheck className="h-4 w-4 text-gray-500" /> Designed for reliable, premium results</li>
             </ul>
           </div>
         </div>
