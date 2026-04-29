@@ -11,7 +11,7 @@ export default function Footer() {
     { label: "Catalog", href: "#suggested-products" },
     /* { label: "Research Blog", href: "/blog" },
     { label: "Lab Partners", href: "/partners" }, */
-    { label: "About Us", href: "/about" },
+    { label: "About Us", href: "/about-us" },
     { label: "Contact", href: "/contact" },
   ];
 
@@ -99,14 +99,14 @@ export default function Footer() {
               <h3 className="text-sm font-semibold mb-3 text-gray-300">Follow Our Research</h3>
               <div className="flex gap-3">
                 {[
-                  { icon: "https://cdn-icons-png.flaticon.com/128/5968/5968764.png", label: "Facebook" },
-                  { icon: "https://cdn-icons-png.flaticon.com/128/3670/3670151.png", label: "Twitter" },
-                  { icon: "https://cdn-icons-png.flaticon.com/128/145/145807.png", label: "LinkedIn" },
-                  { icon: "https://cdn-icons-png.flaticon.com/128/3670/3670176.png", label: "Instagram" },
-                ].map(({ icon, label }) => (
+                  { icon: "https://cdn-icons-png.flaticon.com/128/5968/5968764.png", label: "Facebook", href:"https://www.facebook.com" },
+                  { icon: "https://cdn-icons-png.flaticon.com/128/3670/3670151.png", label: "Twitter", href:"https://x.com" },
+                  { icon: "https://cdn-icons-png.flaticon.com/128/145/145807.png", label: "LinkedIn", href:"https://www.linkedin.com" },
+                  { icon: "https://cdn-icons-png.flaticon.com/128/3670/3670176.png", label: "Instagram", href:"https://www.instagram.com/ironpeptideinnovations?igsh=MWpnazdtOThpcnk2aw==" },
+                ].map(({ icon, label, href }) => (
                   <Link
                     key={label}
-                    href="#"
+                    href={href}
                     aria-label={label}
                     className="w-9 h-9 flex items-center justify-center bg-gray-800 rounded-full hover:bg-emerald-500/20 hover:border-emerald-500/40 border border-transparent transition-all duration-300"
                   >
