@@ -50,7 +50,7 @@ export const OrderReceiptEmail = ({
             </Row>
           </Section>
 
-          <Text style={styles.signoff}>Warm regards, <br /><strong>Iron Peptides Team</strong></Text>
+          <Text style={styles.signoff}>Warm regards, <br /><strong>HÆLO Peptides</strong></Text>
         </Section>
       </Container>
     </Body>

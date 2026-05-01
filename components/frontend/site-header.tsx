@@ -24,9 +24,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { getInitials } from "@/lib/generateInitials";
 import { useStore } from "@/store";
 import { quickSearchProducts } from "@/actions/products";
+import { CryptoBuyModal } from "@/components/frontend/cryptoBuyModal";
+import { Bitcoin } from "lucide-react";
 
 const shopCategories = [
-  { icon: ShoppingCart, title: "Products", description: "All products we sell at Iron Peptides", href: "/products" },
+  { icon: ShoppingCart, title: "Products", description: "All products we sell at HÆLO Peptides", href: "/products" },
   { icon: Dna, title: "Peptides", description: "Analytical grade amino acid sequences.", href: "#suggested-products" },
   { icon: ReceiptText, title: "Refund & Return Policy", href: "/legal/refund-policy" },
 ];
@@ -64,6 +66,7 @@ export default function SiteHeader({ session }: { session: Session | null }) {
   const searchRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const cart = useStore((state: any) => state.cart || []);
+  const [cryptoModalOpen, setCryptoModalOpen] = React.useState(false);
   const debouncedQuery = useDebounce(query, 350);
 
   // Instant dropdown search
@@ -119,6 +122,9 @@ export default function SiteHeader({ session }: { session: Session | null }) {
 
   return (
     <header className="sticky top-12 z-50 w-full border-b border-white/10 bg-black/80 backdrop-blur-md">
+      {cryptoModalOpen && (
+       <CryptoBuyModal onClose={() => setCryptoModalOpen(false)} />
+        )}
       <div className="container max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
 
         {/* Left section - Logo and Navigation */}
@@ -213,7 +219,15 @@ export default function SiteHeader({ session }: { session: Session | null }) {
                   </div>
                 </NavigationMenuContent>
               </NavigationMenuItem>
-
+              <NavigationMenuItem>
+  <button
+    onClick={() => setCryptoModalOpen(true)}
+    className="h-9 px-3 py-2 text-sm font-bold text-yellow-400 hover:text-yellow-300 transition-colors uppercase tracking-tight flex items-center gap-1.5"
+  >
+    <Bitcoin size={14} />
+     How to buy crypto
+  </button>
+</NavigationMenuItem>
               {/* Products */}
               {/* <NavigationMenuItem>
                 <Link href="/products" legacyBehavior passHref>
@@ -447,6 +461,15 @@ export default function SiteHeader({ session }: { session: Session | null }) {
                     {link.title}
                   </Link>
                 ))}
+
+                <div className="px-3 py-2 text-yellow-400 mt-4 font-bold">Crypto</div>
+<button
+  onClick={() => { setCryptoModalOpen(true); setOpen(false); }}
+  className="flex items-center gap-3 p-3 hover:bg-yellow-500/5 rounded-lg text-yellow-300 hover:text-yellow-200 transition-colors w-full text-left font-bold uppercase text-xs tracking-widest"
+>
+  <Bitcoin size={16} className="text-yellow-400" />
+  How to buy crypto
+</button>
                 
                 {!session && (
                   <div className="mt-6 flex flex-col gap-2 pt-4 border-t border-white/10">
@@ -471,6 +494,8 @@ export default function SiteHeader({ session }: { session: Session | null }) {
           </Sheet>
         </div>
       </div>
+
+      
     </header>
   );
 }

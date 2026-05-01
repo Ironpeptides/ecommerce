@@ -85,7 +85,7 @@ export default function LoginForm() {
             </h1>
             <p className="text-muted-foreground text-sm">
               Welcome back to{" "}
-              <span className="text-blue-600 font-medium">IronPeptides</span>
+              <span className="text-blue-600 font-medium">HÆLO Peptides</span>
             </p>
           </div>
 

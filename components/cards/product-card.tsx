@@ -2,9 +2,9 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Ratings from '../ratings';
-import { Eye, Heart, ShoppingBag, Clock, X, Check } from 'lucide-react';
+import { Eye, Heart, ShoppingBag, Clock, X, Check, Info, Bitcoin } from 'lucide-react';
 import ProductDetailsCard from './product-details.card';
 import { useStore } from '../../store';
 import useUser from '../../hooks/useUser';
@@ -13,13 +13,86 @@ import useDeviceTracking from '../../hooks/useDeviceTracking';
 import { createFetchSlug } from '../../utils/slugify';
 import { useRouter, useSearchParams } from "next/navigation";
 
+// ─── Payram Info Tooltip ──────────────────────────────────────────────────────
+
+const PayramTooltip = () => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    if (open) document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative inline-flex items-center">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        aria-label="Learn about crypto checkout"
+        className="text-amber-400/70 hover:text-amber-400 transition-colors"
+      >
+        <Info size={12} />
+      </button>
+
+      {open && (
+        <div className="absolute bottom-full right-0 mb-2 w-72 z-50 bg-[#0e0f11] border border-amber-500/20 rounded-xl shadow-2xl p-4 text-left">
+          {/* Arrow */}
+          <div className="absolute bottom-[-6px] right-3 w-3 h-3 bg-[#0e0f11] border-r border-b border-amber-500/20 rotate-45" />
+
+          <p className="text-[11px] font-bold text-amber-400 uppercase tracking-widest mb-2">
+            Why do I need to show ID the first time?
+          </p>
+          <p className="text-[11px] text-gray-400 leading-relaxed">
+            Crypto purchases are final — unlike credit cards, they can't be charged back. That makes stolen cards a target for fraud.{" "}
+            <span className="text-gray-300 font-medium">Payram</span> (our payment processor) does a{" "}
+            <span className="text-amber-300 font-medium">one-time ID check</span> to confirm it's actually you.
+          </p>
+          <ul className="mt-2 space-y-1">
+            {[
+              "Takes about 30 seconds",
+              "Only on your first purchase",
+              "Payram handles it — we never see or store your ID",
+            ].map((item) => (
+              <li key={item} className="flex items-start gap-1.5 text-[11px] text-gray-400">
+                <Check size={10} className="text-emerald-500 mt-0.5 shrink-0" />
+                {item}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-[10px] text-gray-600">
+            Same process used by Coinbase, Cash App, and every regulated crypto platform.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Crypto Checkout Strip ────────────────────────────────────────────────────
+
+const CryptoStrip = () => (
+  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/8 border border-amber-500/15 mt-1">
+    <Bitcoin size={11} className="text-amber-400 shrink-0" />
+    <p className="text-[10px] text-amber-300/80 leading-tight flex-1">
+      Pay via Payram. One-time ID check on first purchase — 30 sec, then you're set forever.
+    </p>
+    <PayramTooltip />
+  </div>
+);
+
 // ─── Reusable Options Modal ───────────────────────────────────────────────────
 
 interface ProductOption {
   label: string;
   value: string;
   price?: number;
-  originalVariant: any; // Add this to hold the full object
+  originalVariant: any;
 }
 
 interface OptionsModalProps {
@@ -42,9 +115,7 @@ const OptionsModal = ({ product, options, onClose, onConfirm }: OptionsModalProp
         {/* Header */}
         <div className='flex items-center justify-between px-5 py-4 border-b border-white/10'>
           <div>
-            {/* Real field: product.name */}
             <h2 className='text-sm font-semibold text-gray-100 line-clamp-1'>{product?.name}</h2>
-            {/* Real field: product.category?.title (category is now an object) */}
             <p className='text-xs text-emerald-500 mt-0.5'>{product?.category?.title}</p>
           </div>
           <button
@@ -121,59 +192,61 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
   const cart = useStore((state: any) => state.cart);
   const isInCart = cart.some((item: any) => item.id === product.id);
   const { user } = useUser();
-    const router       = useRouter();
+  const router = useRouter();
 
-  // Build options from real variants shape:
-  // variant: { id, name, value, quantity, unit, price, stock, sku, productId }
-  
-
-      const productOptions: ProductOption[] = product?.variants?.length
-  ? product.variants.map((v: any) => ({
-      label: `${v.value}${v.unit ? ' ' + v.unit : ''}`,
-      value: v.id,
-      price: v.price,
-      originalVariant: v, // Pass the whole variant object here
-    }))
-  : [
-      // Fallback (for the fallback, you'll have to mock a variant structure)
-      { 
-        label: '10mg 3ml', 
-        value: '10mg-3ml', 
-        price: product?.salePrice,
-        originalVariant: { value: '10mg', unit: '3ml', price: product?.salePrice } 
-      },
-      { label: '30mg  3ml',    value: '30mg-3ml',    price: product?.salePrice * 1.5
-        , originalVariant: { value: '10mg', unit: '3ml', price: product?.salePrice } 
-       }
-      ,
-      { label: '60mg  3ml',    value: '60mg-3ml',    price: product?.salePrice * 2,
-        originalVariant: { value: '10mg', unit: '3ml', price: product?.salePrice } 
-       },
-      { label: '120mg – 10ml', value: '120mg-10ml',  price: product?.salePrice * 3.5,originalVariant: { value: '10mg', unit: '3ml', price: product?.salePrice }  },
-      
-    ];
+  const productOptions: ProductOption[] = product?.variants?.length
+    ? product.variants.map((v: any) => ({
+        label: `${v.value}${v.unit ? ' ' + v.unit : ''}`,
+        value: v.id,
+        price: v.price,
+        originalVariant: v,
+      }))
+    : [
+        {
+          label: '10mg 3ml',
+          value: '10mg-3ml',
+          price: product?.salePrice,
+          originalVariant: { value: '10mg', unit: '3ml', price: product?.salePrice }
+        },
+        {
+          label: '30mg  3ml',
+          value: '30mg-3ml',
+          price: product?.salePrice * 1.5,
+          originalVariant: { value: '10mg', unit: '3ml', price: product?.salePrice }
+        },
+        {
+          label: '60mg  3ml',
+          value: '60mg-3ml',
+          price: product?.salePrice * 2,
+          originalVariant: { value: '10mg', unit: '3ml', price: product?.salePrice }
+        },
+        {
+          label: '120mg – 10ml',
+          value: '120mg-10ml',
+          price: product?.salePrice * 3.5,
+          originalVariant: { value: '10mg', unit: '3ml', price: product?.salePrice }
+        },
+      ];
 
   const handleOptionConfirm = (selected: ProductOption) => {
-  addToCart(
-    { 
-      ...product, 
-      quantity: 1, 
-      // Instead of just 'selected', pass the structured variant details
-      selectedVariant: {
-        id: selected.value,
-        ...selected.originalVariant
+    addToCart(
+      {
+        ...product,
+        quantity: 1,
+        selectedVariant: {
+          id: selected.value,
+          ...selected.originalVariant
+        },
+        salePrice: selected.price ?? product.salePrice
       },
-      salePrice: selected.price ?? product.salePrice 
-    },
-    user, 
-    location, 
-    deviceInfo
-  );
-  setOptionsOpen(false);
-};
+      user,
+      location,
+      deviceInfo
+    );
+    setOptionsOpen(false);
+  };
 
   useEffect(() => {
-   
     if (isEvent && product?.ending_date) {
       const calc = () => {
         const diff = new Date(product.ending_date).getTime() - Date.now();
@@ -189,7 +262,6 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
     }
   }, [isEvent, product?.ending_date]);
 
-  
   const isLowStock = product?.stock <= (product?.lowStock ?? 5);
 
   return (
@@ -203,13 +275,11 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
               Special Offer
             </div>
           )}
-        
           {isLowStock && (
             <div className='bg-amber-500/10 border border-amber-500/50 text-amber-500 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider backdrop-blur-md'>
               Limited Stock
             </div>
           )}
-         
           {product?.isFeatured && !isEvent && (
             <div className='bg-purple-600/20 border border-purple-500/40 text-purple-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider backdrop-blur-md'>
               Featured
@@ -251,13 +321,13 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
             <ShoppingBag size={18} />
           </button>
         </div>
+
         <Link
           href={`/product/${product?.slug || ''}`}
           className='block relative aspect-square overflow-hidden bg-[#121214]'
         >
           <Image
             src={product?.images?.[0]?.url || ""}
-          
             alt={product?.name || "Product image"}
             fill
             className='object-cover transition-transform duration-500 group-hover:scale-110 opacity-90 group-hover:opacity-100'
@@ -273,18 +343,18 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
 
           <Link href={`/product/${product?.slug || ''}`}>
             <h3 className='text-sm font-medium text-gray-100 line-clamp-1 group-hover:text-emerald-400 transition-colors'>
-             
               {product?.name}
             </h3>
           </Link>
+
           <div className='flex items-center gap-1 opacity-80 scale-90 origin-left'>
             <Ratings
-  rating={
-    product?.reviews?.length
-      ? product.reviews.reduce((sum: number, r: any) => sum + (r.rating ?? 0), 0) / product.reviews.length
-      : 0
-  }
-/>
+              rating={
+                product?.reviews?.length
+                  ? product.reviews.reduce((sum: number, r: any) => sum + (r.rating ?? 0), 0) / product.reviews.length
+                  : 0
+              }
+            />
           </div>
 
           <div className='flex justify-between items-end pt-2 border-t border-white/5'>
@@ -294,18 +364,19 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
             </div>
 
             <button
-              onClick={() => !isInCart && addToCart({ ...product, quantity: 1 }, user, location, deviceInfo)}
-              disabled={isInCart}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all ${
-                isInCart
-                  ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
-                  : 'bg-emerald-600 text-white hover:bg-emerald-500 active:scale-95 shadow-lg shadow-emerald-900/20'
-              }`}
-            >
-              <ShoppingBag size={14} />
-              {isInCart ? 'In Cart' : 'Add'}
-            </button>
+  onClick={() => !isInCart && addToCart({ ...product, quantity: 1 }, user, location, deviceInfo)}
+  disabled={isInCart}
+  className={`flex items-center gap-2 px-5 py-3 rounded-lg text-base font-bold transition-all ${
+    isInCart
+      ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
+      : 'bg-emerald-600 text-white hover:bg-emerald-500 active:scale-95 shadow-lg shadow-emerald-900/20'
+  }`}
+>
+  <ShoppingBag size={22} />
+  {isInCart ? 'In Cart' : 'Add'}
+</button>
           </div>
+
           {product?.variants?.length > 0 && (
             <button
               onClick={() => setOptionsOpen(true)}
@@ -324,12 +395,16 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
             </div>
           )}
 
+          {/* Crypto info strip */}
+          <CryptoStrip />
+
           {/* Proceed to Checkout Button */}
-          <button 
-          onClick={() => router.push("/cart")}
-          className='w-full mt-2 py-2 rounded-lg bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black shadow-lg shadow-yellow-900/20 active:scale-[0.98]'>
-            Proceed to checkout
-          </button>
+          <button
+  onClick={() => router.push("/cart")}
+  className='w-full mt-2 py-2 sm:py-3 md:py-4 rounded-lg bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black shadow-lg shadow-yellow-900/20 active:scale-[0.98] text-xs sm:text-sm md:text-base font-bold'
+>
+  Proceed to checkout
+</button>
         </div>
 
         {open && <ProductDetailsCard data={product} setOpen={setOpen} />}

@@ -21,8 +21,8 @@ interface InvitationEmailProps {
   invitedBy?: string;
 }
 
-const ORG_NAME = "Iron Peptides Innovation";
-const SUPPORT_EMAIL = "support@ironpeptides.com";
+const ORG_NAME = "HÆLO Peptides";
+const SUPPORT_EMAIL = "support@haelo.fit";
 const ORG_ADDRESS = "410 Terry Ave. North, Seattle, WA 98109";
 const LOGO_URL =
   "https://83153x3k0f.ufs.sh/f/WHfEA9ldMx5DkPX4zs1pln71ahxzZC0eTMXmsRfOt36yP42G";
@@ -286,9 +286,9 @@ const styles: Record<string, React.CSSProperties> = {
 
 InvitationEmail.PreviewProps = {
   userFirstname: "Alan",
-  inviteLink: "https://ironpeptides.com/register?token=abc123",
+  inviteLink: "https://https://haelo.fit/register?token=abc123",
   invitedBy: "John Doe",
-  orgName: "Iron Peptides Innovation",
+  orgName: "HÆLO Peptides",
   roleName: "Secretary",
 } satisfies InvitationEmailProps;
 

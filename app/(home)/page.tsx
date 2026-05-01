@@ -15,6 +15,8 @@ import {
 import { getTopShops } from "@/actions/shops";
 import { getEvents } from "@/actions/events";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { X, Bitcoin } from "lucide-react";
 
 interface PageState {
   products: any[];
@@ -31,6 +33,43 @@ const INITIAL_STATE: PageState = {
   loading: true,
   error: null,
 };
+
+// ─── Crypto Banner ────────────────────────────────────────────────────────────
+
+const CryptoBanner = () => {
+  const [dismissed, setDismissed] = useState(false);
+
+  if (dismissed) return null;
+
+  return (
+    <div className="relative mt-6 bg-gradient-to-r from-amber-500/10 via-yellow-500/10 to-amber-500/10 border-b border-amber-500/20">
+      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-center gap-3 text-center">
+        {/* Bitcoin icon */}
+        <Bitcoin size={16} className="text-amber-400 shrink-0" />
+
+        <p className="text-sm text-amber-200/90">
+          <span className="font-semibold text-amber-300">Need help paying with crypto?</span>{" "}
+          <Link
+            href="/crypto-guide"
+            className="underline underline-offset-2 text-amber-400 hover:text-amber-300 transition-colors font-medium"
+          >
+            Get 15% off when you do →
+          </Link>
+        </p>
+
+        <button
+          onClick={() => setDismissed(true)}
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-amber-400/60 hover:text-amber-400 transition-colors"
+          aria-label="Dismiss"
+        >
+          <X size={15} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 const Page = ({ orgId }: { orgId?: string }) => {
   const router = useRouter();
@@ -101,6 +140,9 @@ const Page = ({ orgId }: { orgId?: string }) => {
   return (
     <main className="min-h-screen text-white">
       <Hero />
+      {/* Crypto payment banner — sits between Hero and TrustBar */}
+      <CryptoBanner />
+
       <TrustBar />
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16 space-y-24">
@@ -117,7 +159,7 @@ const Page = ({ orgId }: { orgId?: string }) => {
           </div>
 
           {state.loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {skeletons}
             </div>
           ) : state.error ? (
@@ -131,7 +173,7 @@ const Page = ({ orgId }: { orgId?: string }) => {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {state.products.map((product: any) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -148,11 +190,11 @@ const Page = ({ orgId }: { orgId?: string }) => {
           </div>
 
           {state.loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {skeletons}
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {latestProducts.map((product: any) => (
                 <ProductCard key={product.id} product={product} />
               ))}

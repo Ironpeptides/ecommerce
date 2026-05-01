@@ -78,7 +78,7 @@ export function SupportClient({
   // Build WhatsApp message with product context if available
   const whatsappMessage = productName
     ? `Hi! I need help with a product I found on your store.\n\n*Product:* ${productName}${productPrice ? `\n*Price:* $${productPrice}` : ""}\n\nMy question:`
-    : "Hi! I need help with something on Iron Peptides Innovation.";
+    : "Hi! I need help with something on HÆLO Peptides.";
 
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
 
@@ -176,7 +176,7 @@ export function SupportClient({
 
           {/* Email */}
           <a
-            href="mailto:support@ironpeptides.com"
+            href="mailto:support@haelo.fit"
             className="group flex items-start gap-4 p-5 rounded-2xl border border-white/10 bg-white/[0.02] hover:border-blue-500/40 hover:bg-blue-500/5 transition-all"
           >
             <div className="bg-blue-500/10 rounded-xl p-3 flex-shrink-0 group-hover:bg-blue-500/20 transition-colors">
@@ -190,7 +190,7 @@ export function SupportClient({
                 Send us a detailed message and we'll respond within 24 hours on business days.
               </p>
               <p className="text-xs text-blue-400 font-medium mt-2">
-                support@ironpeptides.com
+                support@haelo.fit
               </p>
             </div>
           </a>

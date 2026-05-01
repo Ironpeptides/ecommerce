@@ -6,7 +6,7 @@ const carouselItems = [
   {
     image: "/images/slide-1.jpg",
     title: "Simple Monthly deliveries,",
-    subtitle: "Join Iron Peptides Innovation",
+    subtitle: "Join HÆLO Peptides",
   },
   {
     image: "/images/slide-2.jpg",
@@ -15,7 +15,7 @@ const carouselItems = [
   },
   {
     image: "/images/slide-3.jpg",
-    title: "Iron peptides for research",
+    title: "HÆLO Peptides for research",
     subtitle: "Order your batch today",
   },
 ];

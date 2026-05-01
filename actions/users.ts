@@ -172,7 +172,7 @@ export async function createUser(data: UserProps, orgData:OrgData) {
       const verificationCode = newUser.token??""
 
       const { data, error } = await resend.emails.send({
-      from:  `Iron Peptides <info@ironpeptides.fit>`, 
+      from:  `HÆLO Peptides <support@haelo.fit>`, 
       to: email,
       subject: "Verify your Account",
       react: VerifyEmail({ verificationCode}),
@@ -754,7 +754,7 @@ export async function sendInvite(data: InviteData) {
       const inviteLink = `${baseUrl}/user-invite/${orgId}?roleId=${roleId}&&email=${email}&&orgName=${orgName}`
       
       const { data, error } = await resend.emails.send({
-      from:  `Iron Peptides <info@ironpeptides.fit>`, 
+      from:  `HÆLO Peptides <support@haelo.fit>`, 
       to: email,
       subject: `Welcome to ${orgName} - ${roleName} Role Invitation`,
       react: InvitationEmail({ orgName,roleName,inviteLink, userFirstname, invitedBy }),

@@ -11,7 +11,7 @@ import Script from "next/script";
 const inter = Rethink_Sans({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Iron Peptides Innovation",
+  title: "HÆLO Peptides",
   description: "Premium-grade research peptides engineered for precision. We provide ultra-high purity peptides for advanced biological study. Engineered for accuracy, delivered with full analytical documentation.",
 };
 

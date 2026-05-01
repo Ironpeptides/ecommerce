@@ -162,7 +162,7 @@ export default async function PaymentSuccessPage({ searchParams }: PaymentSucces
                 <div className="flex justify-center gap-4">
                   <button className="inline-flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300 transition-colors">
                     <Mail className="w-4 h-4" />
-                    support@ironPeptides.com
+                    support@haelo.fit
                   </button>
                   <span className="text-slate-600">|</span>
                   <button className="inline-flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300 transition-colors">
