@@ -264,6 +264,8 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
 
   const isLowStock = product?.stock <= (product?.lowStock ?? 5);
 
+  
+
   return (
     <>
       <div className='group w-full bg-white/5 border border-white/10 rounded-xl overflow-hidden relative transition-all duration-300 hover:border-emerald-500/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.5)]'>
@@ -352,7 +354,7 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
               rating={
                 product?.reviews?.length
                   ? product.reviews.reduce((sum: number, r: any) => sum + (r.rating ?? 0), 0) / product.reviews.length
-                  : 0
+                  : 5
               }
             />
           </div>
