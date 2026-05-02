@@ -16,7 +16,7 @@ import { getTopShops } from "@/actions/shops";
 import { getEvents } from "@/actions/events";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { X, Bitcoin } from "lucide-react";
+import { X, Bitcoin, Package, Clock } from "lucide-react";
 
 interface PageState {
   products: any[];
@@ -38,15 +38,12 @@ const INITIAL_STATE: PageState = {
 
 const CryptoBanner = () => {
   const [dismissed, setDismissed] = useState(false);
-
   if (dismissed) return null;
 
   return (
-    <div className="relative mt-6 bg-gradient-to-r from-amber-500/10 via-yellow-500/10 to-amber-500/10 border-b border-amber-500/20">
+    <div className="relative bg-gradient-to-r from-amber-500/10 via-yellow-500/10 to-amber-500/10 border-b border-amber-500/20">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-center gap-3 text-center">
-        {/* Bitcoin icon */}
         <Bitcoin size={16} className="text-amber-400 shrink-0" />
-
         <p className="text-sm text-amber-200/90">
           <span className="font-semibold text-amber-300">Need help paying with crypto?</span>{" "}
           <Link
@@ -56,7 +53,6 @@ const CryptoBanner = () => {
             Get 15% off when you do →
           </Link>
         </p>
-
         <button
           onClick={() => setDismissed(true)}
           className="absolute right-4 top-1/2 -translate-y-1/2 text-amber-400/60 hover:text-amber-400 transition-colors"
@@ -69,16 +65,46 @@ const CryptoBanner = () => {
   );
 };
 
+// ─── Shipping Notice ──────────────────────────────────────────────────────────
+// Small strip: domestic-only now, EU coming soon
+
+const ShippingNotice = () => (
+  <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 py-2.5 px-4 bg-white/[0.03] border-b border-white/5 text-[11px] text-gray-400">
+    <span className="flex items-center gap-1.5">
+      <Package size={12} className="text-blue-400" />
+      <span>
+        <span className="text-white font-medium">🇺🇸 USA domestic shipping</span>
+        {" "}— orders fulfilled within 1–2 business days
+      </span>
+    </span>
+    <span className="hidden sm:block text-white/10">|</span>
+    <span className="flex items-center gap-1.5">
+      <Clock size={12} className="text-purple-400" />
+      <span>
+        <span className="text-purple-300 font-medium">🇪🇺 EU shipping coming soon</span>
+        {" "}— estimated 3–5 day delivery
+      </span>
+    </span>
+  </div>
+);
+
+// ─── Made in USA Badge ────────────────────────────────────────────────────────
+// Compact inline badge shown near the products section header
+
+const MadeInUSABadge = () => (
+  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] font-medium text-gray-300 select-none">
+    🇺🇸 <span>Made in USA</span>
+  </span>
+);
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 const Page = ({ orgId }: { orgId?: string }) => {
   const router = useRouter();
   const [state, setState] = useState<PageState>(INITIAL_STATE);
 
-  // Single fetch — all data in parallel, products fetched only once
   const fetchAll = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-
     try {
       const [productsData, variantsData, batchesData, categoriesData, shopsData, eventsData] =
         await Promise.all([
@@ -118,38 +144,40 @@ const Page = ({ orgId }: { orgId?: string }) => {
     fetchAll();
   }, [fetchAll]);
 
-  // Derived data — computed once, not re-fetched
   const latestProducts = useMemo(
     () =>
       [...state.products]
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, 8),
     [state.products]
   );
 
   const skeletons = [...Array(5)].map((_, i) => (
-    <div
-      key={i}
-      className="h-64 bg-white/5 animate-pulse rounded-2xl border border-white/5"
-    />
+    <div key={i} className="h-64 bg-white/5 animate-pulse rounded-2xl border border-white/5" />
   ));
 
   return (
     <main className="min-h-screen text-white">
       <Hero />
-      {/* Crypto payment banner — sits between Hero and TrustBar */}
+
+      {/* Crypto payment banner */}
       <CryptoBanner />
+
+      {/* ✦ Shipping notice — right after the crypto banner, before TrustBar */}
+      <ShippingNotice />
 
       <TrustBar />
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16 space-y-24">
+
         {/* Suggested Products */}
         <section aria-label="Suggested Products" id="suggested-products">
           <div className="flex items-center justify-between mb-8">
-            <SectionTitle title="Suggested for Your Research" />
+            <div className="flex items-center gap-3">
+              <SectionTitle title="Suggested for Your Research" />
+              {/* ✦ Made in USA badge — sits next to the section title */}
+              <MadeInUSABadge />
+            </div>
             <button
               onClick={() => router.push("/products")}
               className="text-emerald-400 text-sm font-medium hover:text-emerald-300 transition-colors"
@@ -165,10 +193,7 @@ const Page = ({ orgId }: { orgId?: string }) => {
           ) : state.error ? (
             <div className="flex flex-col items-center gap-3 py-12 text-zinc-500">
               <p>{state.error}</p>
-              <button
-                onClick={fetchAll}
-                className="text-emerald-400 text-sm hover:text-emerald-300 transition-colors"
-              >
+              <button onClick={fetchAll} className="text-emerald-400 text-sm hover:text-emerald-300 transition-colors">
                 Try again
               </button>
             </div>

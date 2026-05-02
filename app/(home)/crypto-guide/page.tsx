@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -91,25 +91,61 @@ const PLATFORMS: Platform[] = [
   },
 ];
 
+// ── Preload helper ─────────────────────────────────────────────────────────────
+
+function preloadImage(src?: string) {
+  if (!src || typeof window === "undefined") return;
+  const img = new window.Image();
+  img.src = src;
+}
+
 // ── Step Guide Component ──────────────────────────────────────────────────────
 
 const PlatformGuide = ({ platform }: { platform: Platform }) => {
   const [activeStep, setActiveStep] = useState(0);
+  const [imgKey, setImgKey] = useState(0);
+
   const step = platform.steps[activeStep];
   const isFirst = activeStep === 0;
   const isLast = activeStep === platform.steps.length - 1;
 
+  // Preload all platform images on mount
+  useEffect(() => {
+    platform.steps.forEach((s) => preloadImage(s.image));
+  }, [platform]);
+
+  // Preload adjacent images on step change
+  useEffect(() => {
+    preloadImage(platform.steps[activeStep + 1]?.image);
+    preloadImage(platform.steps[activeStep - 1]?.image);
+  }, [activeStep, platform.steps]);
+
+  // Reset step when platform changes
+  useEffect(() => {
+    setActiveStep(0);
+    setImgKey((k) => k + 1);
+  }, [platform]);
+
+  const goTo = (idx: number) => {
+    setActiveStep(idx);
+    setImgKey((k) => k + 1);
+  };
+
+  const goNext = () => { if (!isLast)  goTo(activeStep + 1); };
+  const goPrev = () => { if (!isFirst) goTo(activeStep - 1); };
+
   return (
     <div className="flex flex-col lg:flex-row gap-8">
-      {/* Left — step list */}
+
+      {/* ── Left: step list ── */}
       <div className="lg:w-72 shrink-0 space-y-2">
         {platform.steps.map((s, i) => {
-          const done = i < activeStep;
+          const done   = i < activeStep;
           const active = i === activeStep;
           return (
             <button
               key={i}
-              onClick={() => setActiveStep(i)}
+              onClick={() => goTo(i)}
               className={`w-full flex items-start gap-3 text-left px-4 py-3 rounded-xl border transition-all ${
                 active
                   ? `${platform.border} ${platform.bg}`
@@ -152,15 +188,67 @@ const PlatformGuide = ({ platform }: { platform: Platform }) => {
         </p>
       </div>
 
-      {/* Right — screenshot + instruction */}
+      {/* ── Right: screenshot + instruction ── */}
       <div className="flex-1 space-y-5">
-        {/* Screenshot */}
+
+        {/* Screenshot with overlay arrows */}
         {step.image ? (
-          <div className="relative w-full max-w-xs mx-auto aspect-[9/16] max-h-80 rounded-2xl overflow-hidden border border-white/10 bg-white/5">
-            <Image src={step.image} alt={`Step ${activeStep + 1}`} fill className="object-contain" />
+          <div
+            className="relative w-full max-w-xs mx-auto rounded-2xl overflow-hidden border border-white/10 bg-white/5 group"
+            style={{ height: "clamp(400px, 50vh, 460px)" }}
+          >
+            <Image
+              key={imgKey}
+              src={step.image}
+              alt={`Step ${activeStep + 1}`}
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 320px"
+              className="object-contain animate-fadeIn"
+            />
+
+            {/* Left arrow */}
+            {!isFirst && (
+              <button
+                onClick={goPrev}
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-10
+                           w-9 h-9 rounded-full
+                           bg-black/60 hover:bg-black/80 border border-white/10
+                           flex items-center justify-center text-white
+                           opacity-0 group-hover:opacity-100 focus:opacity-100
+                           transition-opacity duration-200"
+                aria-label="Previous step"
+              >
+                <ChevronLeft size={17} />
+              </button>
+            )}
+
+            {/* Right arrow */}
+            {!isLast && (
+              <button
+                onClick={goNext}
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10
+                           w-9 h-9 rounded-full
+                           bg-black/60 hover:bg-black/80 border border-white/10
+                           flex items-center justify-center text-white
+                           opacity-0 group-hover:opacity-100 focus:opacity-100
+                           transition-opacity duration-200"
+                aria-label="Next step"
+              >
+                <ChevronRight size={17} />
+              </button>
+            )}
+
+            {/* Step counter badge */}
+            <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-black/60 text-[10px] text-gray-300 border border-white/10">
+              {activeStep + 1} / {platform.steps.length}
+            </div>
           </div>
         ) : (
-          <div className="w-full max-w-xs mx-auto h-64 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] flex items-center justify-center">
+          <div
+            className="w-full max-w-xs mx-auto rounded-2xl border border-dashed border-white/10 bg-white/[0.02] flex items-center justify-center"
+            style={{ height: "clamp(200px, 34vh, 360px)" }}
+          >
             <div className="text-center space-y-2">
               <Smartphone className="h-10 w-10 text-gray-700 mx-auto" />
               <p className="text-xs text-gray-700">Screenshot coming soon</p>
@@ -190,7 +278,7 @@ const PlatformGuide = ({ platform }: { platform: Platform }) => {
         {/* Nav buttons */}
         <div className="flex gap-3">
           <button
-            onClick={() => setActiveStep((p) => Math.max(0, p - 1))}
+            onClick={goPrev}
             disabled={isFirst}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/10 text-sm text-gray-400 hover:text-white hover:border-white/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >
@@ -199,7 +287,7 @@ const PlatformGuide = ({ platform }: { platform: Platform }) => {
 
           {!isLast && (
             <button
-              onClick={() => setActiveStep((p) => Math.min(platform.steps.length - 1, p + 1))}
+              onClick={goNext}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r ${platform.color} text-white text-sm font-semibold transition-all active:scale-95`}
             >
               Next <ChevronRight size={15} />
@@ -226,16 +314,22 @@ export default function CryptoCheckoutPage() {
   const [activePlatform, setActivePlatform] = useState(0);
   const platform = PLATFORMS[activePlatform];
 
-  const handlePlatformChange = (idx: number) => {
-    setActivePlatform(idx);
-  };
-
   return (
     <main className="min-h-screen bg-[#080809] text-white">
 
+      {/* Fade keyframe — injected once */}
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.18s ease-in-out;
+        }
+      `}</style>
+
       {/* ── Hero strip ── */}
       <div className="relative overflow-hidden border-b border-white/5">
-        {/* subtle grid bg */}
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
@@ -244,7 +338,6 @@ export default function CryptoCheckoutPage() {
             backgroundSize: "40px 40px",
           }}
         />
-        {/* amber glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-40 bg-amber-500/10 blur-3xl rounded-full" />
 
         <div className="relative max-w-4xl mx-auto px-6 lg:px-8 py-14">
@@ -272,14 +365,13 @@ export default function CryptoCheckoutPage() {
             New to crypto? No problem. Pick your app below and follow the steps — it takes about 5 minutes to get set up, and you'll save 15% on every order you pay with crypto.
           </p>
 
-          {/* Perks row */}
           <div className="flex flex-wrap gap-4 mt-8">
             {[
-              { icon: Tag, label: "15% off every order" },
-              { icon: Zap, label: "Instant checkout" },
+              { icon: Tag,    label: "15% off every order" },
+              { icon: Zap,    label: "Instant checkout" },
               { icon: Shield, label: "Secured by Payram" },
             ].map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/8 text-xs text-gray-300">
+              <div key={label} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs text-gray-300">
                 <Icon size={13} className="text-amber-400" />
                 {label}
               </div>
@@ -295,7 +387,9 @@ export default function CryptoCheckoutPage() {
           <div>
             <p className="text-sm font-semibold text-amber-300 mb-1">One-time ID check on your first purchase</p>
             <p className="text-xs text-gray-400 leading-relaxed max-w-2xl">
-              Crypto purchases are final — unlike credit cards, they can't be charged back, which makes them a target for fraud. Our payment processor <span className="text-gray-200 font-medium">Payram</span> does a single ID verification on your first purchase (~30 seconds) to confirm it's really you. After that, no verification is ever needed again. Payram handles it directly — <span className="text-gray-200">we never see or store your ID.</span> This is the same process used by Coinbase, Cash App, and every regulated crypto platform.
+              Crypto purchases are final — unlike credit cards, they can't be charged back, which makes them a target for fraud. Our payment processor{" "}
+              <span className="text-gray-200 font-medium">Payram</span> does a single ID verification on your first purchase (~30 seconds) to confirm it's really you. After that, no verification is ever needed again. Payram handles it directly —{" "}
+              <span className="text-gray-200">we never see or store your ID.</span> This is the same process used by Coinbase, Cash App, and every regulated crypto platform.
             </p>
           </div>
         </div>
@@ -303,13 +397,11 @@ export default function CryptoCheckoutPage() {
 
       {/* ── Platform tabs + guide ── */}
       <div className="max-w-4xl mx-auto px-6 lg:px-8 pb-24">
-
-        {/* Tab bar */}
-        <div className="flex border-b border-white/8 mb-8">
+        <div className="flex border-b border-white/10 mb-8">
           {PLATFORMS.map((p, i) => (
             <button
               key={p.id}
-              onClick={() => handlePlatformChange(i)}
+              onClick={() => setActivePlatform(i)}
               className={`flex items-center gap-2 px-5 py-3.5 text-xs font-bold uppercase tracking-widest transition-colors border-b-2 -mb-px ${
                 activePlatform === i
                   ? `${p.accent} border-current`
