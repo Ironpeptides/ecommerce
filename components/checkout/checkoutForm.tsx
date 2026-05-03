@@ -1,7 +1,8 @@
 import React from "react";
 import type { PaymentMethod } from "../../app/checkout/checkoutContent";
-import NexaPayPaymentForm from "../../app/checkout/nexapayPaymentForm";
 import ManualPaymentForm from "../../app/checkout/manualpaymentform";
+import PayramPayment from "../../app/checkout/payramPaymentForm";
+import CreditsPayment from "../../app/checkout/creditsPaymentForm";
 
 interface PricingConfig {
   salesTaxRate: number;
@@ -40,13 +41,26 @@ const CheckoutForm = ({
     paymentMethod,
   };
 
-  // 1. NexaPay — card payment, no discount, auto crypto settlement
-  if (paymentMethod === "nexapay") {
-    return <NexaPayPaymentForm {...sharedProps} />;
+  // Manual methods — all share the same component, differentiated by paymentMethod prop
+  if (
+    paymentMethod === "manual_crypto" ||
+    paymentMethod === "venmo" ||
+    paymentMethod === "cashapp"
+  ) {
+    return <ManualPaymentForm {...sharedProps} />;
   }
 
-  // 2. Manual Crypto — 15% discount, direct wallet transfer
-  return <ManualPaymentForm {...sharedProps} />;
+  // Payram — placeholder until server is purchased
+  if (paymentMethod === "payram") {
+    return <PayramPayment {...sharedProps} />;
+  }
+
+  // Credits — powered by LemonSqueezy behind the scenes
+  if (paymentMethod === "credits") {
+    return <CreditsPayment {...sharedProps} />;
+  }
+
+  return null;
 };
 
 export default CheckoutForm;

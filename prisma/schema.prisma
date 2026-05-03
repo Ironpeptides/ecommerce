@@ -88,9 +88,31 @@ model User {
   roles                        Role[]            @relation("UserRoles")
   marketerCoupons              Coupon[]          @relation("MarketerCoupons")
   marketerCommissions          Commission[]      @relation("MarketerCommissions")
+
+  walletBalance      Float               @default(0)
+  walletTransactions          WalletTransaction[]
   subscription   Subscription?
   notificationPreferences NotificationPreference?
 }
+
+
+model WalletTransaction {
+  id        String       @id @default(cuid())
+  createdAt DateTime     @default(now())
+  userId    String
+  amount    Float
+  type      WalletTxType
+  reason    String?
+  reference String?
+  orderId   String?
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("wallet_transactions")
+}
+
+
 
 
 
@@ -625,4 +647,9 @@ enum PaymentStatus {
 enum DiscountType {
   PERCENTAGE
   FIXED
+}
+
+enum WalletTxType {
+  CREDIT
+  DEBIT
 }
