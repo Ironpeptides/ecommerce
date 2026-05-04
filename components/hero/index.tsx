@@ -19,6 +19,7 @@ const Hero = () => {
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover opacity-[0.07] grayscale"
           priority
+          fetchPriority="high"
         />
         {/* Vignette */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_40%,_transparent_0%,_#0a0a0b_85%)]" />
