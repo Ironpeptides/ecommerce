@@ -443,6 +443,7 @@ const CartPage = () => {
                                                                 src={item?.images?.[0]?.url || '/placeholder.jpg'}
                                                                 alt={item?.name || 'Product image'}
                                                                 fill
+                                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                                                 className='object-cover'
                                                             />
                                                         </div>

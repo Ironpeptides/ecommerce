@@ -31,6 +31,7 @@ export default function AboutPage() {
           src="/images/lab-hero.jpg"
           alt="Research laboratory with analytical equipment"
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover object-center"
           priority
         />
@@ -85,6 +86,7 @@ export default function AboutPage() {
               src="/images/slide-2.jpg"
               alt="Transparent pricing commitment"
               fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -98,6 +100,7 @@ export default function AboutPage() {
               src="/images/slide-3.jpg"
               alt="HPLC analysis in progress"
               fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover"
             />
           </div>
@@ -192,6 +195,7 @@ export default function AboutPage() {
             src="/images/slide-3.jpg"
             alt="Research team in laboratory setting"
             fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover"
           />
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">

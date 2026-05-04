@@ -197,9 +197,10 @@ export function CryptoBuyModal({ onClose }: { onClose: () => void }) {
                   src={step.image}
                   alt={`Step ${activeStep + 1}`}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   priority
                   className="object-contain animate-fadeIn"
-                  sizes="100vw"
+                  
                 />
 
                 {/* Left arrow overlay */}

@@ -43,7 +43,9 @@ export function ProfileTab({ user }: { user: any }) {
       <div className="flex items-center gap-6">
         <div className="relative h-20 w-20 rounded-full overflow-hidden border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
           {form.image ? (
-            <Image src={form.image} alt="Avatar" fill className="object-cover" />
+            <Image src={form.image} alt="Avatar" fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" 
+            className="object-cover" />
           ) : (
             <User className="h-8 w-8 text-muted-foreground" />
           )}

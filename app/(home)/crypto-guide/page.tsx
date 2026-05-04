@@ -202,6 +202,7 @@ const PlatformGuide = ({ platform }: { platform: Platform }) => {
               src={step.image}
               alt={`Step ${activeStep + 1}`}
               fill
+            
               priority
               sizes="(max-width: 768px) 100vw, 320px"
               className="object-contain animate-fadeIn"

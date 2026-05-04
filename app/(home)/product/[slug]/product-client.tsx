@@ -209,6 +209,7 @@ const hasDiscount = originalPrice > currentPrice;
                 src={product.images?.[selectedImage]?.url || "/images/placeholder.jpg"}
                 alt={product.images?.[selectedImage]?.alt || product.name}
                 fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-cover"
                 priority
               />
@@ -528,6 +529,7 @@ const hasDiscount = originalPrice > currentPrice;
                       src={relatedProduct.images?.[0]?.url || "/images/placeholder.jpg"}
                       alt={relatedProduct.name}
                       fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="object-cover transition-transform group-hover:scale-105"
                     />
                   </div>

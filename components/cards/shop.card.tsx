@@ -31,6 +31,7 @@ const ShopCard: React.FC<ShopCardProps> = ({shop}) => {
              src={shopCover}
              alt='Shop Cover Banner'
              fill
+             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
              className='object-cover w-full h-full transition-transform duration-500 group-hover:scale-105'
              />
              {/* Subtle vignette overlay on banner */}

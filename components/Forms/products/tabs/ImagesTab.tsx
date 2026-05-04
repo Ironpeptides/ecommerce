@@ -164,9 +164,9 @@ export function ImagesTab({ product }: Props) {
                   <Image
                     src={img.url}
                     alt={img.alt ?? product.name}
-                    fill
+                    
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover"
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   />
 
                   {/* Primary badge */}
@@ -272,6 +272,7 @@ export function ImagesTab({ product }: Props) {
                   src={certificate.url}
                   alt="Certificate of Analysis"
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover"
                 />
               </div>

@@ -16,6 +16,7 @@ const Hero = () => {
           src="/images/Acetic-Water-01-mockup-300x300.webp"
           alt="Research Background"
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover opacity-[0.07] grayscale"
           priority
         />

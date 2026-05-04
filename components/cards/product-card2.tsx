@@ -260,6 +260,7 @@ const ProductCard = ({ product, isEvent, isWide = false }: { product: any; isEve
             src={product?.images?.[0]?.url || ""}
             alt={product?.name || "Product image"}
             fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className='object-cover transition-transform duration-500 group-hover:scale-110 opacity-90 group-hover:opacity-100'
           />
         </Link>

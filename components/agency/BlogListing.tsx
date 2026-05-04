@@ -133,6 +133,7 @@ const BlogListing = () => {
                   src={featuredPost.image}
                   alt={featuredPost.title}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -154,6 +155,7 @@ const BlogListing = () => {
                         src={featuredPost.author.image}
                         alt={featuredPost.author.name}
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover"
                       />
                     </div>
@@ -204,6 +206,7 @@ const BlogListing = () => {
                   src={post.image}
                   alt={post.title}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
@@ -231,6 +234,7 @@ const BlogListing = () => {
                         src={post.author.image}
                         alt={post.author.name}
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover"
                       />
                     </div>
