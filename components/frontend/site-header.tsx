@@ -136,7 +136,9 @@ export default function SiteHeader({ session }: { session: Session | null }) {
             <NavigationMenuList className="gap-0">
               {/* Home */}
               <NavigationMenuItem>
-                <Link href="/" legacyBehavior passHref>
+                <Link href="/">
+                  {/* @next-codemod-error This Link previously used the now removed `legacyBehavior` prop, and has a child that might not be an anchor. The codemod bailed out of lifting the child props to the Link. Check that the child component does not render an anchor, and potentially move the props manually to Link. */
+                  }
                   <NavigationMenuLink className="h-9 px-3 py-2 text-sm font-bold text-gray-400 hover:text-blue-400 transition-colors uppercase tracking-tight">
                     Home
                   </NavigationMenuLink>
@@ -494,8 +496,6 @@ export default function SiteHeader({ session }: { session: Session | null }) {
           </Sheet>
         </div>
       </div>
-
-      
     </header>
   );
 }
