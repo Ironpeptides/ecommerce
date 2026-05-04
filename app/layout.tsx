@@ -7,10 +7,16 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import Script from "next/script";
-// import FooterBanner from "@/components/Footer";
-const inter = Rethink_Sans({ subsets: ["latin"], display: "swap" });
+
+const inter = Rethink_Sans({ 
+  subsets: ["latin"], 
+  display: "swap",
+  preload: true,        
+  variable: '--font-rethink',
+});
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://haelo.fit'),
   title: "HÆLO Peptides",
   description: "Premium-grade research peptides engineered for precision. We provide ultra-high purity peptides for advanced biological study. Engineered for accuracy, delivered with full analytical documentation.",
 };

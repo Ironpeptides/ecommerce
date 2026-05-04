@@ -328,7 +328,7 @@ const CartPage = () => {
                 metadata: {
                     location,
                     deviceInfo,
-                    userAgent: navigator.userAgent,
+                    userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
                 },
             };
 

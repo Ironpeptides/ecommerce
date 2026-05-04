@@ -1,11 +1,12 @@
-"use client";
 
-import { MoveRight, ShieldCheck, Star, FlaskConical } from "lucide-react";
+import Link from "next/link";
+
+import {  MoveRight, Star } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+
 
 const Hero = () => {
-  const router = useRouter();
+  
 
   return (
     <section className="relative min-h-[100dvh] flex flex-col w-full bg-[#0a0a0b] overflow-hidden">
@@ -59,13 +60,13 @@ const Hero = () => {
               </div>
 
               {/* CTA — single button */}
-              <button
-                onClick={() => router.push("/products")}
-                className="flex items-center gap-2 rounded-md bg-emerald-600 px-8 py-4 font-bold text-white transition-all hover:bg-emerald-500 active:scale-95 shadow-lg shadow-emerald-900/30"
+              <Link
+               href="/products"
+              className="flex items-center gap-2 rounded-md bg-emerald-600 px-8 py-4 font-bold text-white transition-all hover:bg-emerald-500 active:scale-95 shadow-lg shadow-emerald-900/30"
               >
-                Browse Catalog
-                <MoveRight className="h-4 w-4" />
-              </button>
+           Browse Catalog
+            <MoveRight className="h-4 w-4" />
+</Link>
 
               {/* Social proof */}
               <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-4 border-t border-white/5 w-full">
@@ -100,6 +101,7 @@ const Hero = () => {
                   loop
                   muted
                   playsInline
+                  poster="/images/hero-poster.png"
                   className="absolute inset-0 w-full h-full object-cover"
                 >
                   <source src="/videos/IronPeptidevideo.mp4" type="video/mp4" />

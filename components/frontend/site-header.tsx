@@ -132,8 +132,12 @@ export default function SiteHeader({ session }: { session: Session | null }) {
           <Logo />
           
           {/* Desktop Navigation */}
+          
           <NavigationMenu className="hidden lg:flex">
             <NavigationMenuList className="gap-0">
+
+              
+              
               {/* Home */}
               <NavigationMenuItem>
                 <Link href="/">
@@ -238,6 +242,14 @@ export default function SiteHeader({ session }: { session: Session | null }) {
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem> */}
+
+              <NavigationMenuItem>
+             <Link href="/blog">
+            <NavigationMenuLink className="h-9 px-3 py-2 text-sm font-bold text-gray-400 hover:text-blue-400 transition-colors uppercase tracking-tight">
+             Blog
+              </NavigationMenuLink>
+             </Link>
+           </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
         </div>

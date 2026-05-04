@@ -1,10 +1,7 @@
-"use client";
+// app/page.tsx
+// NO "use client" - this is now a server component
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Hero from "@/components/hero";
-import SectionTitle from "@/components/section/section-title";
-import ProductCard from "../../components/cards/product-card";
-import ShopCard from "../../components/cards/shop.card";
 import TrustBar from "@/components/frontend/trust-bar";
 import {
   getProducts,
@@ -14,223 +11,45 @@ import {
 } from "@/actions/products";
 import { getTopShops } from "@/actions/shops";
 import { getEvents } from "@/actions/events";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { X, Bitcoin, Package, Clock } from "lucide-react";
+import ProductsSection from "@/components/home/productsSection";
+import CryptoBanner from "@/components/home/cryptoBanner";
+import ShippingNotice from "@/components/home/shippingNotice";
 
-interface PageState {
-  products: any[];
-  shops: any[];
-  offers: any[];
-  loading: boolean;
-  error: string | null;
-}
+// Data fetches on the server — no loading skeleton, no useEffect
+export default async function Page({ searchParams }: { searchParams?: any }) {
+  const orgId = undefined;
 
-const INITIAL_STATE: PageState = {
-  products: [],
-  shops: [],
-  offers: [],
-  loading: true,
-  error: null,
-};
+  const [productsData, variantsData, batchesData, categoriesData] =
+    await Promise.all([
+      getProducts(orgId).then((res: any) => res ?? []),
+      getProductVariants(orgId).then((res: any) => res ?? []),
+      getProductBatches(orgId).then((res: any) => res ?? []),
+      getProductCategories(orgId).then((res: any) => res ?? []),
+    ]);
 
-// ─── Crypto Banner ────────────────────────────────────────────────────────────
+  const products = productsData.map((product: any) => ({
+    ...product,
+    variants: variantsData.filter((v: any) => v.productId === product.id),
+    batches: batchesData.filter((b: any) => b.productId === product.id),
+    category: categoriesData.find((c: any) => c.id === product.categoryId),
+  }));
 
-const CryptoBanner = () => {
-  const [dismissed, setDismissed] = useState(false);
-  if (dismissed) return null;
-
-  return (
-    <div className="relative bg-gradient-to-r from-amber-500/10 via-yellow-500/10 to-amber-500/10 border-b border-amber-500/20">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-center gap-3 text-center">
-        <Bitcoin size={16} className="text-amber-400 shrink-0" />
-        <p className="text-sm text-amber-200/90">
-          <span className="font-semibold text-amber-300">Need help paying with crypto?</span>{" "}
-          <Link
-            href="/crypto-guide"
-            className="underline underline-offset-2 text-amber-400 hover:text-amber-300 transition-colors font-medium"
-          >
-            Get 15% off when you do →
-          </Link>
-        </p>
-        <button
-          onClick={() => setDismissed(true)}
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-amber-400/60 hover:text-amber-400 transition-colors"
-          aria-label="Dismiss"
-        >
-          <X size={15} />
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// ─── Shipping Notice ──────────────────────────────────────────────────────────
-// Small strip: domestic-only now, EU coming soon
-
-const ShippingNotice = () => (
-  <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 py-2.5 px-4 bg-white/[0.03] border-b border-white/5 text-[11px] text-gray-400">
-    <span className="flex items-center gap-1.5">
-      <Package size={12} className="text-blue-400" />
-      <span>
-        <span className="text-white font-medium">🇺🇸 USA domestic shipping</span>
-        {" "}— orders fulfilled within 1–2 business days
-      </span>
-    </span>
-    <span className="hidden sm:block text-white/10">|</span>
-    <span className="flex items-center gap-1.5">
-      <Clock size={12} className="text-purple-400" />
-      <span>
-        <span className="text-purple-300 font-medium">🇪🇺 EU shipping coming soon</span>
-        {" "}— estimated 3–5 day delivery
-      </span>
-    </span>
-  </div>
-);
-
-// ─── Made in USA Badge ────────────────────────────────────────────────────────
-// Compact inline badge shown near the products section header
-
-const MadeInUSABadge = () => (
-  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] font-medium text-gray-300 select-none">
-    🇺🇸 <span>Made in USA</span>
-  </span>
-);
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
-const Page = ({ orgId }: { orgId?: string }) => {
-  const router = useRouter();
-  const [state, setState] = useState<PageState>(INITIAL_STATE);
-
-  const fetchAll = useCallback(async () => {
-    setState((prev) => ({ ...prev, loading: true, error: null }));
-    try {
-      const [productsData, variantsData, batchesData, categoriesData, shopsData, eventsData] =
-        await Promise.all([
-          getProducts(orgId).then((res: any) => res ?? []),
-          getProductVariants(orgId).then((res: any) => res ?? []),
-          getProductBatches(orgId).then((res: any) => res ?? []),
-          getProductCategories(orgId).then((res: any) => res ?? []),
-          getTopShops(orgId).then((res: any) => res ?? []),
-          getEvents(orgId).then((res: any) => res ?? []),
-        ]);
-
-      const enrichedProducts = productsData.map((product: any) => ({
-        ...product,
-        variants: variantsData.filter((v: any) => v.productId === product.id),
-        batches: batchesData.filter((b: any) => b.productId === product.id),
-        category: categoriesData.find((c: any) => c.id === product.categoryId),
-      }));
-
-      setState({
-        products: enrichedProducts,
-        shops: shopsData,
-        offers: eventsData,
-        loading: false,
-        error: null,
-      });
-    } catch (err) {
-      console.error("Error fetching page data:", err);
-      setState((prev) => ({
-        ...prev,
-        loading: false,
-        error: "Failed to load page data. Please try again.",
-      }));
-    }
-  }, [orgId]);
-
-  useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
-
-  const latestProducts = useMemo(
-    () =>
-      [...state.products]
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        .slice(0, 8),
-    [state.products]
-  );
-
-  const skeletons = [...Array(5)].map((_, i) => (
-    <div key={i} className="h-64 bg-white/5 animate-pulse rounded-2xl border border-white/5" />
-  ));
+  const latestProducts = [...products]
+    .sort((a: any, b: any) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
+    .slice(0, 8);
 
   return (
     <main className="min-h-screen text-white">
       <Hero />
-
-      {/* Crypto payment banner */}
       <CryptoBanner />
-
-      {/* ✦ Shipping notice — right after the crypto banner, before TrustBar */}
       <ShippingNotice />
-
       <TrustBar />
-
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16 space-y-24">
-
-        {/* Suggested Products */}
-        <section aria-label="Suggested Products" id="suggested-products">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-              <SectionTitle title="Suggested for Your Research" />
-              {/* ✦ Made in USA badge — sits next to the section title */}
-              <MadeInUSABadge />
-            </div>
-            <button
-              onClick={() => router.push("/products")}
-              className="text-emerald-400 text-sm font-medium hover:text-emerald-300 transition-colors"
-            >
-              View All →
-            </button>
-          </div>
-
-          {state.loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {skeletons}
-            </div>
-          ) : state.error ? (
-            <div className="flex flex-col items-center gap-3 py-12 text-zinc-500">
-              <p>{state.error}</p>
-              <button onClick={fetchAll} className="text-emerald-400 text-sm hover:text-emerald-300 transition-colors">
-                Try again
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {state.products.map((product: any) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          )}
-        </section>
-
-        <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-
-        {/* Latest Arrivals */}
-        <section aria-label="Latest Arrivals">
-          <div className="mb-8">
-            <SectionTitle title="Latest Arrivals" />
-          </div>
-
-          {state.loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {skeletons}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {latestProducts.map((product: any) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
-
-      <div className="pb-20" />
+      <ProductsSection 
+        products={products} 
+        latestProducts={latestProducts} 
+      />
     </main>
   );
-};
-
-export default Page;
+}
