@@ -249,6 +249,7 @@ model Blog {
   updatedAt     DateTime     @updatedAt
   author        User         @relation(fields: [authorId], references: [id])
   category      BlogCategory @relation(fields: [categoryId], references: [id])
+  reactions BlogReaction[]
 }
 
 model BlogCategory {
@@ -258,6 +259,19 @@ model BlogCategory {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   blogs     Blog[]
+}
+
+model BlogReaction {
+  id        String   @id @default(cuid())
+  blogId    String
+  emoji     String
+  sessionId String
+  createdAt DateTime @default(now())
+
+  blog Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  @@unique([blogId, emoji, sessionId])
+  @@index([blogId])
 }
 
 model Changelog {

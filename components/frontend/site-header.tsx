@@ -244,7 +244,7 @@ export default function SiteHeader({ session }: { session: Session | null }) {
               </NavigationMenuItem> */}
 
               <NavigationMenuItem>
-             <Link href="/blog">
+             <Link href="/blogs">
             <NavigationMenuLink className="h-9 px-3 py-2 text-sm font-bold text-gray-400 hover:text-blue-400 transition-colors uppercase tracking-tight">
              Blog
               </NavigationMenuLink>

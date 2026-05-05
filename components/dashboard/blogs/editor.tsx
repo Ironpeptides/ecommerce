@@ -139,14 +139,14 @@ export default function VEditor({
   };
 
   return (
-    <div className={`bg-gray-100 p-4 ${variant === "default" ? "lg:p-8" : ""}`}>
+    <div className={`bg-gray-100 p-4 ${variant === "default" ? "lg:p-8" : ""} text-zinc-900`}>
       <div
         className={`mx-auto ${
           variant === "default" ? "max-w-[21cm]" : "max-w-full"
         }`}
       >
         {isEditable && (
-          <div className="mb-4 rounded-lg border bg-white shadow-sm">
+          <div className="mb-4 rounded-lg border bg-white  shadow-sm">
             <div className="flex flex-wrap items-center gap-1 border-b p-2">
               <Select
                 value={
@@ -394,7 +394,7 @@ export default function VEditor({
 
               <Dialog open={showPreview} onOpenChange={setShowPreview}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="ml-auto">
+                  <Button variant="outline" size="sm" className="ml-auto bg-white">
                     <Eye className="h-4 w-4 mr-2" />
                     Preview
                   </Button>

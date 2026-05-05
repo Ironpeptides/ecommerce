@@ -114,8 +114,8 @@ export default function BlogEditForm({
             )}
           </div>
         </TabsContent>
-        <TabsContent value="meta" className="space-y-8">
-          <form className="" onSubmit={handleSubmit(updateMeta)}>
+        <TabsContent value="meta" className="space-y-8 ">
+          <form className="text-zinc-900" onSubmit={handleSubmit(updateMeta)}>
             <div className="grid grid-cols-12 gap-6 py-8">
               <div className="lg:col-span-8 col-span-full space-y-3">
                 <Card>
@@ -127,7 +127,7 @@ export default function BlogEditForm({
                   </CardHeader>
                   <CardContent>
                     <div className="grid gap-6">
-                      <div className="grid gap-3">
+                      <div className="grid gap-3 text-zinc-900">
                         <TextInput
                           register={register}
                           errors={errors}

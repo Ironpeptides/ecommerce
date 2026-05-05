@@ -163,13 +163,13 @@ export const sidebarLinks: ISidebarLink[] = [
       },
     ],
   },
- /*  {
+   {
     title: "Blogs",
     icon: Book,
     dropdown: false,
     href: "/dashboard/blogs",
     permission: "blogs.read",
-  }, */
+  }, 
  /*  {
     title: "Settings",
     href: "/dashboard/settings",
