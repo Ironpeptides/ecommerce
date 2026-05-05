@@ -78,7 +78,7 @@ export function SupportClient({
   // Build WhatsApp message with product context if available
   const whatsappMessage = productName
     ? `Hi! I need help with a product I found on your store.\n\n*Product:* ${productName}${productPrice ? `\n*Price:* $${productPrice}` : ""}\n\nMy question:`
-    : "Hi! I need help with something on HÆLO Peptides.";
+    : "Hi! I need help with something on Haelolabs.";
 
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
 

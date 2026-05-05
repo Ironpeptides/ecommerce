@@ -80,7 +80,7 @@ export async function generateMetadata({
   const product = await getProductBySlug(slug);
   if (!product) return { title: "Product Not Found" };
   return {
-    title: `${product.name} | HÆLO Peptides`,
+    title: `${product.name} | Haelolabs`,
     description: product.description?.substring(0, 160) ?? "",
     openGraph: {
       title:       product.name,

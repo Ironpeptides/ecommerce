@@ -13,7 +13,7 @@ export default function Logo({
   const LogoImage = (
     <Image
       src="/images/ironpeptideInc.png"
-      alt="HÆLO Peptides Innovations Logo"
+      alt="Haelolabs Innovations Logo"
       width={60} // Increased size for better clarity
       height={60}
       className="rounded-md object-contain"
@@ -26,12 +26,12 @@ export default function Logo({
       {variant === "light" ? (
         <>
           {LogoImage}
-          <span className="font-bold text-white">HÆLO PEPTIDES</span>
+          <span className="font-bold text-white">Haelolabs</span>
         </>
       ) : (
         <>
           {LogoImage}
-          <span className="font-bold text-white">HÆLO PEPTIDES</span>
+          <span className="font-bold text-white">Haelolabs</span>
         </>
       )}
     </Link>

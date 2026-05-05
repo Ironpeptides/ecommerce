@@ -27,7 +27,7 @@ export default function VerifyEmail({ verificationCode }: VerifyEmailProps) {
   return (
     <Html>
       <Head />
-      <Preview>Your HÆLO Peptides verification code is {verificationCode}</Preview>
+      <Preview>Your Haelolabs verification code is {verificationCode}</Preview>
       <Body style={{ backgroundColor: '#eeeeee', fontFamily: 'Arial, sans-serif', margin: 0, padding: 0 }}>
         <Container style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
           <Section style={{ backgroundColor: '#ffffff' }}>
@@ -38,7 +38,7 @@ export default function VerifyEmail({ verificationCode }: VerifyEmailProps) {
                 src={`https://83153x3k0f.ufs.sh/f/WHfEA9ldMx5DkPX4zs1pln71ahxzZC0eTMXmsRfOt36yP42G`}
                 width="75"
                 height="45"
-                alt="HÆLO Peptides Logo"
+                alt="Haelolabs Logo"
                 style={{ display: 'block', margin: '0 auto' }}
               />
             </Section>
@@ -49,7 +49,7 @@ export default function VerifyEmail({ verificationCode }: VerifyEmailProps) {
                 Verify your email address
               </Heading>
               <Text style={{ color: '#333333', fontSize: '14px', lineHeight: '24px', margin: '0 0 14px' }}>
-                Thanks for starting the new HÆLO Peptides account creation process. We want to make sure
+                Thanks for starting the new Haelolabs account creation process. We want to make sure
                 it&apos;s really you. Please enter the following verification code when prompted. If you
                 don&apos;t want to create an account, you can ignore this message.
               </Text>
@@ -73,7 +73,7 @@ export default function VerifyEmail({ verificationCode }: VerifyEmailProps) {
             {/* Footer disclaimer */}
             <Section style={{ padding: '25px 35px' }}>
               <Text style={{ color: '#333333', fontSize: '14px', margin: 0 }}>
-                HÆLO Peptides will never email you and ask you to disclose or verify your
+                Haelolabs will never email you and ask you to disclose or verify your
                 password, credit card, or banking account number.
               </Text>
             </Section>
@@ -81,9 +81,9 @@ export default function VerifyEmail({ verificationCode }: VerifyEmailProps) {
 
           {/* Legal footer */}
           <Text style={{ color: '#333333', fontSize: '12px', margin: '24px 0', padding: '0 20px' }}>
-            This message was produced and distributed by HÆLO Peptides, Inc., 410 Terry Ave.
-            North, Seattle, WA 98109. © 2024, HÆLO Peptides, Inc.. All rights reserved.
-            HÆLO Peptides is a registered trademark of{' '}
+            This message was produced and distributed by Haelolabs, Inc., 410 Terry Ave.
+            North, Seattle, WA 98109. © 2024, Haelolabs, Inc.. All rights reserved.
+            Haelolabs is a registered trademark of{' '}
             <Link href="https://haelo.fit" target="_blank" style={{ color: '#2754C5', textDecoration: 'underline' }}>
               https://haelo.fit
             </Link>

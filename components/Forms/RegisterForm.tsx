@@ -108,7 +108,7 @@ export default function RegisterForm() {
             </h1>
             <p className="text-zinc-400 text-sm">
               Join{" "}
-              <span className="text-emerald-400 font-medium">HÆLO Peptides</span>{" "}
+              <span className="text-emerald-400 font-medium">Haelolabs</span>{" "}
               to get started today.
             </p>
           </div>

@@ -21,7 +21,7 @@ interface InvitationEmailProps {
   invitedBy?: string;
 }
 
-const ORG_NAME = "HÆLO Peptides";
+const ORG_NAME = "Haelolabs";
 const SUPPORT_EMAIL = "support@haelo.fit";
 const ORG_ADDRESS = "410 Terry Ave. North, Seattle, WA 98109";
 const LOGO_URL =
@@ -288,7 +288,7 @@ InvitationEmail.PreviewProps = {
   userFirstname: "Alan",
   inviteLink: "https://https://haelo.fit/register?token=abc123",
   invitedBy: "John Doe",
-  orgName: "HÆLO Peptides",
+  orgName: "Haelolabs",
   roleName: "Secretary",
 } satisfies InvitationEmailProps;
 

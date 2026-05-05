@@ -28,7 +28,7 @@ import { CryptoBuyModal } from "@/components/frontend/cryptoBuyModal";
 import { Bitcoin } from "lucide-react";
 
 const shopCategories = [
-  { icon: ShoppingCart, title: "Products", description: "All products we sell at HÆLO Peptides", href: "/products" },
+  { icon: ShoppingCart, title: "Products", description: "All products we sell at Haelolabs", href: "/products" },
   { icon: Dna, title: "Peptides", description: "Analytical grade amino acid sequences.", href: "#suggested-products" },
   { icon: ReceiptText, title: "Refund & Return Policy", href: "/legal/refund-policy" },
 ];

@@ -17,7 +17,7 @@ const inter = Rethink_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://haelo.fit'),
-  title: "HÆLO Peptides",
+  title: "Haelolabs",
   description: "Premium-grade research peptides engineered for precision. We provide ultra-high purity peptides for advanced biological study. Engineered for accuracy, delivered with full analytical documentation.",
 };
 

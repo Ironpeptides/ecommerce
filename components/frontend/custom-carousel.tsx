@@ -6,7 +6,7 @@ const carouselItems = [
   {
     image: "/images/slide-1.jpg",
     title: "Simple Monthly deliveries,",
-    subtitle: "Join HÆLO Peptides",
+    subtitle: "Join Haelolabs",
   },
   {
     image: "/images/slide-2.jpg",
@@ -15,7 +15,7 @@ const carouselItems = [
   },
   {
     image: "/images/slide-3.jpg",
-    title: "HÆLO Peptides for research",
+    title: "Haelolabs for research",
     subtitle: "Order your batch today",
   },
 ];

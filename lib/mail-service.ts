@@ -22,7 +22,7 @@ export async function sendOrderConfirmationEmails({
   
   try {
     const buyerResult = await resend.emails.send({
-      from: `HÆLO Peptides <support@haelo.fit>`,
+      from: `Haelolabs <support@haelo.fit>`,
       to: buyerEmail,
       subject: `Order Confirmation #${orderNumber}`,
       react: OrderReceiptEmail({ userFirstname: buyerName, orderNumber, totalAmount, items }),
@@ -31,7 +31,7 @@ export async function sendOrderConfirmationEmails({
 
     const adminResults = await Promise.all(adminEmails.map(email =>
       resend.emails.send({
-        from: `HÆLO Peptides <support@haelo.fit>`,
+        from: `Haelolabs <support@haelo.fit>`,
         to: email,
         subject: `NEW SALE ALERT: #${orderNumber}`,
         react: OrderReceiptEmail({ userFirstname: "Admin", orderNumber, totalAmount, items, isAdmin: true }),

@@ -66,7 +66,7 @@ export async function sendForm(prevState: FormState, formData: FormData): Promis
     }
 
     const { error } = await resend.emails.send({
-      from: `HÆLO Peptides <support@haelo.fit>`,
+      from: `Haelolabs <support@haelo.fit>`,
       to: recipientEmail,
       replyTo: email,
       subject: `[${inquiryType.toUpperCase()}] ${subject}`,
