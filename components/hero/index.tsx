@@ -12,7 +12,7 @@ const Hero = () => {
     <section className="relative min-h-[100dvh] flex flex-col w-full bg-[#0a0a0b] overflow-hidden">
 
       {/* Background image */}
-      <div className="absolute inset-0 z-0">
+      {/* <div className="absolute inset-0 z-0">
         <Image
           src="/images/Acetic-Water-01-mockup-300x300.webp"
           alt="Research Background"
@@ -22,11 +22,11 @@ const Hero = () => {
           priority
           fetchPriority="high"
         />
-        {/* Vignette */}
+   
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_40%,_transparent_0%,_#0a0a0b_85%)]" />
-        {/* Subtle emerald glow behind the video side */}
+       
         <div className="absolute right-0 top-1/4 w-[600px] h-[600px] bg-emerald-900/20 rounded-full blur-[120px] pointer-events-none" />
-      </div>
+      </div> */}
 
       {/* ── Main content — grows to fill, keeps disclaimer clear ── */}
       <div className="relative z-10 flex-1 flex items-center pt-24 pb-28 md:pt-28 md:pb-24">

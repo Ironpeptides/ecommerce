@@ -3,7 +3,7 @@
 
 import { db } from "@/prisma/db";
 import { revalidatePath } from "next/cache";
-import { getAuthenticatedUser } from "@/config/useAuth";
+
 
 interface GetProductBySlugResponse {
   success: boolean;
