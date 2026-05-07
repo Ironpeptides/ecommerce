@@ -21,7 +21,7 @@ export type PaymentMethod =
   | "manual_crypto"
   | "venmo"
   | "cashapp"
-  | "payram"
+  | "payblis"    // was "payram"
   | "credits";
 
 interface PricingConfig {
@@ -76,15 +76,15 @@ const PAYMENT_METHODS: {
     iconColor: "text-emerald-400",
   },
   {
-    id: "payram",
-    label: "Payram",
-    sublabel: "Coming soon",
-    icon: CreditCard,
-    accent: "border-purple-500/50 bg-purple-500/5",
-    ring: "ring-1 ring-purple-500/20",
-    iconBg: "bg-purple-500/20",
-    iconColor: "text-purple-400",
-  },
+  id: "payblis",          // was "payram"
+  label: "Card Payment",  // was "Payram"
+  sublabel: "Visa · Mastercard · Apple Pay",
+  icon: CreditCard,
+  accent: "border-purple-500/50 bg-purple-500/5",
+  ring: "ring-1 ring-purple-500/20",
+  iconBg: "bg-purple-500/20",
+  iconColor: "text-purple-400",
+},
   {
     id: "credits",
     label: "Pay with Credits(using card)",
@@ -258,7 +258,7 @@ const CheckoutContent = () => {
           {PAYMENT_METHODS.map((method) => {
             const isSelected = paymentMethod === method.id;
             const Icon = method.icon;
-            const isComingSoon = method.id === "payram";
+            const isComingSoon = method.id === "credits";
 
             return (
               <button

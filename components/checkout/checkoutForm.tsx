@@ -1,7 +1,7 @@
 import React from "react";
 import type { PaymentMethod } from "../../app/checkout/checkoutContent";
 import ManualPaymentForm from "../../app/checkout/manualpaymentform";
-import PayramPayment from "../../app/checkout/payramPaymentForm";
+import PayblisPayment from "../../app/checkout/payBlisPaymentForm";
 import CreditsPayment from "../../app/checkout/creditsPaymentForm";
 
 interface PricingConfig {
@@ -41,7 +41,6 @@ const CheckoutForm = ({
     paymentMethod,
   };
 
-  // Manual methods — all share the same component, differentiated by paymentMethod prop
   if (
     paymentMethod === "manual_crypto" ||
     paymentMethod === "venmo" ||
@@ -50,12 +49,10 @@ const CheckoutForm = ({
     return <ManualPaymentForm {...sharedProps} />;
   }
 
-  // Payram — placeholder until server is purchased
-  if (paymentMethod === "payram") {
-    return <PayramPayment {...sharedProps} />;
+  if (paymentMethod === "payblis") {
+    return <PayblisPayment {...sharedProps} />;
   }
 
-  // Credits — powered by LemonSqueezy behind the scenes
   if (paymentMethod === "credits") {
     return <CreditsPayment {...sharedProps} />;
   }
