@@ -101,12 +101,13 @@ const Hero = () => {
                   loop
                   muted
                   playsInline
-                  poster="/images/hero-poster.png"
+                  poster="/images/hero-poster.webp"
                   className="absolute inset-0 w-full h-full object-cover"
                 >
-                  <source src="/videos/IronPeptidevideo.mp4" type="video/mp4" />
-                  <source src="/videos/IronPeptidevideo.webm" type="video/webm" />
+                  <source src="/videos/haeloPeptides.webm" type="video/webm" />
                 </video>
+
+                
 
                 {/* Gradient scrim so overlays read well */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none" />
