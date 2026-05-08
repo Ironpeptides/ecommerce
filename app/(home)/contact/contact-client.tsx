@@ -393,7 +393,7 @@ const getFormError = () => {
         {/* Footer Note */}
         <div className="border-t border-white/10 mt-12 pt-8 text-center text-xs text-gray-500">
           <p>
-            For media inquiries or partnership opportunities, please contact partnerships@[sitename].com
+            For media inquiries or partnership opportunities, please contact  support@haelo.fit
           </p>
           <p className="mt-2">
             All communication is subject to our <Link href="/legal/privacy-policy" className="underline hover:text-white">Privacy Policy</Link>.

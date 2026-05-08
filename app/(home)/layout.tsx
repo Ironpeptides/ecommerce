@@ -6,6 +6,7 @@ import React, { ReactNode } from "react";
 import { PremiumProvider } from "@/components/providers/premium-provider";
 import AuthRequiredModal from "@/components/AuthrequiredModal";
 import SubscriptionModal from "@/components/subscription-modal";
+import AgeGateModal from "@/components/AgeGateModal";  
 
 export default async function HomeLayout({
   children,
@@ -20,6 +21,7 @@ export default async function HomeLayout({
     <div className="bg-[#0a0a0b] text-slate-200 selection:bg-emerald-500/30 selection:text-emerald-200">
       <PremiumProvider>
         {/* Auth Required Modal - Shows when user tries to add to cart without login */}
+        <AgeGateModal /> 
         <AuthRequiredModal />
         
         {/* Subscription Modal - Shows after delay for non-subscribed users */}

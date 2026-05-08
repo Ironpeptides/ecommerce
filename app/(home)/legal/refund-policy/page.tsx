@@ -2,7 +2,7 @@
 import { FileWarning, RefreshCw, Package, Clock, AlertCircle } from "lucide-react";
 
 export const metadata = {
-  title: "Refund & Return Policy | [Site Name]",
+  title: "Refund & Return Policy | Haelolabs",
   description: "Returns, refunds, claims, and quality assurance for research peptide products.",
 };
 
@@ -42,7 +42,7 @@ export default function RefundPolicyPage() {
               <Clock className="h-5 w-5 text-gray-500" /> 2. Filing a Claim
             </h2>
             <p className="text-gray-300 leading-relaxed mb-4">
-              To file a claim, email support@[sitename].com with:
+              To file a claim, email  support@haelo.fit with:
             </p>
             <ul className="list-disc pl-6 text-gray-300 space-y-2">
               <li>Your order number</li>

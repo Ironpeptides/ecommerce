@@ -2,7 +2,7 @@
 import { LockKeyhole, Eye, Database, Mail, Shield } from "lucide-react";
 
 export const metadata = {
-  title: "Privacy & Data Security | [Site Name]",
+  title: "Privacy & Data Security | Haelolabs",
   description: "How we collect, process, and protect your data in compliance with GDPR and CCPA.",
 };
 
@@ -90,12 +90,12 @@ export default function PrivacyPolicyPage() {
               <li>Data portability (export your order history)</li>
             </ul>
             <p className="text-gray-300 leading-relaxed mt-4">
-              To exercise these rights, email privacy@[sitename].com with verification of identity.
+              To exercise these rights, email  support@haelo.fit with verification of identity.
             </p>
           </section>
 
           <div className="border-t border-white/10 pt-6 mt-8 text-xs text-gray-500">
-            <p>For data protection inquiries: dpo@[sitename].com</p>
+            <p>For data protection inquiries:  support@haelo.fit</p>
           </div>
         </div>
       </div>

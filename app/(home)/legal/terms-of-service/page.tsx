@@ -2,7 +2,7 @@
 import { Gavel, FileText, Scale, AlertCircle } from "lucide-react";
 
 export const metadata = {
-  title: "Terms of Service | [Site Name]",
+  title: "Terms of Service | Haelolabs",
   description: "Legal terms and conditions governing use of our research peptide ecommerce platform.",
 };
 
@@ -24,7 +24,7 @@ export default function TermsOfServicePage() {
               <FileText className="h-5 w-5 text-gray-500" /> 1. Agreement to Terms
             </h2>
             <p className="text-gray-300 leading-relaxed">
-              By accessing or using [Site Name]'s website, you agree to be bound by these Terms of Service and all
+              By accessing or using Haelolabs's website, you agree to be bound by these Terms of Service and all
               applicable laws and regulations. If you do not agree with any part of these terms, you may not access
               the website or purchase any products.
             </p>
@@ -55,7 +55,7 @@ export default function TermsOfServicePage() {
           <section className="mb-8">
             <h2 className="text-xl font-bold text-white mb-4">4. Order Acceptance</h2>
             <p className="text-gray-300 leading-relaxed">
-              All orders are subject to acceptance by [Site Name]. We reserve the right to refuse or cancel any order
+              All orders are subject to acceptance by Haelolabs. We reserve the right to refuse or cancel any order
               for any reason, including product availability, errors in pricing, or suspected violation of our Research
               Use Policy. You will be notified if your order is cancelled.
             </p>
@@ -75,7 +75,7 @@ export default function TermsOfServicePage() {
               <Scale className="h-5 w-5 text-gray-500" /> 6. Limitation of Liability
             </h2>
             <p className="text-gray-300 leading-relaxed">
-              To the maximum extent permitted by law, [Site Name] shall not be liable for any indirect, incidental,
+              To the maximum extent permitted by law, Haelolabs shall not be liable for any indirect, incidental,
               special, consequential, or punitive damages resulting from your use of or inability to use our products
               or website. Our total liability shall not exceed the amount you paid for products giving rise to the claim.
             </p>
@@ -84,14 +84,14 @@ export default function TermsOfServicePage() {
           <section className="mb-8">
             <h2 className="text-xl font-bold text-white mb-4">7. Indemnification</h2>
             <p className="text-gray-300 leading-relaxed">
-              You agree to indemnify, defend, and hold harmless [Site Name] from any claims, damages, losses, liabilities,
+              You agree to indemnify, defend, and hold harmless Haelolabs from any claims, damages, losses, liabilities,
               costs, and expenses arising from your violation of these Terms, your misuse of products, or your violation
               of any applicable laws.
             </p>
           </section>
 
           <div className="border-t border-white/10 pt-6 mt-8 text-xs text-gray-500">
-            <p>For legal inquiries: legal@[sitename].com</p>
+            <p>For legal inquiries:  support@haelo.fit</p>
           </div>
         </div>
       </div>

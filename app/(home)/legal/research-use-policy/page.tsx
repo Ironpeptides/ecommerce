@@ -2,7 +2,7 @@
 import { ShieldAlert, FileText, AlertTriangle, BookOpen } from "lucide-react";
 
 export const metadata = {
-  title: "Research Use Policy | [Site Name]",
+  title: "Research Use Policy | Haelolabs",
   description: "Terms governing non-human, non-clinical research applications of our peptide products.",
 };
 
@@ -36,7 +36,7 @@ export default function ResearchUsePolicyPage() {
               <FileText className="h-5 w-5 text-gray-500" /> 1. Scope of Use
             </h2>
             <p className="text-gray-300 leading-relaxed mb-4">
-              By purchasing any product from [Site Name], you expressly acknowledge and agree that all products are
+              By purchasing any product from Haelolabs, you expressly acknowledge and agree that all products are
               supplied strictly for in-vitro laboratory research and non-clinical animal studies conducted by qualified
               research personnel in properly equipped facilities.
             </p>
@@ -84,7 +84,7 @@ export default function ResearchUsePolicyPage() {
           </section>
 
           <div className="border-t border-white/10 pt-6 mt-8 text-xs text-gray-500">
-            <p>For questions regarding this Research Use Policy, contact compliance@[sitename].com</p>
+            <p>For questions regarding this Research Use Policy, contact  support@haelo.fit</p>
           </div>
         </div>
       </div>

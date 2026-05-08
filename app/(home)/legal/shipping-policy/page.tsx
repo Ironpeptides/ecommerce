@@ -2,7 +2,7 @@
 import { Scale, Truck, Package, AlertTriangle, Globe } from "lucide-react";
 
 export const metadata = {
-  title: "Shipping & Import Compliance | [Site Name]",
+  title: "Shipping & Import Compliance | Haelolabs",
   description: "International shipping, customs documentation, and import compliance for research compounds.",
 };
 
@@ -110,7 +110,7 @@ export default function ShippingPolicyPage() {
           </section>
 
           <div className="border-t border-white/10 pt-6 mt-8 text-xs text-gray-500">
-            <p>Shipping compliance inquiries: shipping@[sitename].com</p>
+            <p>Shipping compliance inquiries:  support@haelo.fit</p>
           </div>
         </div>
       </div>

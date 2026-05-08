@@ -32,7 +32,6 @@ export default function Footer() {
   ];
 
   const router = useRouter();
-
   return (
     <footer className="bg-gray-900 text-white py-16 px-4 md:px-8 lg:px-16 rounded-t-[2.5rem] relative overflow-hidden">
       {/* Background gradient effects */}
@@ -168,7 +167,7 @@ export default function Footer() {
                 </h3>
                 <ul className="space-y-3">
                   {[
-                    { label: "support@peptidestore.com", href: "mailto:support@peptidestore.com" },
+                    { label: " support@haelo.fit", href: "mailto:support@haelo.fit" },
                     { label: "Live Chat (Mon–Fri, 9–5 EST)", href: "/contact" },
                     /* { label: "Order Tracking", href: "/tracking" }, */
                   ].map((item) => (
@@ -225,7 +224,7 @@ export default function Footer() {
           {/* ── Footer Bottom ── */}
           <div className="pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-3">
             <p className="text-gray-500 text-xs">
-              © {new Date().getFullYear()} PeptideStore. All rights reserved.
+              © {new Date().getFullYear()} Haelolabs. All rights reserved.
             </p>
             <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
               {complianceItems.map((item) => (

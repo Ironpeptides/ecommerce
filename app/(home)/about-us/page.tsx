@@ -38,7 +38,7 @@ export default function AboutPage() {
         <div className="relative z-20 container max-w-7xl mx-auto px-4 h-full flex flex-col justify-center">
           <div className="max-w-2xl">
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 uppercase tracking-tight">
-              About {/* <span className="text-gray-400">[Site Name]</span> */}
+              About {/* <span className="text-gray-400">Haelolabs</span> */}
             </h1>
             <p className="text-xl text-gray-300 leading-relaxed">
               Analytical-grade research compounds delivered with integrity, transparency, and scientific rigor.
@@ -116,7 +116,7 @@ export default function AboutPage() {
             <ul className="space-y-2 text-gray-300">
               <li className="flex items-center gap-2"><FileCheck className="h-4 w-4 text-gray-500" /> Consistent excellence across every batch</li>
               <li className="flex items-center gap-2"><FileCheck className="h-4 w-4 text-gray-500" /> Produced under strict quality controls</li>
-              <li className="flex items-center gap-2"><FileCheck className="h-4 w-4 text-gray-500" /> Designed for reliable, premium results</li>
+              <li className="flex items-center gap-2"><FileCheck className="h-4 w-4 text-gray-500" /> Engineered for consistent analytical performance</li>
             </ul>
           </div>
         </div>
@@ -231,7 +231,7 @@ export default function AboutPage() {
         {/* Footer Legal Disclaimer */}
         <div className="border-t border-white/10 mt-16 pt-8 text-center text-xs text-gray-500">
           <p>
-            [Site Name] supplies research compounds exclusively for in-vitro laboratory applications.
+            Haelolabs supplies research compounds exclusively for in-vitro laboratory applications.
             Not for human consumption or clinical use.
           </p>
         </div>
