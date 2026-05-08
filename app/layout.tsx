@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next"; // Added Viewport
 import { Rethink_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
@@ -15,16 +15,39 @@ const inter = Rethink_Sans({
   variable: '--font-rethink',
 });
 
+// 1. Updated Metadata for PWA
 export const metadata: Metadata = {
   metadataBase: new URL('https://haelo.fit'),
   title: "Haelolabs",
   description: "Premium-grade research peptides engineered for precision. We provide ultra-high purity peptides for advanced biological study. Engineered for accuracy, delivered with full analytical documentation.",
+  manifest: "/manifest.json", // Path to your manifest file
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Haelolabs",
+    // startUpImage: [], // Optional: add splash screens here
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
+// 2. Added Viewport Export (Crucial for PWA mobile experience)
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Manual tag for legacy Android support */}
+        <meta name="mobile-web-app-capable" content="yes" />
+      </head>
       <body className={`${inter.className}`}>
         <ThemeProvider
           attribute="class"
@@ -46,5 +69,3 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
-
-

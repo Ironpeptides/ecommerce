@@ -1,0 +1,23 @@
+{
+  "name": "Haelolabs",
+  "short_name": "Peptides",
+  "description": "Premium peptide research and chemical supply store.",
+  "icons": [
+    {
+      "src": "/icons/ironpeptideInc.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/ironpeptideInc.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#000000",
+  "background_color": "#FFFFFF",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait"
+}
