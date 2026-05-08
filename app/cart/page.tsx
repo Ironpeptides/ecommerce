@@ -16,8 +16,10 @@ import { getShippingAddresses, createShippingAddress } from '@/actions/shipping'
 import { getCoupon, validateCoupon } from '@/actions/coupons';
 import { updateCompliance } from '@/actions/compliance';
 
+import { Suspense } from 'react';
 
-const CartPage = () => {
+
+const CartContent = () => {
     const router = useRouter();
     const { user } = useUser();
     const location = useLocationTracking();
@@ -405,7 +407,8 @@ useEffect(() => {
     } */
 
     return (
-        <div className='min-h-screen bg-gradient-to-b from-[#121214] to-[#0a0a0c]'>
+        
+            <div className='min-h-screen bg-gradient-to-b from-[#121214] to-[#0a0a0c]'>
             <div className='md:w-[85%] w-[95%] mx-auto py-8'>
 
                 {/* Breadcrumb */}
@@ -966,7 +969,20 @@ useEffect(() => {
                 )}
             </div>
         </div>
+    
+      
+        
     );
 };
 
-export default CartPage;
+export default function CartPage() {
+  return (
+    <Suspense fallback={
+        <div className="min-h-screen bg-[#121214] flex items-center justify-center">
+            <Loader2 className="animate-spin text-emerald-500" size={40} />
+        </div>
+    }>
+      <CartContent />
+    </Suspense>
+  );
+}

@@ -124,17 +124,7 @@ const ReUsableHero: React.FC<HeroProps> = ({
           : "bg-green-900/50 border-green-800",
       iconColor: theme === "light" ? "text-green-600" : "text-lime-400",
     },
-    blue: {
-      background: theme === "light" ? "bg-blue-50" : "bg-blue-950",
-      grid: `bg-[linear-gradient(to_right,#1e40af${themeStyles[theme].grid.opacity}_1px,transparent_1px),linear-gradient(to_bottom,#1e40af${themeStyles[theme].grid.opacity}_1px,transparent_1px)]`,
-      gradient: "from-cyan-400 via-blue-400 to-indigo-400",
-      blur: ["bg-blue-500/30", "bg-cyan-500/20", "bg-indigo-500/20"],
-      floating:
-        theme === "light"
-          ? "bg-blue-100/50 border-blue-200"
-          : "bg-blue-900/50 border-blue-800",
-      iconColor: theme === "light" ? "text-blue-600" : "text-blue-400",
-    },
+   
     blue: {
       background: theme === "light" ? "bg-blue-50" : "bg-blue-950",
       grid: `bg-[linear-gradient(to_right,#6b21a8${themeStyles[theme].grid.opacity}_1px,transparent_1px),linear-gradient(to_bottom,#6b21a8${themeStyles[theme].grid.opacity}_1px,transparent_1px)]`,
