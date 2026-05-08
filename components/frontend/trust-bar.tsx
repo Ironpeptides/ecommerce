@@ -10,7 +10,7 @@ const trustItems = [
   },
   {
     icon: ShieldCheck,
-    title: "99.8% PURITY",
+    title: "99.8% PURITY, MADE IN USA",
     subtitle: "Third-Party Lab Tested",
   },
   {
