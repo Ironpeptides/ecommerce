@@ -6,8 +6,8 @@
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed2.ts"
   },
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
     "postinstall": "prisma generate"

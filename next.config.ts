@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+const defaultCache = require("next-pwa/cache");
 
 // We use require for the PWA plugin to avoid type mismatch issues with some versions
 const withPWA = require("next-pwa")({
@@ -18,7 +19,8 @@ const withPWA = require("next-pwa")({
       // Default fallback for everything else
       urlPattern: /.*/,
       handler: 'NetworkFirst', // Try network, then fallback to cache
-    }
+    },
+    ...defaultCache,
   ],
 });
 
