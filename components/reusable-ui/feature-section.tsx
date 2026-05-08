@@ -39,12 +39,12 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
         primary: "text-gray-900",
         secondary: "text-gray-600",
       },
-      highlight: "text-purple-600",
-      iconBackground: "bg-purple-100",
-      iconColor: "text-purple-600",
+      highlight: "text-blue-600",
+      iconBackground: "bg-blue-100",
+      iconColor: "text-blue-600",
       featureIcon: {
-        background: "bg-purple-100",
-        color: "text-purple-600",
+        background: "bg-blue-100",
+        color: "text-blue-600",
       },
     },
     dark: {
@@ -53,12 +53,12 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
         primary: "text-white",
         secondary: "text-gray-400",
       },
-      highlight: "text-purple-400",
-      iconBackground: "bg-purple-900/20",
-      iconColor: "text-purple-400",
+      highlight: "text-blue-400",
+      iconBackground: "bg-blue-900/20",
+      iconColor: "text-blue-400",
       featureIcon: {
-        background: "bg-purple-900/20",
-        color: "text-purple-400",
+        background: "bg-blue-900/20",
+        color: "text-blue-400",
       },
     },
   };
@@ -155,7 +155,7 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
                     <div
                       className={`
                     w-full h-full rounded-full
-                    ${theme === "light" ? "bg-purple-200" : "bg-purple-900"}
+                    ${theme === "light" ? "bg-blue-200" : "bg-blue-900"}
                   `}
                     />
                   </div>

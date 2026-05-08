@@ -34,7 +34,7 @@ export type Order = {
 const ORDER_STATUS_STYLES: Record<string, string> = {
   PENDING:     "bg-yellow-500/10 text-yellow-600 border-yellow-500/30",
   CONFIRMED:   "bg-blue-500/10 text-blue-600 border-blue-500/30",
-  PROCESSING:  "bg-purple-500/10 text-purple-600 border-purple-500/30",
+  PROCESSING:  "bg-blue-500/10 text-blue-600 border-blue-500/30",
   SHIPPED:     "bg-indigo-500/10 text-indigo-600 border-indigo-500/30",
   DELIVERED:   "bg-emerald-500/10 text-emerald-600 border-emerald-500/30",
   CANCELLED:   "bg-red-500/10 text-red-600 border-red-500/30",

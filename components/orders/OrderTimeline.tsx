@@ -18,7 +18,7 @@ type HistoryItem = {
 const STATUS_META: Record<OrderStatus, { icon: React.ElementType; color: string; label: string }> = {
   PENDING:    { icon: Clock,       color: "text-yellow-500", label: "Order Placed" },
   CONFIRMED:  { icon: CheckCircle2, color: "text-blue-500",  label: "Confirmed" },
-  PROCESSING: { icon: Package,     color: "text-purple-500", label: "Processing" },
+  PROCESSING: { icon: Package,     color: "text-blue-500", label: "Processing" },
   SHIPPED:    { icon: Truck,       color: "text-indigo-500", label: "Shipped" },
   DELIVERED:  { icon: Home,        color: "text-emerald-500", label: "Delivered" },
   CANCELLED:  { icon: XCircle,     color: "text-red-500",    label: "Cancelled" },

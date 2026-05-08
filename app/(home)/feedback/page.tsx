@@ -21,7 +21,7 @@ const feedbackTypeIcons = {
 const feedbackTypeColors = {
   BUG: "text-red-600 bg-red-100 dark:bg-red-900/50 dark:text-red-400",
   FEATURE_REQUEST:
-    "text-purple-600 bg-purple-100 dark:bg-purple-900/50 dark:text-purple-400",
+    "text-blue-600 bg-blue-100 dark:bg-blue-900/50 dark:text-blue-400",
   IMPROVEMENT:
     "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/50 dark:text-emerald-400",
   THANKS: "text-blue-600 bg-blue-100 dark:bg-blue-900/50 dark:text-blue-400",

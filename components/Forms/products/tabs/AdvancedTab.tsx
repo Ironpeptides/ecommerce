@@ -120,8 +120,8 @@ export function AdvancedTab({ product }: Props) {
       {/* Peptide / Chemical details */}
       <div className="rounded-xl border bg-card overflow-hidden">
         <div className="px-6 py-5 border-b flex items-center gap-3">
-          <div className="h-9 w-9 rounded-lg bg-violet-500/10 flex items-center justify-center">
-            <FlaskConical className="h-4 w-4 text-violet-600" />
+          <div className="h-9 w-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
+            <FlaskConical className="h-4 w-4 text-blue-600" />
           </div>
           <div>
             <h3 className="font-semibold">Chemical Details</h3>

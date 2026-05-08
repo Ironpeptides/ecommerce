@@ -38,7 +38,7 @@ export default function LoginLoader() {
 
       {/* Right Section - Image Carousel */}
       <div className="w-1/2 relative">
-        <div className="absolute inset-0 bg-purple-200 animate-pulse">
+        <div className="absolute inset-0 bg-blue-200 animate-pulse">
           {/* Carousel Navigation */}
           <div className="absolute inset-y-0 left-4 flex items-center">
             <div className="h-8 w-8 bg-white/20 animate-pulse rounded-full"></div>

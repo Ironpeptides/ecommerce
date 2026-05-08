@@ -18,6 +18,8 @@ export async function POST(req: NextRequest) {
       orderId,
     } = await req.json();
 
+    console.log("PaymentMethod:", paymentMethod);
+
     const order = await db.$transaction(async (tx) => {
       // ── Find existing order ────────────────────────────────────────────────
       let existingOrder = null;
@@ -199,7 +201,10 @@ export async function POST(req: NextRequest) {
       }
 
       return finalOrder;
-    });
+    }, {
+  timeout: 30000,        // 30 seconds max
+  maxWait: 5000,         // wait up to 5s to acquire connection
+});
 
     return NextResponse.json({
       success:     true,

@@ -9,7 +9,7 @@ import {
   LucideIcon,
 } from "lucide-react";
 // Define color variants type
-type ColorVariant = "blue" | "purple" | "emerald" | "pink" | "amber" | "indigo";
+type ColorVariant = "blue" | "blue" | "emerald" | "pink" | "amber" | "indigo";
 
 // Define service interface
 interface Service {
@@ -49,7 +49,7 @@ const services: Service[] = [
     description:
       "Creating beautiful and intuitive user interfaces that deliver exceptional user experiences.",
     features: ["User Research", "Wireframing", "Visual Design", "Prototyping"],
-    color: "purple",
+    color: "blue",
   },
   {
     icon: ShoppingCart,
@@ -108,7 +108,7 @@ const services: Service[] = [
 const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
   const colorVariants = {
     blue: "bg-blue-50 text-blue-600 group-hover:bg-blue-600",
-    purple: "bg-purple-50 text-purple-600 group-hover:bg-purple-600",
+    blue: "bg-blue-50 text-blue-600 group-hover:bg-blue-600",
     emerald: "bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600",
     pink: "bg-pink-50 text-pink-600 group-hover:bg-pink-600",
     amber: "bg-amber-50 text-amber-600 group-hover:bg-amber-600",

@@ -160,9 +160,9 @@ const CreditsPayment = ({
       <div className="bg-[#1a1a1a] rounded-xl border border-gray-800 overflow-hidden">
 
         {/* Header */}
-        <div className="bg-gradient-to-r from-violet-950/40 to-[#1a1a1a] px-6 py-5 border-b border-violet-900/30">
+        <div className="bg-gradient-to-r from-blue-950/40 to-[#1a1a1a] px-6 py-5 border-b border-blue-900/30">
           <div className="flex items-center gap-3">
-            <Coins className="w-6 h-6 text-violet-400" />
+            <Coins className="w-6 h-6 text-blue-400" />
             <h3 className="text-xl font-semibold text-white">Pay with Credits</h3>
           </div>
           <p className="text-gray-400 text-sm mt-2">
@@ -267,7 +267,7 @@ const CreditsPayment = ({
           {/* Top up button — always visible */}
           <button
             onClick={() => setShowTopUp(true)}
-            className="w-full flex items-center justify-center gap-2 border border-blue-500/40 bg-blue-500/10 hover:bg-violet-500/15 text-violet-300 font-semibold py-3 rounded-xl transition-all duration-150 text-sm"
+            className="w-full flex items-center justify-center gap-2 border border-blue-500/40 bg-blue-500/10 hover:bg-blue-500/15 text-blue-300 font-semibold py-3 rounded-xl transition-all duration-150 text-sm"
           >
             <Plus className="w-4 h-4" />
             {hasSufficientBalance ? "Add More Credits" : `Top Up Credits`}

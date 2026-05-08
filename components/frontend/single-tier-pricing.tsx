@@ -108,8 +108,8 @@ const PricingCard = ({ theme = "light" }) => {
               className={`relative rounded-3xl p-8 transition-all duration-300 ${
                 index === 1
                   ? isDark 
-                    ? "bg-gradient-to-br from-blue-900/40 to-purple-900/40 border-2 border-amber-400/50 shadow-xl scale-105"
-                    : "bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-amber-500/50 shadow-xl scale-105"
+                    ? "bg-gradient-to-br from-blue-900/40 to-blue-900/40 border-2 border-amber-400/50 shadow-xl scale-105"
+                    : "bg-gradient-to-br from-blue-50 to-blue-50 border-2 border-amber-500/50 shadow-xl scale-105"
                   : isDark
                     ? "bg-slate-800/50 border-2 border-slate-700"
                     : "bg-slate-50 border-2 border-slate-200"

@@ -13,9 +13,9 @@ export default function ShippingNotice() {
       </span>
       <span className="hidden sm:block text-white/10">|</span>
       <span className="flex items-center gap-1.5">
-        <Clock size={12} className="text-purple-400" />
+        <Clock size={12} className="text-blue-400" />
         <span>
-          <span className="text-purple-300 font-medium">🇪🇺 EU shipping coming soon</span>
+          <span className="text-blue-300 font-medium">🇪🇺 EU shipping coming soon</span>
           {" "}— estimated 3–5 day delivery
         </span>
       </span>

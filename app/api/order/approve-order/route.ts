@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/prisma/db";
 import { sendOrderConfirmationEmails } from "@/lib/mail-service";
+import { deductStock } from "@/lib/stock"; 
 
 export async function PATCH(req: NextRequest) {
   try {
@@ -36,6 +37,8 @@ export async function PATCH(req: NextRequest) {
           changedBy: adminUserId,
         },
       });
+
+       await deductStock(tx, order.items, "[admin/approve]");
 
       // 4. Create Payment Audit Record
       await tx.payment.create({

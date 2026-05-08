@@ -39,7 +39,7 @@ export default function CustomCarousel() {
   }, []);
 
   return (
-    <div className="relative w-full h-screen bg-purple-900 overflow-hidden">
+    <div className="relative w-full h-screen bg-blue-900 overflow-hidden">
       <div className="absolute inset-0">
         {carouselItems.map((item, index) => (
           <div
@@ -53,7 +53,7 @@ export default function CustomCarousel() {
               alt={`Slide ${index + 1}`}
               className="object-cover w-full h-full"
             />
-            <div className="absolute inset-0 bg-purple-900/50" />
+            <div className="absolute inset-0 bg-blue-900/50" />
           </div>
         ))}
       </div>

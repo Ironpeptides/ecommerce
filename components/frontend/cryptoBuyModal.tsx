@@ -33,7 +33,7 @@ const PLATFORMS: Platform[] = [
     logo: "💙",
     tip: "Your crypto stays in your Venmo account. You can send it to another wallet later if needed.",
     steps: [
-      { instruction: "Open the Venmo app on your phone, At the bottom of the screen, tap Crypto.",               image: "/screenshots/venmo-1.jpg" },
+      { instruction: "Open the Venmo app on your phone, At the bottom of the screen, tap Crypto.",               image: "/screenshots/venmo1.jpg" },
       { instruction: "Choose the cryptocurrency you want to buy (Bitcoin is the most popular and easiest).",     image: "/screenshots/venmo2.png" },
       { instruction: "Tap Buy.",                                                                                  image: "/screenshots/venmo-3.jpg" },
       { instruction: "Enter the dollar amount you want to spend — you can start with as little as $1.",          image: "/screenshots/venmo-4.jpg" },
@@ -124,7 +124,7 @@ export function CryptoBuyModal({ onClose }: { onClose: () => void }) {
       onClick={onClose}
     >
       <div
-        className="relative w-full bg-[#0d0d0d] border-x-0 border border-white/10 shadow-2xl flex flex-col overflow-y-scroll"
+        className="relative w-full lg:max-w-lg lg:rounded-2xl lg:mx-auto bg-[#0d0d0d] border-x-0 border border-white/10 shadow-2xl flex flex-col overflow-y-scroll"
         style={{ height: "100dvh" }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -188,7 +188,7 @@ export function CryptoBuyModal({ onClose }: { onClose: () => void }) {
           {/* ── Screenshot with overlay arrows ── */}
           <div className="px-4 sm:px-6 pb-3">
             {step.image ? (
-              <div className="relative w-full rounded-xl overflow-hidden border border-white/10 bg-white/5 group"
+              <div className="relative w-full rounded-xl overflow-hidden border border-white/10 bg-white/5 h-80 group"
                    style={{ height: "clamp(400px, 50vh, 420px)" }}>
 
                 {/* Image with fade transition */}

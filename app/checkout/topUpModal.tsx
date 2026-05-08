@@ -237,7 +237,7 @@ const TopUpModal = ({
                 min={inputMode === "dollars" ? MIN_TOPUP : MIN_TOPUP * CREDITS_PER_DOLLAR}
                 max={inputMode === "dollars" ? MAX_TOPUP : MAX_TOPUP * CREDITS_PER_DOLLAR}
                 placeholder={inputMode === "dollars" ? "0.00" : "0"}
-                className="w-full bg-slate-900 border border-slate-700 focus:border-violet-500 rounded-xl pl-10 pr-4 py-3.5 text-white text-lg font-mono font-semibold outline-none transition-colors placeholder:text-slate-700"
+                className="w-full bg-slate-900 border border-slate-700 focus:border-blue-500 rounded-xl pl-10 pr-4 py-3.5 text-white text-lg font-mono font-semibold outline-none transition-colors placeholder:text-slate-700"
               />
             </div>
 
@@ -259,7 +259,7 @@ const TopUpModal = ({
               <div className="text-slate-700 font-bold text-lg px-3">→</div>
               <div className="text-center flex-1">
                 <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">You receive</p>
-                <p className="text-base font-bold font-mono text-violet-300">
+                <p className="text-base font-bold font-mono text-blue-300">
                   {Math.round(creditAmount).toLocaleString()} credits
                 </p>
               </div>

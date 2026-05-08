@@ -90,7 +90,7 @@ const StripePaymentForm = ({
   if (!pricingConfig) {
     return (
       <div className="flex justify-center items-center py-20">
-        <Loader2 className="animate-spin text-violet-500 w-8 h-8" />
+        <Loader2 className="animate-spin text-blue-500 w-8 h-8" />
       </div>
     );
   }
@@ -317,7 +317,7 @@ const StripePaymentForm = ({
               <button
                 type="submit"
                 disabled={!stripe || loading}
-                className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-blue-600 to-violet-600 text-white font-bold rounded-xl disabled:opacity-50 transition-opacity"
+                className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-blue-600 to-blue-600 text-white font-bold rounded-xl disabled:opacity-50 transition-opacity"
               >
                 {loading
                   ? <Loader2 className="animate-spin w-4 h-4" />

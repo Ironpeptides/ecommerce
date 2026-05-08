@@ -185,16 +185,20 @@ const PayblisPayment = ({
           </div>
         )}
         {nextTier && (
-          <div className="flex items-center gap-2.5 p-3 rounded-xl bg-amber-500/[0.08] border border-amber-500/20">
-            <Package className="w-4 h-4 text-amber-400 shrink-0" />
-            <p className="text-xs text-amber-300">
-              Add{" "}
-              <span className="font-bold">
-                {nextTier.need} more vial{nextTier.need > 1 ? "s" : ""}
-              </span>{" "}
-              to unlock{" "}
-              <span className="font-bold">{pct(nextTier.tier.discount)} off</span>
-            </p>
+          <div className="flex items-center justify-between p-3 rounded-xl bg-amber-500/[0.08] border border-amber-500/20">
+            <div className="flex items-center gap-2.5">
+              <Package className="w-4 h-4 text-amber-400 shrink-0" />
+              <p className="text-xs text-amber-300">
+                Add <span className="font-bold">{nextTier.need} more vial{nextTier.need > 1 ? "s" : ""}</span>{" "}
+                to unlock <span className="font-bold">{pct(nextTier.tier.discount)} off</span>
+              </p>
+            </div>
+            <a
+              href="/cart?reason=add_more_vials"
+              className="text-[11px] text-amber-400 hover:text-amber-300 underline underline-offset-2 shrink-0 ml-3"
+            >
+              ← Back to cart
+            </a>
           </div>
         )}
         <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-900/60 border border-slate-800">
@@ -342,11 +346,11 @@ const PayblisPayment = ({
                 Identity verification — MoonPay
               </p>
               <p className="text-xs text-gray-400 leading-relaxed">
-                On the payment page you'll see a list of providers. MoonPay requires
+                On the payment page you'll see a list of providers under, <strong>"Best provider selected for you"</strong>. MoonPay requires
                 full identity verification — government-issued ID, selfie, and address
                 proof — which can take 10–30 minutes.{" "}
                 <span className="text-amber-300 font-medium">
-                  Avoid MoonPay if you prefer not to verify your identity.
+                  Avoid MoonPay if you prefer not to verify your identity.Click on the downward arrow to select other options.
                 </span>
               </p>
             </div>

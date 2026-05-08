@@ -25,7 +25,7 @@ interface CTAButton {
 type BackgroundStyleType =
   | "green"
   | "blue"
-  | "purple"
+  | "blue"
   | "orange"
   | "red"
   | "neutral"
@@ -135,16 +135,16 @@ const ReUsableHero: React.FC<HeroProps> = ({
           : "bg-blue-900/50 border-blue-800",
       iconColor: theme === "light" ? "text-blue-600" : "text-blue-400",
     },
-    purple: {
-      background: theme === "light" ? "bg-purple-50" : "bg-purple-950",
+    blue: {
+      background: theme === "light" ? "bg-blue-50" : "bg-blue-950",
       grid: `bg-[linear-gradient(to_right,#6b21a8${themeStyles[theme].grid.opacity}_1px,transparent_1px),linear-gradient(to_bottom,#6b21a8${themeStyles[theme].grid.opacity}_1px,transparent_1px)]`,
-      gradient: "from-fuchsia-400 via-purple-400 to-violet-400",
-      blur: ["bg-purple-500/30", "bg-fuchsia-500/20", "bg-violet-500/20"],
+      gradient: "from-fuchsia-400 via-blue-400 to-blue-400",
+      blur: ["bg-blue-500/30", "bg-fuchsia-500/20", "bg-blue-500/20"],
       floating:
         theme === "light"
-          ? "bg-purple-100/50 border-purple-200"
-          : "bg-purple-900/50 border-purple-800",
-      iconColor: theme === "light" ? "text-purple-600" : "text-purple-400",
+          ? "bg-blue-100/50 border-blue-200"
+          : "bg-blue-900/50 border-blue-800",
+      iconColor: theme === "light" ? "text-blue-600" : "text-blue-400",
     },
     orange: {
       background: theme === "light" ? "bg-orange-50" : "bg-orange-950",

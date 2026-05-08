@@ -62,6 +62,7 @@ export function AdminOrderActions({ order }: Props) {
 
   function handleApprove() {
     startTransition(async () => {
+    
       const res = await adminApprovePayment(order.id, "Payment approved by admin.");
       if (res.success) {
         toast.success("Payment approved — order confirmed");

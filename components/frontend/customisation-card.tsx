@@ -93,8 +93,8 @@ const CustomizationCard = ({ theme = "light" }) => {
                 className={`w-full h-14 text-lg font-bold gap-2 group
                   ${
                     isDark
-                      ? "bg-purple-600 hover:bg-purple-700"
-                      : "bg-purple-600 hover:bg-purple-700"
+                      ? "bg-blue-600 hover:bg-blue-700"
+                      : "bg-blue-600 hover:bg-blue-700"
                   } text-white`}
               >
                 <a href="https://wa.me/message/5USU26346OWRF1">
@@ -113,8 +113,8 @@ const CustomizationCard = ({ theme = "light" }) => {
           >
             <div className="space-y-6">
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl bg-purple-100">
-                  <Code className="w-6 h-6 text-purple-600" />
+                <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl bg-blue-100">
+                  <Code className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
                   <h3

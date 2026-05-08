@@ -1,44 +1,69 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Static payment addresses (in production, store these in environment variables or database)
+// ─────────────────────────────────────────────────────────────────────────────
+// Store these in environment variables in production.
+// Add to your .env.local:
+//
+//   PAYMENT_VENMO_ADDRESS=@YourVenmoHandle
+//   PAYMENT_CASHAPP_ADDRESS=$YourCashtag
+//   PAYMENT_ZELLE_ADDRESS=payments@haelolabs.com   (or a phone number)
+//   PAYMENT_BTC_ADDRESS=bc1q...
+//   PAYMENT_ETH_ADDRESS=0x...
+// ─────────────────────────────────────────────────────────────────────────────
 const PAYMENT_ADDRESSES = {
   venmo: {
-    address: "@YourVenmoHandle",
-    identifier: "Venmo",
-    instructions: "Send the exact amount to the Venmo username above. Include your order ID in the payment note for faster verification.",
-    minAmount: 1,
-    currency: "USD"
+    address:      process.env.PAYMENT_VENMO_ADDRESS    ?? "@YourVenmoHandle",
+    identifier:   "Venmo",
+    instructions: "Search for the username above in your Venmo app and send the exact amount. Include your Order ID in the payment note for faster verification.",
+    minAmount:    1,
+    currency:     "USD",
   },
-  crypto: {
-    address: "bc1qzrves68udmxxx9245j6pltsjs9rfr43tmp0x8u", // Example Bitcoin address
-    identifier: "Bitcoin",
-    instructions: "Send the exact amount in BTC to the Bitcoin address above. The network may take 10-30 minutes to confirm your transaction.",
-    network: "Bitcoin Network",
-    minAmount: 0.001,
-    currency: "BTC"
+  cashapp: {
+    address:      process.env.PAYMENT_CASHAPP_ADDRESS  ?? "$YourCashtag",
+    identifier:   "Cash App",
+    instructions: "Open Cash App, tap the $ icon, search for the $Cashtag above and send the exact amount. Include your Order ID in the note.",
+    minAmount:    1,
+    currency:     "USD",
+  },
+  zelle: {
+    address:      process.env.PAYMENT_ZELLE_ADDRESS    ?? "payments@haelolabs.com",
+    identifier:   "Zelle",
+    instructions: "Open your bank app, navigate to Zelle, and send to the email or phone number above. Include your Order ID in the memo field. Zelle transfers are instant and irreversible.",
+    minAmount:    1,
+    currency:     "USD",
   },
   manual_crypto: {
-    address: "bc1qzrves68udmxxx9245j6pltsjs9rfr43tmp0x8u",
-    identifier: "Bitcoin",
-    instructions: "Send the exact amount in BTC to the Bitcoin address above. Once sent, click the confirmation button below.",
-    network: "Bitcoin Network",
-    minAmount: 0.001,
-    currency: "BTC"
+    address:      process.env.PAYMENT_BTC_ADDRESS      ?? "bc1qzrves68udmxxx9245j6pltsjs9rfr43tmp0x8u",
+    identifier:   "Bitcoin",
+    instructions: "Send the exact amount in BTC to the Bitcoin address below. The network may take 10–30 minutes to confirm your transaction.",
+    network:      "Bitcoin Network",
+    minAmount:    0.001,
+    currency:     "BTC",
+  },
+  // Legacy alias — kept for backwards compatibility
+  crypto: {
+    address:      process.env.PAYMENT_BTC_ADDRESS      ?? "bc1qzrves68udmxxx9245j6pltsjs9rfr43tmp0x8u",
+    identifier:   "Bitcoin",
+    instructions: "Send the exact amount in BTC to the Bitcoin address below. Once sent, click the confirmation button.",
+    network:      "Bitcoin Network",
+    minAmount:    0.001,
+    currency:     "BTC",
   },
   ethereum: {
-    address: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    identifier: "Ethereum",
-    instructions: "Send the exact amount in ETH to the Ethereum address above. Ensure you're using the Ethereum mainnet.",
-    network: "Ethereum Mainnet",
-    minAmount: 0.01,
-    currency: "ETH"
-  }
+    address:      process.env.PAYMENT_ETH_ADDRESS      ?? "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    identifier:   "Ethereum",
+    instructions: "Send the exact amount in ETH to the Ethereum address below. Ensure you're using the Ethereum mainnet.",
+    network:      "Ethereum Mainnet",
+    minAmount:    0.01,
+    currency:     "ETH",
+  },
 };
+
+type PaymentMethod = keyof typeof PAYMENT_ADDRESSES;
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams;
-    const method = searchParams.get('method');
+    const method = request.nextUrl.searchParams.get("method");
 
     if (!method) {
       return NextResponse.json(
@@ -47,32 +72,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get payment details for the requested method
-    let paymentDetails;
-    
-    if (method === "venmo") {
-      paymentDetails = PAYMENT_ADDRESSES.venmo;
-    } else if (method === "crypto" || method === "manual_crypto") {
-      paymentDetails = PAYMENT_ADDRESSES.crypto;
-    } else if (method === "ethereum") {
-      paymentDetails = PAYMENT_ADDRESSES.ethereum;
-    } else {
+    const paymentDetails = PAYMENT_ADDRESSES[method as PaymentMethod];
+
+    if (!paymentDetails) {
       return NextResponse.json(
-        { error: "Invalid payment method" },
+        { error: `Invalid payment method: ${method}` },
         { status: 400 }
       );
     }
 
-    // In production, you might want to generate a unique address per order
-    // or fetch from a crypto payment provider API
-    
     return NextResponse.json(paymentDetails, {
-      headers: {
-        'Cache-Control': 'no-store, max-age=0',
-      },
+      headers: { "Cache-Control": "no-store, max-age=0" },
     });
   } catch (error) {
-    console.error("Error fetching payment details:", error);
+    console.error("[payment-details] Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

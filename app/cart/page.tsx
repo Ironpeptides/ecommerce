@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState, useRef } from 'react'
 import useUser from '../../hooks/useUser';
 import useLocationTracking from '../../hooks/useLocationTracking';
@@ -15,6 +15,7 @@ import { createOrder } from '@/actions/orders';
 import { getShippingAddresses, createShippingAddress } from '@/actions/shipping';
 import { getCoupon, validateCoupon } from '@/actions/coupons';
 import { updateCompliance } from '@/actions/compliance';
+
 
 const CartPage = () => {
     const router = useRouter();
@@ -31,6 +32,7 @@ const CartPage = () => {
     const [couponError, setCouponError] = useState("");
     const [paymentMethod, setPaymentMethod] = useState("online");
     const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+    const searchParams = useSearchParams();
     
     // Address states
     const [addresses, setAddresses] = useState<any[]>([]);
@@ -71,6 +73,18 @@ const CartPage = () => {
             fetchShippingAddresses();
         }
     }, [user]);
+
+
+useEffect(() => {
+  const reason = searchParams.get("reason");
+  if (reason === "add_more_vials") {
+    toast.info("Add more vials to unlock a bulk discount!", {
+      description: "5+ vials = 5% off · 10+ vials = 10% off",
+      duration: 6000,
+      icon: "📦",
+    });
+  }
+}, []);
 
     const fetchShippingAddresses = async () => {
         if (!user?.id) return;
@@ -386,9 +400,9 @@ const CartPage = () => {
         setShowValidationSummary(false);
     };
 
-    if(!user){
+    /* if(!user){
         return router.push('/login');
-    }
+    } */
 
     return (
         <div className='min-h-screen bg-gradient-to-b from-[#121214] to-[#0a0a0c]'>
@@ -528,6 +542,42 @@ const CartPage = () => {
                                         Subtotal: <span className='text-white'>${subtotal.toFixed(2)}</span>
                                     </span>
                                 </div>
+                                {/* Bulk discount tier indicator */}
+{(() => {
+  const totalQty = cart.reduce((sum: number, item: any) => sum + (item.quantity ?? 1), 0);
+  const activeTier = totalQty >= 10
+    ? { label: "10+ vials", discount: "10%" }
+    : totalQty >= 5
+    ? { label: "5+ vials",  discount: "5%"  }
+    : null;
+  const nextTier = totalQty < 5
+    ? { need: 5  - totalQty, label: "5% off"  }
+    : totalQty < 10
+    ? { need: 10 - totalQty, label: "10% off" }
+    : null;
+
+  return (
+    <>
+      {activeTier && (
+        <div className='flex items-center gap-2 px-2.5 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg'>
+          <Tag size={12} className='text-emerald-400 shrink-0' />
+          <p className='text-xs text-emerald-300 font-semibold'>
+            Bulk discount unlocked: <span className='font-bold'>{activeTier.discount} off</span>
+            <span className='text-emerald-600 ml-1'>({activeTier.label})</span>
+          </p>
+        </div>
+      )}
+      {nextTier && (
+        <div className='flex items-center gap-2 px-2.5 py-2 bg-amber-500/10 border border-amber-500/20 rounded-lg'>
+          <Package size={12} className='text-amber-400 shrink-0' />
+          <p className='text-xs text-amber-300'>
+            Add <span className='font-bold'>{nextTier.need} more vial{nextTier.need > 1 ? "s" : ""}</span> to unlock <span className='font-bold'>{nextTier.label}</span>
+          </p>
+        </div>
+      )}
+    </>
+  );
+})()}
                             </div>
                         </div>
 

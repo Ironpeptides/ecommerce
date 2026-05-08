@@ -96,7 +96,7 @@ interface StatCard {
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
-// Navigation items - using only simple styles without gradients/purples
+// Navigation items - using only simple styles without gradients/blues
 const NAV_ITEMS: NavItem[] = [
   {
     label: "Products",
@@ -340,7 +340,7 @@ const ADMIN_STATS: StatCard[] = [
   },
 ];
 
-// Role configuration with simple badge styles (no purple)
+// Role configuration with simple badge styles (no blue)
 const ROLE_CONFIG: Record<string, { label: string; badgeClass: string; description: string; icon: React.ElementType }> = {
   admin: {
     label: "Administrator",

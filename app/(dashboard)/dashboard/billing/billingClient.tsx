@@ -35,7 +35,7 @@ export function BillingClient({ user, subscription }: Props) {
 
         {/* Plan highlight card */}
         <div className="relative rounded-2xl border border-white/10 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-purple-500/5 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-blue-500/5 pointer-events-none" />
           <div className="p-6 space-y-4">
             <div className="flex items-start justify-between gap-4">
               <div>

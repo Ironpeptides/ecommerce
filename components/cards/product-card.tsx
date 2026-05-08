@@ -283,7 +283,7 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
             </div>
           )}
           {product?.isFeatured && !isEvent && (
-            <div className='bg-purple-600/20 border border-purple-500/40 text-purple-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider backdrop-blur-md'>
+            <div className='bg-blue-600/20 border border-blue-500/40 text-blue-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider backdrop-blur-md'>
               Featured
             </div>
           )}

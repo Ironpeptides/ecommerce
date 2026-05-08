@@ -53,7 +53,7 @@ const metrics = [
       trend: "up" as const,
       today: "+2,676 today",
     },
-    color: "bg-purple-500",
+    color: "bg-blue-500",
   },
   {
     title: "Visitor",
@@ -63,7 +63,7 @@ const metrics = [
       trend: "down" as const,
       today: "-876 today",
     },
-    color: "bg-violet-500",
+    color: "bg-blue-500",
   },
   {
     title: "Refunded",

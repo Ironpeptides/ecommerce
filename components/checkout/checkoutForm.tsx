@@ -31,6 +31,7 @@ const CheckoutForm = ({
   isSubscriber,
   pricingConfig,
 }: CheckoutFormProps) => {
+  
   const sharedProps = {
     cartItems,
     coupon,
@@ -41,23 +42,36 @@ const CheckoutForm = ({
     paymentMethod,
   };
 
-  if (
-    paymentMethod === "manual_crypto" ||
-    paymentMethod === "venmo" ||
-    paymentMethod === "cashapp"
-  ) {
-    return <ManualPaymentForm {...sharedProps} />;
-  }
+  // Log the active method for debugging
+  console.log("Current Payment Method:", paymentMethod);
 
-  if (paymentMethod === "payblis") {
-    return <PayblisPayment {...sharedProps} />;
-  }
+  switch (paymentMethod) {
+    // ── Manual Methods ──────────────────────────────────────────
+    // All these cases "fall through" to render the same component
+    case "manual_crypto":
+    case "venmo":
+    case "cashapp":
+    case "zelle":
+      return <ManualPaymentForm {...sharedProps} />;
 
-  if (paymentMethod === "credits") {
-    return <CreditsPayment {...sharedProps} />;
-  }
+    // ── Integrated Gateways ─────────────────────────────────────
+    case "payblis":
+      console.log("Rendering Payblis Gateway");
+      return <PayblisPayment {...sharedProps} />;
 
-  return null;
+    case "credits":
+      console.log("Rendering Internal Credits Payment");
+      return <CreditsPayment {...sharedProps} />;
+
+    // ── Fallback ────────────────────────────────────────────────
+    default:
+      console.warn("Unknown payment method selected:", paymentMethod);
+      return (
+        <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+          Please select a valid payment method to continue.
+        </div>
+      );
+  }
 };
 
 export default CheckoutForm;

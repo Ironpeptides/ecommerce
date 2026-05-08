@@ -14,7 +14,7 @@ const usd = (n: number) =>
 const ORDER_STATUS_LABELS: Record<string, { label: string; color: string }> = {
   PENDING:    { label: "Order Placed",  color: "bg-yellow-500/10 text-yellow-600 border-yellow-500/30" },
   CONFIRMED:  { label: "Confirmed",     color: "bg-blue-500/10 text-blue-600 border-blue-500/30" },
-  PROCESSING: { label: "Processing",    color: "bg-purple-500/10 text-purple-600 border-purple-500/30" },
+  PROCESSING: { label: "Processing",    color: "bg-blue-500/10 text-blue-600 border-blue-500/30" },
   SHIPPED:    { label: "On the way",    color: "bg-indigo-500/10 text-indigo-600 border-indigo-500/30" },
   DELIVERED:  { label: "Delivered ✓",  color: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30" },
   CANCELLED:  { label: "Cancelled",     color: "bg-red-500/10 text-red-600 border-red-500/30" },

@@ -205,7 +205,7 @@ export default function SiteHeader({ session }: { session: Session | null }) {
 
               {/* Legal & Compliance Dropdown */}
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent text-purple-400 font-bold hover:text-purple-300 uppercase tracking-tight text-sm">
+                <NavigationMenuTrigger className="bg-transparent text-blue-400 font-bold hover:text-blue-300 uppercase tracking-tight text-sm">
                   Legal & Compliance
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
@@ -214,9 +214,9 @@ export default function SiteHeader({ session }: { session: Session | null }) {
                       <Link 
                         key={link.title} 
                         href={link.href} 
-                        className="flex items-center gap-3 p-3 text-sm font-bold text-gray-400 hover:text-white hover:bg-purple-500/10 rounded-lg transition-all group"
+                        className="flex items-center gap-3 p-3 text-sm font-bold text-gray-400 hover:text-white hover:bg-blue-500/10 rounded-lg transition-all group"
                       >
-                        <link.icon size={16} className="text-purple-500 group-hover:animate-pulse" />
+                        <link.icon size={16} className="text-blue-500 group-hover:animate-pulse" />
                         <span className="uppercase tracking-tighter">{link.title}</span>
                       </Link>
                     ))}
@@ -371,7 +371,7 @@ export default function SiteHeader({ session }: { session: Session | null }) {
           >
             <ShoppingCart size={22} />
             {cart.length > 0 && (
-              <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-purple-600 text-[10px] font-bold text-white">
+              <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
                 {cart.length}
               </span>
             )}
@@ -461,13 +461,13 @@ export default function SiteHeader({ session }: { session: Session | null }) {
                   </Link>
                 ))}
 
-                <div className="px-3 py-2 text-purple-400 mt-4 font-bold">Compliance</div>
+                <div className="px-3 py-2 text-blue-400 mt-4 font-bold">Compliance</div>
                 {complianceLinks.map((link) => (
                   <Link 
                     key={link.title} 
                     href={link.href} 
                     onClick={() => setOpen(false)} 
-                    className="flex items-center gap-3 p-3 hover:bg-purple-500/5 rounded-lg border border-purple-500/10 text-purple-300 hover:text-purple-200 transition-colors"
+                    className="flex items-center gap-3 p-3 hover:bg-blue-500/5 rounded-lg border border-blue-500/10 text-blue-300 hover:text-blue-200 transition-colors"
                   >
                     <link.icon size={16} />
                     {link.title}

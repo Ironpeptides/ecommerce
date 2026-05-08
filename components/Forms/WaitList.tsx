@@ -55,7 +55,7 @@ export default function WaitList() {
 
       {/* Glowing Orbs */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500 rounded-full opacity-20 blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500 rounded-full opacity-20 blur-3xl" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500 rounded-full opacity-20 blur-3xl" />
 
       {/* Main Content */}
       <div className="max-w-3xl mx-auto text-center space-y-8 relative z-10">
@@ -129,7 +129,7 @@ export default function WaitList() {
         {/* Waitlist Counter */}
         <div className="flex items-center justify-center gap-2 mb-12">
           <div className="flex -space-x-2">
-            <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-semibold ring-2 ring-blue-900">
+            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold ring-2 ring-blue-900">
               JD
             </div>
             <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold ring-2 ring-blue-900">

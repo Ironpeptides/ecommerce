@@ -42,7 +42,7 @@ const pricingPlans = [
     ],
     popular: true,
     buttonText: "Get Started",
-    color: "purple",
+    color: "blue",
   },
   {
     name: "Enterprise",
@@ -97,14 +97,14 @@ const PricingSection = () => {
                 transition-all duration-300
                 ${
                   plan.popular
-                    ? "ring-2 ring-purple-500 scale-105 shadow-xl"
+                    ? "ring-2 ring-blue-500 scale-105 shadow-xl"
                     : "hover:shadow-xl border border-gray-100"
                 }
               `}
             >
               {plan.popular && (
                 <div className="absolute -top-5 left-1/2 transform -translate-x-1/2">
-                  <div className="inline-flex items-center justify-center px-4 py-1 rounded-full bg-purple-100 text-purple-600 text-sm font-medium">
+                  <div className="inline-flex items-center justify-center px-4 py-1 rounded-full bg-blue-100 text-blue-600 text-sm font-medium">
                     <Zap className="w-4 h-4 mr-1" />
                     Most Popular
                   </div>
@@ -156,7 +156,7 @@ const PricingSection = () => {
                   w-full py-4 rounded-xl font-medium transition-all duration-300
                   ${
                     plan.popular
-                      ? "bg-purple-600 hover:bg-purple-700 text-white"
+                      ? "bg-blue-600 hover:bg-blue-700 text-white"
                       : "bg-gray-50 hover:bg-gray-100 text-gray-900"
                   }
                 `}

@@ -21,7 +21,8 @@ export type PaymentMethod =
   | "manual_crypto"
   | "venmo"
   | "cashapp"
-  | "payblis"    // was "payram"
+  | "zelle"       
+  | "payblis"
   | "credits";
 
 interface PricingConfig {
@@ -80,22 +81,32 @@ const PAYMENT_METHODS: {
   label: "Card Payment",  // was "Payram"
   sublabel: "Visa · Mastercard · Apple Pay",
   icon: CreditCard,
-  accent: "border-purple-500/50 bg-purple-500/5",
-  ring: "ring-1 ring-purple-500/20",
-  iconBg: "bg-purple-500/20",
-  iconColor: "text-purple-400",
+  accent: "border-blue-500/50 bg-blue-500/5",
+  ring: "ring-1 ring-blue-500/20",
+  iconBg: "bg-blue-500/20",
+  iconColor: "text-blue-400",
 },
   {
     id: "credits",
     label: "Pay with Credits(using card)",
     sublabel: "Instant · Secure",
     icon: Coins,
-    accent: "border-violet-500/50 bg-violet-500/5",
-    ring: "ring-1 ring-violet-500/20",
-    iconBg: "bg-violet-500/20",
-    iconColor: "text-violet-400",
+    accent: "border-blue-500/50 bg-blue-500/5",
+    ring: "ring-1 ring-blue-500/20",
+    iconBg: "bg-blue-500/20",
+    iconColor: "text-blue-400",
     badge: "Recommended",
   },
+  {
+  id: "zelle",
+  label: "Zelle",
+  sublabel: "Manual · Admin verified",
+  icon: Zap,                          // import Zap from lucide-react
+  accent: "border-blue-500/50 bg-blue-500/5",
+  ring: "ring-1 ring-blue-500/20",
+  iconBg: "bg-blue-500/20",
+  iconColor: "text-blue-400",
+},
 ];
 
 // ── Component ──────────────────────────────────────────────────────────────────
@@ -104,7 +115,7 @@ const CheckoutContent = () => {
   const [coupon, setCoupon] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("credits");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("payblis");
   const [isSubscriber, setIsSubscriber] = useState(false);
   const [pricingConfig, setPricingConfig] = useState<PricingConfig | null>(null);
   const [configLoading, setConfigLoading] = useState(true);
@@ -170,7 +181,7 @@ const CheckoutContent = () => {
   if (loading || configLoading) {
     return (
       <div className="flex flex-col justify-center items-center min-h-[70vh] gap-4">
-        <Loader2 className="animate-spin text-violet-500 w-12 h-12" />
+        <Loader2 className="animate-spin text-blue-500 w-12 h-12" />
         <p className="text-gray-400 text-sm">Preparing your secure checkout…</p>
       </div>
     );
@@ -186,7 +197,7 @@ const CheckoutContent = () => {
           <p className="text-sm text-gray-400 mb-6">{error}</p>
           <button
             onClick={() => router.push("/cart")}
-            className="bg-violet-600 text-white px-6 py-2.5 rounded-xl"
+            className="bg-blue-600 text-white px-6 py-2.5 rounded-xl"
           >
             Back to Cart
           </button>
@@ -200,10 +211,10 @@ const CheckoutContent = () => {
     <div className="min-h-screen bg-[#09090b] text-slate-200 py-12 px-4 font-sans">
 
       {/* Mission Banner */}
-      <div className="max-w-2xl mx-auto mb-6 p-5 rounded-xl border border-violet-500/20 bg-violet-500/[0.03]">
+      <div className="max-w-2xl mx-auto mb-6 p-5 rounded-xl border border-blue-500/20 bg-blue-500/[0.03]">
         <div className="flex items-start gap-4">
-          <div className="p-2.5 bg-violet-500/10 rounded-lg shrink-0 mt-0.5">
-            <FlaskConical size={18} className="text-violet-400" />
+          <div className="p-2.5 bg-blue-500/10 rounded-lg shrink-0 mt-0.5">
+            <FlaskConical size={18} className="text-blue-400" />
           </div>
           <div>
             <p className="text-sm font-bold text-slate-100 mb-1">
@@ -213,7 +224,7 @@ const CheckoutContent = () => {
               We price our products fairly and ethically — never gouging our customers.
               Highest quality products at the lowest prices, and with an active subscription
               you'll receive{" "}
-              <span className="text-violet-300 font-semibold">one free vial</span> on us.
+              <span className="text-blue-300 font-semibold">one free vial</span> on us.
             </p>
           </div>
         </div>
@@ -259,6 +270,7 @@ const CheckoutContent = () => {
             const isSelected = paymentMethod === method.id;
             const Icon = method.icon;
             const isComingSoon = method.id === "credits";
+            
 
             return (
               <button
@@ -276,7 +288,7 @@ const CheckoutContent = () => {
               >
                 {/* Badge */}
                 {method.badge && !isComingSoon && (
-                  <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/20">
+                  <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/20">
                     {method.badge}
                   </span>
                 )}
@@ -317,7 +329,7 @@ const CheckoutContent = () => {
 
                 {/* Selected indicator */}
                 {isSelected && (
-                  <span className="absolute bottom-2 right-2 w-1.5 h-1.5 rounded-full bg-violet-400" />
+                  <span className="absolute bottom-2 right-2 w-1.5 h-1.5 rounded-full bg-blue-400" />
                 )}
               </button>
             );

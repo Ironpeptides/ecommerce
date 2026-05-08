@@ -6,7 +6,7 @@ const trustItems = [
   {
     icon: Truck,
     title: "FREE SHIPPING",
-    subtitle: "On Orders $300+",
+    subtitle: "On Orders $200+",
   },
   {
     icon: ShieldCheck,

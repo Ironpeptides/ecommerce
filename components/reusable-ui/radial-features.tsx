@@ -35,9 +35,9 @@ const RadialFeature: React.FC<RadialFeatureProps> = ({ theme = "light" }) => {
       title: "text-gray-800",
       card: "bg-white/50 hover:bg-white/80",
       border: "border-gray-100",
-      highlight: "text-purple-600",
+      highlight: "text-blue-600",
       line: "stroke-gray-200",
-      center: "bg-gradient-to-b from-purple-50 to-purple-100",
+      center: "bg-gradient-to-b from-blue-50 to-blue-100",
     },
     dark: {
       bg: "bg-gray-900",
@@ -45,9 +45,9 @@ const RadialFeature: React.FC<RadialFeatureProps> = ({ theme = "light" }) => {
       title: "text-white",
       card: "bg-gray-800/50 hover:bg-gray-800",
       border: "border-gray-700",
-      highlight: "text-purple-400",
+      highlight: "text-blue-400",
       line: "stroke-gray-700",
-      center: "bg-gradient-to-b from-purple-900/50 to-purple-800/50",
+      center: "bg-gradient-to-b from-blue-900/50 to-blue-800/50",
     },
   };
 
@@ -198,10 +198,10 @@ const RadialFeature: React.FC<RadialFeatureProps> = ({ theme = "light" }) => {
             <div
               className={`
               p-8 rounded-full ${style.center}
-              shadow-lg shadow-purple-500/20
+              shadow-lg shadow-blue-500/20
             `}
             >
-              <Rocket className="w-12 h-12 text-purple-600" />
+              <Rocket className="w-12 h-12 text-blue-600" />
             </div>
           </div>
 

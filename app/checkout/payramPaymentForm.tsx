@@ -25,9 +25,9 @@ const PayramPayment = ({ pricingConfig, cartItems, isSubscriber }: PayramPayment
   return (
     <div className="bg-[#1a1a1a] rounded-xl border border-gray-800 overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-950/40 to-[#1a1a1a] px-6 py-5 border-b border-purple-900/30">
+      <div className="bg-gradient-to-r from-blue-950/40 to-[#1a1a1a] px-6 py-5 border-b border-blue-900/30">
         <div className="flex items-center gap-3">
-          <CreditCard className="w-6 h-6 text-purple-400" />
+          <CreditCard className="w-6 h-6 text-blue-400" />
           <h3 className="text-xl font-semibold text-white">Payram</h3>
         </div>
         <p className="text-gray-400 text-sm mt-2">
@@ -37,8 +37,8 @@ const PayramPayment = ({ pricingConfig, cartItems, isSubscriber }: PayramPayment
 
       {/* Coming soon body */}
       <div className="p-10 flex flex-col items-center justify-center text-center gap-6">
-        <div className="w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-          <Clock className="w-8 h-8 text-purple-400" />
+        <div className="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+          <Clock className="w-8 h-8 text-blue-400" />
         </div>
 
         <div className="space-y-2">

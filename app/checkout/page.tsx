@@ -19,7 +19,7 @@ export default function CheckoutPage() {
   return (
     <Suspense fallback={
       <div className="flex flex-col justify-center items-center min-h-[70vh] gap-4">
-        <Loader2 className="animate-spin text-violet-500 w-12 h-12" />
+        <Loader2 className="animate-spin text-blue-500 w-12 h-12" />
         <p className="text-gray-400 text-sm">Loading checkout...</p>
       </div>
     }>

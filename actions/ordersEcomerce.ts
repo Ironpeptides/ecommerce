@@ -4,7 +4,7 @@ import { db } from "@/prisma/db";
 import { revalidatePath } from "next/cache";
 import { getAuthenticatedUser } from "@/config/useAuth";
 import { OrderStatus, PaymentStatus } from "@prisma/client";
-
+import { deductStock } from "@/lib/stock"; 
 // ─── shared include ──────────────────────────────────────────────────────────
 
 const orderInclude = {
@@ -173,26 +173,43 @@ export async function adminUpdateOrderStatus(
 export async function adminApprovePayment(orderId: string, note?: string) {
   try {
     const admin = await getAuthenticatedUser();
-    const order = await db.order.update({
-      where: { id: orderId },
-      data: {
-        paymentStatus: PaymentStatus.PAID,
-        adminApprovedAt: new Date(),
-        adminApprovedBy: admin.id,
-        // Also confirm the order
-        orderStatus: OrderStatus.CONFIRMED,
-        statusHistory: {
-          create: {
-            status: OrderStatus.CONFIRMED,
-            note: note ?? "Payment approved by admin.",
-            changedBy: admin.id,
+
+   
+
+    // 1. Wrap your logic in a transaction
+    const result = await db.$transaction(async (tx) => {
+      
+      // 2. Use 'tx' instead of 'db' for the order update
+      // We also include 'items' so deductStock has the data it needs
+      const order = await tx.order.update({
+        where: { id: orderId },
+        include: { items: true }, // Crucial: ensure items are fetched to pass to deductStock
+        data: {
+          paymentStatus: PaymentStatus.PAID,
+          adminApprovedAt: new Date(),
+          adminApprovedBy: admin.id,
+          orderStatus: OrderStatus.CONFIRMED,
+          statusHistory: {
+            create: {
+              status: OrderStatus.CONFIRMED,
+              note: note ?? "Payment approved by admin.",
+              changedBy: admin.id,
+            },
           },
         },
-      },
+      });
+
+      // 3. Now 'tx' is defined and safe to pass
+      await deductStock(tx, order.items, "[admin/approve]");
+
+      return order;
     });
+
+    // 4. Revalidate outside the transaction for better performance
     revalidatePath(`/dashboard/orders/${orderId}`);
     revalidatePath("/dashboard/orders");
-    return { success: true, order };
+
+    return { success: true, order: result };
   } catch (error) {
     console.error("Error approving payment:", error);
     return { success: false, error: "Failed to approve payment" };

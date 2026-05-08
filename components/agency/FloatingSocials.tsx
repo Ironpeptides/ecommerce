@@ -29,8 +29,8 @@ const FloatingSocials = () => {
       name: "Book Appointment",
       icon: FaCalendarAlt,
       href: "/book-appointment",
-      color: "bg-violet-500 hover:bg-violet-600",
-      glowColor: "shadow-violet-500/50",
+      color: "bg-blue-500 hover:bg-blue-600",
+      glowColor: "shadow-blue-500/50",
     },
   ];
 
