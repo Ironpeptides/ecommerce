@@ -1,214 +1,213 @@
 // app/api/order/manual-payment/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/prisma/db";
-import { Resend } from "resend";
 import { sendOrderConfirmationEmails } from "@/lib/mail-service";
+import { getVialDiscountTier } from "@/lib/pricing";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId, paymentMethod, sessionData, couponCode, isSubscriber, notes, orderId } = await req.json();
+    const {
+      userId,
+      paymentMethod,
+      sessionData,
+      couponCode,
+      isSubscriber,
+      notes,
+      orderId,
+    } = await req.json();
 
     const order = await db.$transaction(async (tx) => {
-      // Check if order already exists
+      // ── Find existing order ────────────────────────────────────────────────
       let existingOrder = null;
       if (orderId) {
         existingOrder = await tx.order.findUnique({
           where: { id: orderId },
-          include: { items: true }
+          include: { items: true },
         });
       }
-
-      // If no orderId provided, check for recent pending order from this user
       if (!existingOrder) {
         existingOrder = await tx.order.findFirst({
           where: {
             userId,
             paymentStatus: "PENDING_APPROVAL",
             orderStatus: "PENDING",
-            createdAt: {
-              gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // Last 24 hours
-            }
+            createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
           },
-          orderBy: { createdAt: 'desc' },
-          include: { items: true }
+          orderBy: { createdAt: "desc" },
+          include: { items: true },
         });
       }
 
-      // 1. Fetch "Source of Truth" data for all products in cart
+      // ── Fetch DB products (source of truth for prices) ─────────────────────
       const productIds = sessionData.map((item: any) => item.id);
       const dbProducts = await tx.product.findMany({
         where: { id: { in: productIds } },
-        include: { variants: true }
+        include: { variants: true },
       });
 
-      // 2. Fetch Pricing Config from the same source as other components
-      let pricingConfig;
+      // ── Fetch pricing config ───────────────────────────────────────────────
+      let pricingConfig = {
+        salesTaxRate: 0.10,
+        cryptoDiscount: 0.15,
+        subDiscount: 0.20,
+        shippingCost: 11.00,
+        freeShippingMin: 200.00,
+      };
       try {
         const configRes = await fetch(
           `${process.env.NEXT_PUBLIC_APP_URL}/api/checkout/pricing-config`
         );
-        pricingConfig = configRes.ok
-          ? await configRes.json()
-          : {
-              salesTaxRate: 0.10,
-              cryptoDiscount: 0.15,
-              subDiscount: 0.20,
-              shippingCost: 11.00,
-              freeShippingMin: 200.00,
-            };
-      } catch {
-        pricingConfig = {
-          salesTaxRate: 0.10,
-          cryptoDiscount: 0.15,
-          subDiscount: 0.20,
-          shippingCost: 11.00,
-          freeShippingMin: 200.00,
-        };
-      }
+        if (configRes.ok) pricingConfig = await configRes.json();
+      } catch { /* use defaults */ }
 
-      const { salesTaxRate, cryptoDiscount, subDiscount, shippingCost, freeShippingMin } = pricingConfig;
+      const {
+        salesTaxRate,
+        cryptoDiscount,
+        subDiscount,
+        shippingCost,
+        freeShippingMin,
+      } = pricingConfig;
 
-      // 3. Calculate rawSubtotal from DB prices
-      let rawSubtotal = 0;
+      // ── Build order items from DB prices ───────────────────────────────────
+      let rawSubtotal  = 0;
+      let totalVialQty = 0;
+
       const orderItemsData = sessionData.map((item: any) => {
-        const dbProduct = dbProducts.find(p => p.id === item.id);
-        const dbVariant = dbProduct?.variants.find(v => v.id === item.selectedVariant?.id);
-        
+        const dbProduct = dbProducts.find((p) => p.id === item.id);
+        const dbVariant = dbProduct?.variants.find(
+          (v) => v.id === item.selectedVariant?.id
+        );
         const unitPrice = dbVariant?.price ?? dbProduct?.salePrice ?? 0;
-        rawSubtotal += unitPrice * item.quantity;
+        rawSubtotal  += unitPrice * item.quantity;
+        totalVialQty += item.quantity;
 
         return {
-          productId: item.id,
+          productId:   item.id,
           productName: dbProduct?.name || "Unknown Product",
-          variantInfo: dbVariant ? JSON.stringify({ id: dbVariant.id, name: dbVariant.name }) : null,
+          variantInfo: dbVariant
+            ? JSON.stringify({ id: dbVariant.id, name: dbVariant.name })
+            : null,
           quantity: item.quantity,
-          price: unitPrice,
-          subTotal: unitPrice * item.quantity
+          price:    unitPrice,
+          subTotal: unitPrice * item.quantity,
         };
       });
 
-      // 4. Apply the Calculation logic
-      const coupon = couponCode ? await tx.coupon.findUnique({ where: { code: couponCode } }) : null;
-      const couponDiscount = coupon?.discountValue ?? 0;
-      
-      const afterCoupon = Math.max(0, rawSubtotal - couponDiscount);
-      
-      // Apply subscriber discount (subDiscount is already a decimal: 0.20 = 20%)
-      const subDiscountAmt = isSubscriber ? afterCoupon * subDiscount : 0;
-      const afterSub = afterCoupon - subDiscountAmt;
-      
-      // Only apply crypto discount if they are actually paying with crypto
-      // cryptoDiscount is already a decimal: 0.15 = 15%
-      const isCrypto = paymentMethod.toLowerCase().includes("crypto");
-      const cryptoDiscountAmt = isCrypto ? afterSub * cryptoDiscount : 0;
-      const afterPaymentAdj = afterSub - cryptoDiscountAmt;
-      
-      // Shipping calculation
-      const shipping = afterPaymentAdj >= freeShippingMin ? 0 : shippingCost;
-      
-      // Tax calculation (salesTaxRate is already a decimal: 0.10 = 10%)
-      const tax = afterPaymentAdj * salesTaxRate;
-      
-      const grandTotal = afterPaymentAdj + shipping + tax;
+      // ── Apply discount chain ───────────────────────────────────────────────
 
-      let finalOrder;
+      // 1. Coupon
+      const coupon = couponCode
+        ? await tx.coupon.findUnique({ where: { code: couponCode } })
+        : null;
+      const couponDiscount = coupon?.discountValue ?? 0;
+      const afterCoupon    = Math.max(0, rawSubtotal - couponDiscount);
+
+      // 2. Subscriber discount
+      const subDiscountAmt = isSubscriber ? afterCoupon * subDiscount : 0;
+      const afterSub       = afterCoupon - subDiscountAmt;
+
+      // 3. Crypto discount (manual_crypto only)
+      const isCrypto       = paymentMethod.toLowerCase().includes("crypto");
+      const cryptoDiscAmt  = isCrypto ? afterSub * cryptoDiscount : 0;
+      const afterCrypto    = afterSub - cryptoDiscAmt;
+
+      // 4. Vial quantity discount
       
+
+      const tier = getVialDiscountTier(totalVialQty);
+      const vialDiscRate = tier?.discount ?? 0;
+      const vialDiscAmt = afterCrypto * vialDiscRate;
+      const afterVial   = afterCrypto - vialDiscAmt;
+
+
+      // 5. Shipping + tax
+      const shipping = afterVial >= freeShippingMin ? 0 : shippingCost;
+      const tax      = afterVial * salesTaxRate;
+      const grandTotal = afterVial + shipping + tax;
+
+      // ── Create or update order ─────────────────────────────────────────────
+      let finalOrder;
       if (existingOrder) {
-        // Update existing order
         finalOrder = await tx.order.update({
           where: { id: existingOrder.id },
           data: {
-            subtotal: rawSubtotal,
-            taxAmount: tax,
-            shippingFee: shipping,
-            discountAmount: couponDiscount + subDiscountAmt + cryptoDiscountAmt,
-            totalAmount: grandTotal,
+            subtotal:       rawSubtotal,
+            taxAmount:      tax,
+            shippingFee:    shipping,
+            discountAmount: couponDiscount + subDiscountAmt + cryptoDiscAmt + vialDiscAmt,
+            totalAmount:    grandTotal,
             paymentMethod,
             notes: notes || existingOrder.notes,
-            // Delete old items and create new ones
-            items: {
-              deleteMany: {},
-              create: orderItemsData
-            }
+            items: { deleteMany: {}, create: orderItemsData },
           },
-          include: { items: true }
+          include: { items: true },
         });
-        
         console.log(`Updated existing order: ${finalOrder.id}`);
       } else {
-        // Create new order
         finalOrder = await tx.order.create({
           data: {
             userId,
-            orderNumber: `ORD-MANUAL-${Date.now().toString().slice(-6)}`,
-            subtotal: rawSubtotal,
-            taxAmount: tax,
-            shippingFee: shipping,
-            discountAmount: couponDiscount + subDiscountAmt + cryptoDiscountAmt,
-            totalAmount: grandTotal,
-            paymentStatus: "PENDING_APPROVAL",
-            orderStatus: "PENDING",
+            orderNumber:    `ORD-MANUAL-${Date.now().toString().slice(-6)}`,
+            subtotal:       rawSubtotal,
+            taxAmount:      tax,
+            shippingFee:    shipping,
+            discountAmount: couponDiscount + subDiscountAmt + cryptoDiscAmt + vialDiscAmt,
+            totalAmount:    grandTotal,
+            paymentStatus:  "PENDING_APPROVAL",
+            orderStatus:    "PENDING",
             paymentMethod,
             notes,
             items: { create: orderItemsData },
           },
-          include: { items: true }
+          include: { items: true },
         });
-        
         console.log(`Created new order: ${finalOrder.id}`);
       }
 
-      // Get buyer and admin emails
+      // ── Send confirmation emails ───────────────────────────────────────────
       const buyer = await tx.user.findUnique({
         where: { id: finalOrder.userId },
-        select: { email: true, firstName: true }
+        select: { email: true, firstName: true },
       });
-      
       const admins = await tx.user.findMany({
         where: { roles: { some: { roleName: "admin" } } },
-        select: { email: true }
+        select: { email: true },
       });
-      const adminEmails = admins.map(a => a.email);
-      
-     console.log("Buyer:", buyer, "Admins:", adminEmails, "Order Number:", finalOrder.orderNumber);
-      
-      
-      if ( buyer && adminEmails.length > 0) {
-     
+
+      if (buyer && admins.length > 0) {
         await sendOrderConfirmationEmails({
-          buyerEmail: buyer.email,
-          buyerName: buyer.firstName || "Customer",
-          adminEmails: adminEmails,
+          buyerEmail:  buyer.email,
+          buyerName:   buyer.firstName || "Customer",
+          adminEmails: admins.map((a) => a.email),
           orderNumber: finalOrder.orderNumber,
           totalAmount: finalOrder.totalAmount,
           items: orderItemsData.map((item: any) => {
-            const variantObj = item.variantInfo ? JSON.parse(item.variantInfo) : null;
-            const displayName = variantObj 
-              ? `${item.productName} (${variantObj.name})` 
-              : item.productName;
+            const variantObj = item.variantInfo
+              ? JSON.parse(item.variantInfo)
+              : null;
             return {
-              name: displayName,
+              name:     variantObj
+                ? `${item.productName} (${variantObj.name})`
+                : item.productName,
               quantity: item.quantity,
-              price: item.price
+              price:    item.price,
             };
-          })
+          }),
         });
       }
 
       return finalOrder;
     });
 
-    return NextResponse.json({ 
-      success: true, 
-      orderId: order.id,
-      isUpdate: true, // You can use this to handle UI differently if needed
-      orderNumber: order.orderNumber
+    return NextResponse.json({
+      success:     true,
+      orderId:     order.id,
+      orderNumber: order.orderNumber,
     });
-    
   } catch (error: any) {
-    console.log("Manual payment order creation/update error:", error);
+    console.error("Manual payment error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

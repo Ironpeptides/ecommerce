@@ -112,9 +112,9 @@ export default async function HomeLayout({
 
         <div className="relative flex min-h-screen flex-col">
           <SiteHeader session={session} />
-          <main className="flex-1 transition-all duration-700 ease-in-out">
-            {children}
-          </main>
+          <main className="flex-1 w-full flex flex-col min-h-[70vh] transition-all duration-700 ease-in-out">
+  {children}
+</main>
           <Footer />
         </div>
       </PremiumProvider>

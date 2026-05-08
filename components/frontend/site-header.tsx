@@ -140,14 +140,12 @@ export default function SiteHeader({ session }: { session: Session | null }) {
               
               {/* Home */}
               <NavigationMenuItem>
-                <Link href="/">
-                  {/* @next-codemod-error This Link previously used the now removed `legacyBehavior` prop, and has a child that might not be an anchor. The codemod bailed out of lifting the child props to the Link. Check that the child component does not render an anchor, and potentially move the props manually to Link. */
-                  }
-                  <NavigationMenuLink className="h-9 px-3 py-2 text-sm font-bold text-gray-400 hover:text-blue-400 transition-colors uppercase tracking-tight">
-                    Home
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
+  <Link href="/" legacyBehavior passHref>
+    <NavigationMenuLink className="h-9 px-3 py-2 text-sm font-bold text-gray-400 hover:text-blue-400 transition-colors uppercase tracking-tight">
+      Home
+    </NavigationMenuLink>
+  </Link>
+</NavigationMenuItem>
 
               {/* About Us Dropdown */}
               <NavigationMenuItem>
@@ -244,12 +242,12 @@ export default function SiteHeader({ session }: { session: Session | null }) {
               </NavigationMenuItem> */}
 
               <NavigationMenuItem>
-             <Link href="/blogs">
-            <NavigationMenuLink className="h-9 px-3 py-2 text-sm font-bold text-gray-400 hover:text-blue-400 transition-colors uppercase tracking-tight">
-             Blog
-              </NavigationMenuLink>
-             </Link>
-           </NavigationMenuItem>
+  <Link href="/blogs" legacyBehavior passHref>
+    <NavigationMenuLink className="h-9 px-3 py-2 text-sm font-bold text-gray-400 hover:text-blue-400 transition-colors uppercase tracking-tight">
+      Blog
+    </NavigationMenuLink>
+  </Link>
+</NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
         </div>
@@ -484,6 +482,9 @@ export default function SiteHeader({ session }: { session: Session | null }) {
   <Bitcoin size={16} className="text-yellow-400" />
   How to buy crypto
 </button>
+                <Link href="/blog" onClick={() => setOpen(false)} className="p-3 text-gray-300 hover:bg-white/5 rounded-lg hover:text-blue-400 transition-colors">
+                  Blog
+                </Link>
                 
                 {!session && (
                   <div className="mt-6 flex flex-col gap-2 pt-4 border-t border-white/10">
@@ -503,9 +504,7 @@ export default function SiteHeader({ session }: { session: Session | null }) {
                     </Link>
                   </div>
                 )}
-                <Link href="/blogs" onClick={() => setOpen(false)} className="p-3 text-gray-300 hover:bg-white/5 rounded-lg hover:text-blue-400 transition-colors">
-                  Blog
-                </Link>
+                
               </nav>
             </SheetContent>
           </Sheet>

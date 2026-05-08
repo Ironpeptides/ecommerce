@@ -34,7 +34,7 @@ const PLATFORMS: Platform[] = [
     tip: "Your crypto stays in your Venmo account. You can send it to another wallet later if needed.",
     steps: [
       { instruction: "Open the Venmo app on your phone, At the bottom of the screen, tap Crypto.",               image: "/screenshots/venmo-1.jpg" },
-      { instruction: "Choose the cryptocurrency you want to buy (Bitcoin is the most popular and easiest).",     image: "/screenshots/venmo-2.jpg" },
+      { instruction: "Choose the cryptocurrency you want to buy (Bitcoin is the most popular and easiest).",     image: "/screenshots/venmo2.png" },
       { instruction: "Tap Buy.",                                                                                  image: "/screenshots/venmo-3.jpg" },
       { instruction: "Enter the dollar amount you want to spend — you can start with as little as $1.",          image: "/screenshots/venmo-4.jpg" },
       { instruction: "Review the details — you'll see how much crypto you'll get and any fees.",                  image: "/screenshots/venmo-5.jpg" },
@@ -199,7 +199,7 @@ export function CryptoBuyModal({ onClose }: { onClose: () => void }) {
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   priority
-                  className="object-contain animate-fadeIn"
+                  className="object-cover animate-fadeIn"
                   
                 />
 
@@ -209,7 +209,7 @@ export function CryptoBuyModal({ onClose }: { onClose: () => void }) {
                     onClick={goPrev}
                     className="absolute left-2 top-1/2 -translate-y-1/2 z-10
                                w-8 h-8 sm:w-10 sm:h-10 rounded-full
-                               bg-black/60 hover:bg-black/80 border border-white/10
+                               bg-blue/60 hover:bg-black/80 border border-white/10
                                flex items-center justify-center text-white
                                opacity-0 group-hover:opacity-100 focus:opacity-100
                                transition-opacity duration-200"

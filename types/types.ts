@@ -78,3 +78,24 @@ export interface RoleResponse {
   createdAt: Date;
   updatedAt: Date;
 }
+
+
+export type Review = {
+  id: string;
+  name: string;
+  handle?: string;          // @username for Twitter
+  platform: "google" | "twitter" | "facebook";
+  text: string;
+  rating?: number;          // mainly for Google
+  date?: string;            // "2 days ago", "Mar 15", etc.
+  avatarUrl?: string;
+  // platform‑specific metrics
+  likes?: number;
+  retweets?: number;
+  replies?: number;
+  comments?: number;
+  shares?: number;
+  // optional screenshot override
+  imageUrl?: string;
+  imageAlt?: string;
+};
