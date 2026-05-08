@@ -25,7 +25,7 @@ const TAB_LABELS: Record<(typeof TABS)[number], string> = {
 export default async function EditProductPage({
   params,
 }: {
- params: Promise<{ slug: string }> | { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
 

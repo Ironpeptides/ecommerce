@@ -1,30 +1,27 @@
 import type { NextConfig } from "next";
-const defaultCache = require("next-pwa/cache");
 
-// We use require for the PWA plugin to avoid type mismatch issues with some versions
 const withPWA = require("next-pwa")({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
   register: true,
   skipWaiting: true,
-  // This adds your rules on top of the default ones
-  extendDefaultRuntimeCaching: true, 
   runtimeCaching: [
     {
-      // Match all admin API routes
       urlPattern: /\/api\/admin\/.*$/,
-      handler: 'NetworkOnly', // Dashboards must always have real-time data
+      handler: 'NetworkOnly',
     },
     {
-      // Default fallback for everything else
-      urlPattern: /.*/,
-      handler: 'NetworkFirst', // Try network, then fallback to cache
+      urlPattern: /\/_next\/static\/.*/i,
+      handler: 'StaleWhileRevalidate',
     },
-    ...defaultCache,
+    {
+      urlPattern: /.*/i,
+      handler: 'NetworkFirst',
+    },
   ],
 });
 
-const nextConfig: NextConfig = {
+const nextConfig = withPWA({
   images: {
     remotePatterns: [
       {
@@ -33,6 +30,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-};
+   reactStrictMode: true
+});
 
-export default withPWA(nextConfig);
+export default nextConfig;
