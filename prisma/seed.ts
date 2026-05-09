@@ -57,8 +57,8 @@ async function seedDatabase() {
     console.log("Creating organisation...");
     const org = await db.organisation.create({
       data: {
-        name: "Default Organisation",
-        slug: "default-organisation",
+        name: "Haelolabs",
+        slug: "haelolabs",
       },
     });
 

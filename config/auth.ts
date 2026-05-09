@@ -52,8 +52,8 @@ async function getOrCreateOrgForOAuthUser(email: string) {
 
   const org = await db.organisation.create({
     data: {
-      name: "Default Organisation",
-      slug: `default-org-${Date.now()}`,
+      name: "Haelolabs",
+      slug: `haelolabs-${Date.now()}`,
     },
   });
 
