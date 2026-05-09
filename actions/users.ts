@@ -90,8 +90,8 @@ export async function createUser(data: UserProps, orgData:OrgData) {
       // CREATE THE ORGANISATION
 
       const IronpeptidesOrgData = {
-        name: "IronPeptidesInnovation",
-        slug: "peptidesInc",
+        name: "Haelolabs",
+        slug: "haelolabs",
         timezone: "America/Mexico_City",
         currency: "MXN",
         country: "Mexico"
