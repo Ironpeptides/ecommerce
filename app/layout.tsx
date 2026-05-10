@@ -49,7 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="mobile-web-app-capable" content="yes" />
         <link rel="preload" as="image"  href="/images/hero-poster.webp" fetchPriority="high" />
         <link rel="preload" as="video"  href="/videos/haeloPeptides.webm" />
-        <link rel="preload" as="font"   href="/fonts/your-serif.woff2" type="font/woff2" crossOrigin="anonymous" />
+      
       </head>
       <body className={`${inter.className}`}>
         <ThemeProvider

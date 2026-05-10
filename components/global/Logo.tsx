@@ -12,10 +12,10 @@ export default function Logo({
   // Common Image Component to keep code DRY (Don't Repeat Yourself)
   const LogoImage = (
     <Image
-      src="/images/ironpeptideInc.png"
+      src="/images/haelo-peptides-logo.webp"
       alt="Haelolabs Innovations Logo"
-      width={60} // Increased size for better clarity
-      height={60}
+      width={100} // Increased size for better clarity
+      height={100}
       className="rounded-md object-contain"
       priority // Ensures the logo loads immediately as it's a layout element
     />

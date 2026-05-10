@@ -97,28 +97,44 @@ export default function Footer() {
               {/* Social links */}
               <h3 className="text-sm font-semibold mb-3 text-gray-300">Follow Our Research</h3>
               <div className="flex gap-3">
-                {[
-                  { icon: "https://cdn-icons-png.flaticon.com/128/5968/5968764.png", label: "Facebook", href:"https://www.facebook.com" },
-                  { icon: "https://cdn-icons-png.flaticon.com/128/3670/3670151.png", label: "Twitter", href:"https://x.com" },
-                  { icon: "https://cdn-icons-png.flaticon.com/128/145/145807.png", label: "LinkedIn", href:"https://www.linkedin.com" },
-                  { icon: "https://cdn-icons-png.flaticon.com/128/3670/3670176.png", label: "Instagram", href:"https://www.instagram.com/ironpeptideinnovations?igsh=MWpnazdtOThpcnk2aw==" },
-                ].map(({ icon, label, href }) => (
-                  <Link
-                    key={label}
-                    href={href}
-                    aria-label={label}
-                    className="w-9 h-9 flex items-center justify-center bg-gray-800 rounded-full hover:bg-emerald-500/20 hover:border-emerald-500/40 border border-transparent transition-all duration-300"
-                  >
-                    <Image
-                      src={icon}
-                      alt={label}
-                      width={16}
-                      height={16}
-                      className="opacity-60 hover:opacity-100 transition-opacity"
-                    />
-                  </Link>
-                ))}
-              </div>
+  {[
+    {
+      icon: "https://cdn-icons-png.flaticon.com/128/3670/3670176.png", // Instagram
+      label: "Instagram",
+      href: "https://www.instagram.com/haelopeptides?igsh=MWpnazdtOThpcnk2aw==",
+    },
+    {
+      icon: "https://cdn-icons-png.flaticon.com/128/3046/3046121.png", // TikTok
+      label: "TikTok",
+      href: "https://www.tiktok.com/@haelopeptides?_r=1&_t=ZT-96FmAxrRBcL",
+    },
+    {
+      icon: "https://cdn-icons-png.flaticon.com/128/3670/3670151.png", // Twitter
+      label: "Twitter",
+      href: "https://x.com/HaeloPeptides",
+    },
+    {
+      icon: "https://cdn-icons-png.flaticon.com/128/3670/3670224.png", // Reddit (placeholder)
+      label: "Reddit",
+      href: "https://www.reddit.com/u/HaeloPeptides/s/3ZMdd6S5gf", // ← Replace with actual Reddit profile link
+    },
+  ].map(({ icon, label, href }) => (
+    <Link
+      key={label}
+      href={href}
+      aria-label={label}
+      className="w-9 h-9 flex items-center justify-center bg-gray-800 rounded-full hover:bg-emerald-500/20 hover:border-emerald-500/40 border border-transparent transition-all duration-300"
+    >
+      <Image
+        src={icon}
+        alt={label}
+        width={16}
+        height={16}
+        className="opacity-60 hover:opacity-100 transition-opacity"
+      />
+    </Link>
+  ))}
+</div>
             </div>
 
             {/* Quick Links */}
