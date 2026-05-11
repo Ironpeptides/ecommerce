@@ -169,9 +169,9 @@ const CartContent = () => {
     );
     const activeTier =
       totalQty >= 10
-        ? { label: "10+ vials", discount: "10%" }
+        ? { label: "10+ vials", discount: "0%" }
         : totalQty >= 5
-        ? { label: "5+ vials", discount: "5%" }
+        ? { label: "5+ vials", discount: "0%" }
         : null;
     const nextTier =
       totalQty < 5
@@ -641,7 +641,7 @@ const CartContent = () => {
                       </p>
                     </div>
                   )}
-                  {bulkDiscount.nextTier && (
+                  {/* {bulkDiscount.nextTier && (
                     <div className="flex items-center gap-2 px-2.5 py-2 bg-amber-500/10 border border-amber-500/20 rounded-lg">
                       <Package size={12} className="text-amber-400 shrink-0" />
                       <p className="text-xs text-amber-300">
@@ -653,7 +653,7 @@ const CartContent = () => {
                         <span className="font-bold">{bulkDiscount.nextTier.label}</span>
                       </p>
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
             </div>

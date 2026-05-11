@@ -53,7 +53,7 @@ interface TutorialStep {
 
 // ── Vial discount tiers — must match backend ───────────────────────────────────
 const VIAL_DISCOUNT_TIERS = [
-  { minQty: 10, discount: 0.10, label: "10+ vials" },
+  { minQty: 10, discount: 0.00, label: "10+ vials" },
   { minQty: 5,  discount: 0.00, label: "5+ vials"  },
 ];
 
@@ -336,8 +336,8 @@ const ManualPaymentForm = ({
           </p>
         </div>
 
-        {/* ── Vial discount promotions ───────────────────────────────────────── */}
-        {(breakdown.vialTier || nextTier) && (
+        {/* ── Vial discount promotions ─────────────────────────────────────────, copy the commented out code pasted below*/}
+     {/* {(breakdown.vialTier || nextTier) && (
           <div className="px-6 pt-5 space-y-2">
             {breakdown.vialTier && (
               <div className="flex items-center gap-2.5 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/25">
@@ -348,7 +348,7 @@ const ManualPaymentForm = ({
                   {" "}— {breakdown.vialTier.label}
                 </p>
               </div>
-            )}
+   )}
             {nextTier && (
   <div className="flex items-center justify-between p-3 rounded-xl bg-amber-500/[0.08] border border-amber-500/20">
     <div className="flex items-center gap-2.5">
@@ -366,7 +366,7 @@ const ManualPaymentForm = ({
     </a>
   </div>
 )}
-            {/* Tier reference */}
+             
             <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-900/60 border border-slate-800">
               <Info className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
               <div className="flex gap-4 flex-wrap">
@@ -385,7 +385,7 @@ const ManualPaymentForm = ({
               </div>
             </div>
           </div>
-        )}
+        )}  */} 
 
         {/* ── Price Breakdown ────────────────────────────────────────────────── */}
         <div className="bg-gray-900/50 px-6 py-4 border-b border-gray-800 space-y-2 mt-4">
