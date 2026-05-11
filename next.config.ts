@@ -1,5 +1,10 @@
 import type { NextConfig } from "next";
 
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+  openAnalyzer: true,
+});
+
 const withPWA = require("next-pwa")({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
@@ -130,20 +135,18 @@ const withPWA = require("next-pwa")({
   ],
 });
 
-const nextConfig = withPWA({
+// Define nextConfig as a standard object without wrapping it here
+const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      // UploadThing CDN
       {
         protocol: "https",
         hostname: "utfs.io",
       },
-      // UploadThing's newer CDN domain (used by newer SDK versions)
       {
         protocol: "https",
         hostname: "*.ufs.sh",
       },
-      
       {
         protocol: "https",
         hostname: "haelolabs.com",
@@ -155,6 +158,20 @@ const nextConfig = withPWA({
     ],
   },
   reactStrictMode: true,
-});
+  experimental: {
+    optimizePackageImports: [
+      "lucide-react",
+      "date-fns",
+      "recharts",
+      "lodash",
+      "@radix-ui/react-icons",
+      "react-icons",
+      "@react-email/components",
+    ],
+  },
+};
 
-export default nextConfig;
+// Apply both wrappers here in a single chain
+export default withBundleAnalyzer(withPWA(nextConfig));
+
+//export default nextConfig;

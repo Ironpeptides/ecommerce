@@ -1,42 +1,47 @@
-// utils/dateFilters.ts
-import dayjs from "dayjs";
-import isBetween from "dayjs/plugin/isBetween";
-
-dayjs.extend(isBetween);
+import { 
+  isToday, 
+  isYesterday, 
+  isAfter, 
+  startOfMonth, 
+  startOfYear, 
+  isWithinInterval, 
+  startOfDay, 
+  endOfDay, 
+  subDays 
+} from "date-fns";
 
 export const filterByToday = (data: any[]): any[] => {
-  const today = dayjs().startOf("day");
-  return data.filter((item) => dayjs(item.createdAt).isSame(today, "day"));
+  return data.filter((item) => isToday(new Date(item.createdAt)));
 };
 
 export const filterByYesterday = (data: any[]): any[] => {
-  const yesterday = dayjs().subtract(1, "day").startOf("day");
-  return data.filter((item) => dayjs(item.createdAt).isSame(yesterday, "day"));
+  return data.filter((item) => isYesterday(new Date(item.createdAt)));
 };
 
 export const filterByLast7Days = (data: any[]): any[] => {
-  const last7Days = dayjs().subtract(7, "day").startOf("day");
-  return data.filter((item) => dayjs(item.createdAt).isAfter(last7Days));
+  const sevenDaysAgo = subDays(new Date(), 7);
+  return data.filter((item) => isAfter(new Date(item.createdAt), sevenDaysAgo));
 };
 
 export const filterByThisMonth = (data: any[]): any[] => {
-  const startOfMonth = dayjs().startOf("month");
-  return data.filter((item) => dayjs(item.createdAt).isAfter(startOfMonth));
+  const monthStart = startOfMonth(new Date());
+  return data.filter((item) => isAfter(new Date(item.createdAt), monthStart));
 };
 
 export const filterByThisYear = (data: any[]): any[] => {
-  const startOfYear = dayjs().startOf("year");
-  return data.filter((item) => dayjs(item.createdAt).isAfter(startOfYear));
+  const yearStart = startOfYear(new Date());
+  return data.filter((item) => isAfter(new Date(item.createdAt), yearStart));
 };
 
 export const filterByDateRange = (
   data: any[],
-  startDate: string,
-  endDate: string
+  startDate: string | Date,
+  endDate: string | Date
 ): any[] => {
-  const start = dayjs(startDate).startOf("day");
-  const end = dayjs(endDate).endOf("day");
-  return data.filter((item) =>
-    dayjs(item.createdAt).isBetween(start, end, null, "[]")
+  const start = startOfDay(new Date(startDate));
+  const end = endOfDay(new Date(endDate));
+  
+  return data.filter((item) => 
+    isWithinInterval(new Date(item.createdAt), { start, end })
   );
 };

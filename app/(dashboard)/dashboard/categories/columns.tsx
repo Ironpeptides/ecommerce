@@ -1,8 +1,4 @@
 "use client";
-
-import Image from "next/image";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 
 import DateColumn from "@/components/DataTableColumns/DateColumn";

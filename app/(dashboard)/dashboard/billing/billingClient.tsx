@@ -28,12 +28,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { SubscriptionStatus } from "./subscriptionStatus";
 import { PaymentForm } from "./paymentForm";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
+const stripePromise = import("@stripe/stripe-js")
+  .then((m) => m.loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!));
 
 const CHECKOUT_SESSION_KEY = "checkout_session_id";
 const SESSION_TTL_MS       = 30 * 60 * 1000; // 30 minutes
