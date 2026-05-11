@@ -100,7 +100,7 @@ interface StatCard {
 const NAV_ITEMS: NavItem[] = [
   {
     label: "Products",
-    href: "/products",
+    href: "/dashboard/products",
     icon: Box,
     description: "Browse the product catalogue",
     permissions: ["products.read"],
@@ -108,7 +108,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "Categories",
-    href: "/categories",
+    href: "/dashboard/products?tab=categories",
     icon: FolderOpen,
     description: "Explore product categories",
     permissions: ["categories.read"],
@@ -116,7 +116,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "Orders",
-    href: "/orders",
+    href: "/dashboard/orders",
     icon: ShoppingCart,
     description: "Track and manage your orders",
     badge: "Active",
@@ -150,7 +150,7 @@ const NAV_ITEMS: NavItem[] = [
   // Staff / manager / admin only
   {
     label: "Inventory",
-    href: "/inventory",
+    href: "/dashboard/inventory",
     icon: Package,
     description: "Monitor stock levels",
     permissions: [],
@@ -158,7 +158,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "Customers",
-    href: "/customers",
+    href: "/dashboard/sales?tab=customers",
     icon: Users,
     description: "View and manage customers",
     permissions: ["customers.read"],
@@ -166,7 +166,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "Suppliers",
-    href: "/suppliers",
+    href: "/dashboard/suppliers",
     icon: Truck,
     description: "Manage supplier relationships",
     permissions: [],
@@ -174,7 +174,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "Promotions",
-    href: "/promotions",
+    href: "/dashboard/promotions",
     icon: Tag,
     description: "Create discounts and offers",
     permissions: [],
@@ -182,7 +182,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "Sales",
-    href: "/sales",
+    href: "/dashboard/sales",
     icon: ShoppingBag,
     description: "Browse sale transactions",
     permissions: ["sales.read"],
@@ -190,7 +190,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "Reports",
-    href: "/reports",
+    href: "/dashboard/reports",
     icon: BarChart2,
     description: "Analyse performance data",
     permissions: ["reports.read"],
@@ -198,7 +198,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "Users",
-    href: "/users",
+    href: "/dashboard/users",
     icon: User,
     description: "Manage system users & roles",
     permissions: ["users.read"],
@@ -206,7 +206,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "Settings",
-    href: "/settings",
+    href: "/dashboard/profile",
     icon: Settings,
     description: "Configure system settings",
     permissions: ["settings.read"],
