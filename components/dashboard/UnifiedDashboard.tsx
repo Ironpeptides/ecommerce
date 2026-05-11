@@ -606,10 +606,10 @@ export default function UnifiedDashboard({ user }: UnifiedDashboardProps) {
 
 <div className="mt-4 flex items-center gap-1 text-xs font-medium text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
   <a
-    href={isBuyer ? "/dashboard/orders/buyer" : link.label}
+    href={isBuyer ? "/dashboard/orders/buyer" : link.href}
     className="flex items-center gap-1"
   >
-    Go to {isBuyer ? "Buyer Portal" : link.label}
+    Go to {isBuyer ? "Buyer Portal" : link.href}
     <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
   </a>
 </div>
