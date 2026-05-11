@@ -43,7 +43,6 @@ const CheckoutForm = ({
   };
 
   // Log the active method for debugging
-  console.log("Current Payment Method:", paymentMethod);
 
   switch (paymentMethod) {
     // ── Manual Methods ──────────────────────────────────────────

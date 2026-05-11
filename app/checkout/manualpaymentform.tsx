@@ -54,7 +54,7 @@ interface TutorialStep {
 // ── Vial discount tiers — must match backend ───────────────────────────────────
 const VIAL_DISCOUNT_TIERS = [
   { minQty: 10, discount: 0.10, label: "10+ vials" },
-  { minQty: 5,  discount: 0.05, label: "5+ vials"  },
+  { minQty: 5,  discount: 0.00, label: "5+ vials"  },
 ];
 
 function getVialTier(qty: number) {
@@ -80,8 +80,8 @@ const METHOD_CONFIG = {
     iconColor: "text-blue-400",
     headerGradient: "from-blue-950/40 to-[#1a1a1a]",
     headerBorder: "border-blue-900/30",
-    addressLabel: "Venmo Username",
-    fallbackAddress: "@YourVenmoHandle",
+    addressLabel: "vreloj",
+    fallbackAddress: "@vreloj",
     fallbackInstructions:
       "Search for the username above in your Venmo app and send the exact amount. Include your Order ID in the note.",
   },
@@ -91,22 +91,22 @@ const METHOD_CONFIG = {
     iconColor: "text-emerald-400",
     headerGradient: "from-emerald-950/40 to-[#1a1a1a]",
     headerBorder: "border-emerald-900/30",
-    addressLabel: "Cash App $Cashtag",
-    fallbackAddress: "$YourCashtag",
+    addressLabel: "Cashtag",
+    fallbackAddress: "$sparklesss01",
     fallbackInstructions:
       "Open Cash App, tap the $ icon, search the $Cashtag above and send the exact amount. Include your Order ID in the note.",
   },
   zelle: {
-    label: "Zelle",
-    Icon: Zap,
-    iconColor: "text-blue-400",
-    headerGradient: "from-blue-950/40 to-[#1a1a1a]",
-    headerBorder: "border-blue-900/30",
-    addressLabel: "Zelle Email / Phone",
-    fallbackAddress: "payments@haelolabs.com",
-    fallbackInstructions:
-      "Open your bank app and send via Zelle to the email or phone number above. Include your Order ID in the memo.",
-  },
+  label: "Zelle",
+  Icon: Zap,
+  iconColor: "text-purple-400", // Zelle's brand color is actually Purple
+  headerGradient: "from-purple-950/40 to-[#1a1a1a]",
+  headerBorder: "border-purple-900/30",
+  addressLabel: "Zelle Registered Phone",
+  fallbackAddress: "(682) 262-7443",
+  fallbackInstructions:
+    "Send the exact amount via Zelle to the phone number above. Ensure the recipient name matches before confirming.",
+},
 } as const;
 
 const fmt = (n: number) => `$${n.toFixed(2)}`;
@@ -231,20 +231,20 @@ const ManualPaymentForm = ({
   const getTutorialSteps = (): TutorialStep[] => {
     if (paymentMethod === "venmo") return [
       { icon: Smartphone, title: "Download Venmo",   description: "Download the Venmo app from the App Store or Google Play. Create an account if you don't have one." },
-      { icon: Search,     title: "Find Our Account", description: `Search for "${paymentDetails?.address || "@YourVenmoHandle"}" in Venmo. Verify you have the correct account.` },
+      { icon: Search,     title: "Find Our Account", description: `Search for "${paymentDetails?.address || "@vreloj"}" in Venmo. Verify you have the correct account.` },
       { icon: Send,       title: "Send Payment",     description: `Tap 'Pay' and enter the exact amount: ${fmt(breakdown.grandTotal)}. Add your Order ID in the note field.` },
       { icon: CheckCircle,title: "Confirm & Return", description: "Review the details, tap 'Pay', then return here and click 'I Have Paid'." },
     ];
     if (paymentMethod === "cashapp") return [
       { icon: Smartphone, title: "Open Cash App",      description: "Open Cash App on your phone. Download it from the App Store or Google Play if needed." },
-      { icon: Search,     title: "Find Our $Cashtag",  description: `Tap the $ icon and search for "${paymentDetails?.address || "$YourCashtag"}". Verify you have the correct account.` },
+      { icon: Search,     title: "Find Our $Cashtag",  description: `Tap the $ icon and search for "${paymentDetails?.address || " $sparklesss01"}". Verify you have the correct account.` },
       { icon: Send,       title: "Send Payment",        description: `Enter the exact amount: ${fmt(breakdown.grandTotal)}. Add your Order ID in the note.` },
       { icon: CheckCircle,title: "Confirm & Return",   description: "Tap 'Pay', then come back here and click 'I Have Paid'." },
     ];
     if (paymentMethod === "zelle") return [
       { icon: Smartphone, title: "Open Your Bank App", description: "Open your bank or credit union app. Most major US banks support Zelle built-in — no separate app needed." },
       { icon: Search,     title: "Find Zelle",          description: "Look for 'Zelle' or 'Send Money' in your bank app's menu." },
-      { icon: Send,       title: "Send to Our Email",   description: `Send to "${paymentDetails?.address || "payments@haelolabs.com"}". Enter the exact amount: ${fmt(breakdown.grandTotal)}. Add your Order ID in the memo.` },
+      { icon: Send,       title: "Send to Our Email",   description: `Send to "${paymentDetails?.address || "(682) 262-7443"}". Enter the exact amount: ${fmt(breakdown.grandTotal)}. Add your Order ID in the memo.` },
       { icon: CheckCircle,title: "Confirm & Return",   description: "Confirm the payment in your app, then return here and click 'I Have Paid'." },
     ];
     // Default: crypto

@@ -57,7 +57,7 @@ const NO_KYC_PROVIDERS = ["Klever", "Simplex", "Unlimit", "Crypto.com"];
 // ── Vial discount tiers — must match backend
 const VIAL_DISCOUNT_TIERS = [
   { minQty: 10, discount: 0.10, label: "10+ vials" },
-  { minQty: 5,  discount: 0.05, label: "5+ vials"  },
+  { minQty: 5,  discount: 0.00, label: "5+ vials"  },
 ];
 
 const fmt = (n: number) => `$${n.toFixed(2)}`;

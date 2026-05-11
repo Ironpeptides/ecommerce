@@ -87,7 +87,7 @@ const useLocationTracking = () => {
   // Get IP-based location
   const getIpLocation = async () => {
     try {
-      const res = await fetch("http://ip-api.com/json/");
+      const res = await fetch("https://ipapi.co/json/");
       const data = await res.json();
 
       const newLocation: LocationData = {

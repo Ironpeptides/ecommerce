@@ -10,30 +10,33 @@ import { NextRequest, NextResponse } from 'next/server';
 //   PAYMENT_BTC_ADDRESS=bc1q...
 //   PAYMENT_ETH_ADDRESS=0x...
 // ─────────────────────────────────────────────────────────────────────────────
+
+
 const PAYMENT_ADDRESSES = {
   venmo: {
-    address:      process.env.PAYMENT_VENMO_ADDRESS    ?? "@YourVenmoHandle",
+    address:      process.env.PAYMENT_VENMO_ADDRESS      ?? "@vreloj",
     identifier:   "Venmo",
     instructions: "Search for the username above in your Venmo app and send the exact amount. Include your Order ID in the payment note for faster verification.",
     minAmount:    1,
     currency:     "USD",
   },
   cashapp: {
-    address:      process.env.PAYMENT_CASHAPP_ADDRESS  ?? "$YourCashtag",
+    address:      process.env.PAYMENT_CASHAPP_ADDRESS   ?? "$sparklesss01",
     identifier:   "Cash App",
     instructions: "Open Cash App, tap the $ icon, search for the $Cashtag above and send the exact amount. Include your Order ID in the note.",
     minAmount:    1,
     currency:     "USD",
   },
   zelle: {
-    address:      process.env.PAYMENT_ZELLE_ADDRESS    ?? "payments@haelolabs.com",
+    // Standardized 10-digit format for better UX
+    address:      process.env.PAYMENT_ZELLE_ADDRESS      ?? "(682) 262-7443",
     identifier:   "Zelle",
-    instructions: "Open your bank app, navigate to Zelle, and send to the email or phone number above. Include your Order ID in the memo field. Zelle transfers are instant and irreversible.",
+    instructions: "Open your bank app, navigate to Zelle, and send to the phone number above. Include your Order ID in the memo field. Zelle transfers are instant and irreversible.",
     minAmount:    1,
     currency:     "USD",
   },
   manual_crypto: {
-    address:      process.env.PAYMENT_BTC_ADDRESS      ?? "bc1qzrves68udmxxx9245j6pltsjs9rfr43tmp0x8u",
+    address:      process.env.PAYMENT_BTC_ADDRESS       ?? "bc1qzrves68udmxxx9245j6pltsjs9rfr43tmp0x8u",
     identifier:   "Bitcoin",
     instructions: "Send the exact amount in BTC to the Bitcoin address below. The network may take 10–30 minutes to confirm your transaction.",
     network:      "Bitcoin Network",
@@ -42,7 +45,7 @@ const PAYMENT_ADDRESSES = {
   },
   // Legacy alias — kept for backwards compatibility
   crypto: {
-    address:      process.env.PAYMENT_BTC_ADDRESS      ?? "bc1qzrves68udmxxx9245j6pltsjs9rfr43tmp0x8u",
+    address:      process.env.PAYMENT_BTC_ADDRESS       ?? "bc1qzrves68udmxxx9245j6pltsjs9rfr43tmp0x8u",
     identifier:   "Bitcoin",
     instructions: "Send the exact amount in BTC to the Bitcoin address below. Once sent, click the confirmation button.",
     network:      "Bitcoin Network",
@@ -50,14 +53,14 @@ const PAYMENT_ADDRESSES = {
     currency:     "BTC",
   },
   ethereum: {
-    address:      process.env.PAYMENT_ETH_ADDRESS      ?? "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    address:      process.env.PAYMENT_ETH_ADDRESS       ?? "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
     identifier:   "Ethereum",
     instructions: "Send the exact amount in ETH to the Ethereum address below. Ensure you're using the Ethereum mainnet.",
     network:      "Ethereum Mainnet",
     minAmount:    0.01,
     currency:     "ETH",
   },
-};
+} as const;
 
 type PaymentMethod = keyof typeof PAYMENT_ADDRESSES;
 

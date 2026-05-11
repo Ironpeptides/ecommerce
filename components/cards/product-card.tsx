@@ -156,7 +156,7 @@ const StarRow = memo(({ rating }: { rating: number }) => {
           key={x}
           d="M6 0l1.47 4.51H12l-3.85 2.8 1.47 4.51L6 9.25l-3.62 2.57 1.47-4.51L0 4.51h4.53L6 0z"
           transform={`translate(${x}, 0)`}
-          fill={i < full ? "#10b981" : "#1f2937"}
+          fill={i < full ? "#FBC221" : "#1f2937"}
         />
       ))}
     </svg>

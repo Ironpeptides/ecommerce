@@ -1,6 +1,33 @@
 "use client";
 
-import { useState } from "react";
+/**
+ * billingClient.tsx — updated
+ *
+ * New behaviour vs original:
+ *
+ * CHECKOUT SESSION RESTORE
+ * If the user arrived here from the checkout page (they clicked "Subscribe"
+ * mid-checkout), we stored their sessionId + orderId in localStorage under
+ * the key "checkout_session_id" before redirecting them here.
+ *
+ * On mount this component:
+ *   1. Reads that key
+ *   2. Checks it's less than 30 minutes old (stale sessions are discarded)
+ *   3. Clears the key so it doesn't trigger again on a future visit
+ *   4. Redirects back to /checkout with the original sessionId + orderId
+ *      BUT only after a successful subscription (onSuccess callback), so
+ *      the user isn't bounced back before they've actually paid.
+ *
+ * This means the flow is:
+ *   Checkout → Subscribe (saves session) → Billing → Pays → onSuccess
+ *   → redirected back to /checkout?sessionId=...&orderId=...
+ *   instead of the generic "status" view.
+ *
+ * If there's no saved session, or it's expired, behaviour is unchanged.
+ */
+
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { SubscriptionStatus } from "./subscriptionStatus";
@@ -8,17 +35,67 @@ import { PaymentForm } from "./paymentForm";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
+const CHECKOUT_SESSION_KEY = "checkout_session_id";
+const SESSION_TTL_MS       = 30 * 60 * 1000; // 30 minutes
+
+interface SavedCheckoutSession {
+  sessionId: string;
+  orderId:   string | null;
+  savedAt:   number;
+}
+
 interface Props {
   user: { id: string; name: string; email: string };
   subscription: any;
 }
 
 export function BillingClient({ user, subscription }: Props) {
+  const router = useRouter();
+
   const [view, setView] = useState<"status" | "subscribe">(
     subscription?.status === "ACTIVE" || subscription?.status === "TRIALING"
       ? "status"
       : "subscribe"
   );
+
+  // Saved checkout session — read once on mount, never on re-renders
+  const savedCheckout = useRef<SavedCheckoutSession | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(CHECKOUT_SESSION_KEY);
+      if (!raw) return;
+
+      const parsed: SavedCheckoutSession = JSON.parse(raw);
+      const isRecent = Date.now() - parsed.savedAt < SESSION_TTL_MS;
+
+      if (isRecent && parsed.sessionId) {
+        // Hold the reference — we'll use it in onSuccess, not now.
+        // We don't redirect immediately: the user needs to complete payment first.
+        savedCheckout.current = parsed;
+      }
+
+      // Always clear the key so it doesn't linger for future visits
+      localStorage.removeItem(CHECKOUT_SESSION_KEY);
+    } catch {
+      // localStorage unavailable or malformed JSON — ignore
+    }
+  }, []);
+
+  // Called by PaymentForm after a successful subscription
+  const handleSuccess = () => {
+    const saved = savedCheckout.current;
+
+    if (saved?.sessionId) {
+      // Return the user to exactly where they left off in checkout
+      const params = new URLSearchParams({ sessionId: saved.sessionId });
+      if (saved.orderId) params.set("orderId", saved.orderId);
+      router.push(`/checkout?${params.toString()}`);
+    } else {
+      // Normal flow — no pending checkout session
+      setView("status");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#09090b] text-white">
@@ -85,19 +162,19 @@ export function BillingClient({ user, subscription }: Props) {
               appearance: {
                 theme: "night",
                 variables: {
-                  colorPrimary: "#3b82f6",
-                  colorBackground: "#18181b",
-                  colorText: "#f4f4f5",
-                  colorDanger: "#ef4444",
-                  fontFamily: "ui-sans-serif, system-ui, sans-serif",
-                  borderRadius: "12px",
+                  colorPrimary:     "#3b82f6",
+                  colorBackground:  "#18181b",
+                  colorText:        "#f4f4f5",
+                  colorDanger:      "#ef4444",
+                  fontFamily:       "ui-sans-serif, system-ui, sans-serif",
+                  borderRadius:     "12px",
                 },
               },
             }}
           >
             <PaymentForm
               userId={user.id}
-              onSuccess={() => setView("status")}
+              onSuccess={handleSuccess}
             />
           </Elements>
         )}
