@@ -42,7 +42,7 @@ const Hero = () => {
                 */}
                 <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                 <p className="text-[11px] md:text-xs font-semibold tracking-widest text-emerald-400 uppercase">
-                  99.8% Purity Verified · ISO Certified Laboratory
+                  99.6% Purity Verified · ISO Certified Laboratory
                 </p>
               </div>
 
@@ -183,7 +183,7 @@ const Hero = () => {
 
                 {/* Top-right purity chip */}
                 <div className="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 backdrop-blur-sm">
-                  <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-widest">99.8% Pure</span>
+                  <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-widest">99.6% Pure</span>
                 </div>
 
                 {/* Bottom data overlay */}
@@ -201,9 +201,9 @@ const Hero = () => {
                     </div>
                     {/* Purity bar — pure CSS, no JS */}
                     <div className="mt-3 h-1 rounded-full bg-white/10 overflow-hidden">
-                      <div className="h-full w-[99.8%] rounded-full bg-gradient-to-r from-emerald-600 to-emerald-400" />
+                      <div className="h-full w-[99.6%] rounded-full bg-gradient-to-r from-emerald-600 to-emerald-400" />
                     </div>
-                    <p className="text-[10px] text-gray-600 mt-1 text-right">Purity: 99.8%</p>
+                    <p className="text-[10px] text-gray-600 mt-1 text-right">Purity: 99.6%</p>
                   </div>
                 </div>
               </div>
