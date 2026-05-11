@@ -25,7 +25,7 @@ const ORG_NAME = "Haelolabs";
 const SUPPORT_EMAIL = "support@haelo.fit";
 const ORG_ADDRESS = "410 Terry Ave. North, Seattle, WA 98109";
 const LOGO_URL =
-  "https://83153x3k0f.ufs.sh/f/WHfEA9ldMx5DkPX4zs1pln71ahxzZC0eTMXmsRfOt36yP42G";
+  "https://lh6ptlb953.ufs.sh/f/otE6z0gvCqP3UuvEfQFLOryNz0fkKC81E45URpsHneVZmIqg";
 
 export const InvitationEmail = ({
   userFirstname,
@@ -53,8 +53,8 @@ export const InvitationEmail = ({
           <Section style={styles.header}>
             <Img
               src={LOGO_URL}
-              width="90"
-              height="54"
+              width="150"
+              height="50"
               alt={ORG_NAME}
               style={{ display: "block", margin: "0 auto" }}
             />
@@ -286,7 +286,7 @@ const styles: Record<string, React.CSSProperties> = {
 
 InvitationEmail.PreviewProps = {
   userFirstname: "Alan",
-  inviteLink: "https://https://haelo.fit/register?token=abc123",
+  inviteLink: "https://https://haelolabs.com/register?token=abc123",
   invitedBy: "John Doe",
   orgName: "Haelolabs",
   roleName: "Secretary",

@@ -10,7 +10,7 @@ interface OrderReceiptEmailProps {
   isAdmin?: boolean;
 }
 
-const LOGO_URL = "https://83153x3k0f.ufs.sh/f/WHfEA9ldMx5DkPX4zs1pln71ahxzZC0eTMXmsRfOt36yP42G";
+const LOGO_URL = "https://lh6ptlb953.ufs.sh/f/otE6z0gvCqP3UuvEfQFLOryNz0fkKC81E45URpsHneVZmIqg";
 
 export const OrderReceiptEmail = ({
   userFirstname,
@@ -25,7 +25,7 @@ export const OrderReceiptEmail = ({
     <Body style={styles.body}>
       <Container style={styles.container}>
         <Section style={styles.header}>
-          <Img src={LOGO_URL} width="90" height="54" style={{ margin: "0 auto" }} />
+          <Img src={LOGO_URL} width="150" height="50" style={{ margin: "0 auto" }} />
         </Section>
         <Section style={styles.card}>
           <Text style={styles.eyebrow}>{isAdmin ? "ADMIN NOTIFICATION" : "THANK YOU FOR YOUR PURCHASE"}</Text>

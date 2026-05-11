@@ -83,7 +83,7 @@ const METHOD_CONFIG = {
     addressLabel: "vreloj",
     fallbackAddress: "@vreloj",
     fallbackInstructions:
-      "Search for the username above in your Venmo app and send the exact amount. Include your Order ID in the note.",
+      "Search for the username below in your Venmo app and send the exact amount. Include your Order ID in the note.",
   },
   cashapp: {
     label: "Cash App",
@@ -94,18 +94,18 @@ const METHOD_CONFIG = {
     addressLabel: "Cashtag",
     fallbackAddress: "$sparklesss01",
     fallbackInstructions:
-      "Open Cash App, tap the $ icon, search the $Cashtag above and send the exact amount. Include your Order ID in the note.",
+      "Open Cash App, tap the $ icon, search the $Cashtag below and send the exact amount. Include your Order ID in the note.",
   },
   zelle: {
   label: "Zelle",
   Icon: Zap,
   iconColor: "text-purple-400", // Zelle's brand color is actually Purple
-  headerGradient: "from-purple-950/40 to-[#1a1a1a]",
-  headerBorder: "border-purple-900/30",
+  headerGradient: "from-blue-950/40 to-[#1a1a1a]",
+  headerBorder: "border-blue-900/30",
   addressLabel: "Zelle Registered Phone",
   fallbackAddress: "(682) 262-7443",
   fallbackInstructions:
-    "Send the exact amount via Zelle to the phone number above. Ensure the recipient name matches before confirming.",
+    "Send the exact amount via Zelle to the phone number below. Ensure the recipient name matches before confirming.",
 },
 } as const;
 

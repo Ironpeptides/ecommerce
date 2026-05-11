@@ -21,7 +21,7 @@ interface VerifyEmailProps {
 
 const baseUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
-  : 'https://yourdomain.com'; // ← fallback for local dev
+  : 'https://haelolabs.com'; // ← fallback for local dev
 
 export default function VerifyEmail({ verificationCode }: VerifyEmailProps) {
   return (
@@ -35,7 +35,7 @@ export default function VerifyEmail({ verificationCode }: VerifyEmailProps) {
             {/* Header / Logo */}
             <Section style={{ backgroundColor: '#252f3d', padding: '20px 0', textAlign: 'center' }}>
               <Img
-                src={`https://83153x3k0f.ufs.sh/f/WHfEA9ldMx5DkPX4zs1pln71ahxzZC0eTMXmsRfOt36yP42G`}
+                src={`https://lh6ptlb953.ufs.sh/f/otE6z0gvCqP3UuvEfQFLOryNz0fkKC81E45URpsHneVZmIqg`}
                 width="75"
                 height="45"
                 alt="Haelolabs Logo"
