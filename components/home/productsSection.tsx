@@ -36,8 +36,8 @@ export default function ProductsSection({ products, latestProducts }: {
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {products.map((product: any) => (
-            <ProductCard key={product.id} product={product} location={location} deviceInfo={deviceInfo} />
+          {products.map((product: any, i: number) => (
+            <ProductCard key={product.id} product={product} location={location} deviceInfo={deviceInfo} priority={i < 4}/>
           ))}
         </div>
       </section>
@@ -49,8 +49,8 @@ export default function ProductsSection({ products, latestProducts }: {
           <SectionTitle title="Latest Arrivals" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {latestProducts.map((product: any) => (
-            <ProductCard key={product.id} product={product} />
+          {latestProducts.map((product: any, i: number) => (
+            <ProductCard key={product.id} product={product} priority={i < 4} />
           ))}
         </div>
       </section>

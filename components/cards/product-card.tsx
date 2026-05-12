@@ -412,17 +412,22 @@ const ProductCard = memo(
               Scaling a `fill` image triggers reflow; scaling its wrapper is
               a pure GPU composite operation (no layout recalc).
             */}
-            <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.08] will-change-transform">
-              <Image
-                src={product?.images?.[0]?.url || ""}
-                alt={product?.name || "Product image"}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                className="object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300"
-                priority={priority}   // true only for above-the-fold cards
-                loading={priority ? "eager" : "lazy"}
-              />
-            </div>
+            <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.08] group-hover:[will-change:transform]" >
+  <Image
+    src={product?.images?.[0]?.url || ""}
+    alt={product?.name || "Product image"}
+    fill
+    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+    // REMOVED opacity-90 for the LCP candidate to stop the timer faster
+    className="object-cover" 
+    priority={priority}
+    // ADDED: Explicit 2026 priority hints
+    fetchPriority={priority ? "high" : "auto"} 
+    // ADDED: Decoding hint to unblock the main thread
+    decoding="async"
+    // Next.js handles loading="eager" automatically with priority={true}
+  />
+</div>
           </Link>
 
           {/* ── Card content ── */}

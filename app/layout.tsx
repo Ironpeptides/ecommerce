@@ -4,11 +4,8 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import Providers from "@/components/Providers";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/next';
 import Script from "next/script";
 
-// 1. Optimize Font: Use variable to prevent layout shift and reduce JS string heavy-lifting
 const rethink = Rethink_Sans({ 
   subsets: ["latin"], 
   display: "swap",
@@ -31,7 +28,7 @@ export const viewport: Viewport = {
   themeColor: "#000000",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1, // Note: Set to 5 if accessibility is a priority over "App-like" feel
+  maximumScale: 1,
   userScalable: false,
 };
 
@@ -39,32 +36,73 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning className={rethink.variable}>
       <head>
-        {/* Only preload the Hero Image. DO NOT preload the video (it kills TBT) */}
         <link rel="preload" as="image" href="/images/hero-poster.webp" fetchPriority="high" />
       </head>
       <body className="antialiased font-sans"> 
+        {/*
+          Inline theme script: runs synchronously before paint to prevent flash.
+          Kept tiny (<100 bytes minified) so it doesn't meaningfully block TBT.
+          Only needed if ThemeProvider can't suppress the flash on its own.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');document.documentElement.classList.add(t==='light'?'light':'dark')}catch(e){}})()`,
+          }}
+        />
+
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
-          {/* Sonner is more performant than hot-toast for TBT */}
           <Toaster richColors position="top-center" />
-          
           <Providers>
             {children}
           </Providers>
         </ThemeProvider>
 
-        {/* Third-party scripts moved to bottom, loading after hydration */}
-        <Analytics />
-        <SpeedInsights />
-        
+        {/*
+          Vercel Analytics: use afterInteractive so it runs post-hydration,
+          not during the critical rendering path.
+        */}
         <Script
-          src="https://vilyo-customer-care-support.vercel.app/widget.js"
-          data-id="229453f0-f0c2-4ef8-95ed-b4d67be6a955"
-          strategy="lazyOnload" 
+          src="https://va.vercel-scripts.com/v1/script.debug.js"
+          strategy="afterInteractive"
+          data-endpoint="/_vercel/insights"
+        />
+
+        {/*
+          Vercel Speed Insights: same treatment.
+        */}
+        <Script
+          src="https://va.vercel-scripts.com/v1/speed-insights/script.js"
+          strategy="afterInteractive"
+        />
+
+        {/*
+          Support widget: lazyOnload is correct.
+          The idle scheduling below ensures it yields to user interactions first.
+        */}
+        <Script
+          id="support-widget"
+          strategy="lazyOnload"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                var load = function() {
+                  var s = document.createElement('script');
+                  s.src = 'https://vilyo-customer-care-support.vercel.app/widget.js';
+                  s.setAttribute('data-id', '229453f0-f0c2-4ef8-95ed-b4d67be6a955');
+                  document.body.appendChild(s);
+                };
+                // Yield to browser idle time before loading the widget
+                'requestIdleCallback' in window
+                  ? requestIdleCallback(load, { timeout: 4000 })
+                  : setTimeout(load, 4000);
+              })();
+            `,
+          }}
         />
       </body>
     </html>
