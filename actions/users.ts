@@ -756,7 +756,7 @@ export async function sendInvite(data: InviteData) {
       const { data, error } = await resend.emails.send({
       from:  `Haelolabs <support@haelo.fit>`, 
       to: email,
-      subject: `Welcome to ${orgName} - ${roleName} Role Invitation`,
+      subject: `Welcome to Haelolabs - ${roleName} Role Invitation`,
       react: InvitationEmail({ orgName,roleName,inviteLink, userFirstname, invitedBy }),
     });
 

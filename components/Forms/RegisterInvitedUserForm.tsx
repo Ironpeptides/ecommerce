@@ -96,7 +96,7 @@ export default function RegisterInvitedUserForm({ userEmail, orgId, orgName, rol
           {/* Heading */}
           <div className="space-y-1">
             <h1 className="text-3xl font-bold tracking-tight text-white">
-              Welcome to {orgName} Team
+              Welcome to  Haelolabs Team {/* {orgName} */}
             </h1>
             <p className="text-zinc-400 text-sm">
               Please{" "}
