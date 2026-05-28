@@ -4,6 +4,19 @@ import { db } from "@/prisma/db";
 
 export async function createOrder(orderData: any) {
     try {
+        // Guard: check if an order already exists for this payment session
+        if (orderData.paymentSessionId) {
+            const existing = await db.order.findUnique({
+            where: { paymentSessionId: orderData.paymentSessionId },
+                include: { items: true }
+            });
+
+            if (existing) {
+                // Return the existing order instead of crashing
+                return existing;
+            }
+        }
+
         const order = await db.order.create({
             data: {
                 userId: orderData.userId,
