@@ -119,7 +119,7 @@ export const sidebarLinks: ISidebarLink[] = [
     title: "Inventory",
     icon: BaggageClaim,
     dropdown: true,
-    href: "/dashboard/inventory/products",
+    href: "/dashboard/products",
     permission: "products.read",
     dropdownMenu: [
       {

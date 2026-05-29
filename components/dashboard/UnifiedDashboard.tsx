@@ -218,7 +218,7 @@ function getQuickActions(user: AuthenticatedUser): QuickAction[] {
   if (hasPermission(user, "products.create")) {
     actions.push({
       label: "New Product",
-      href: "/dashboard/inventory/products/new",
+      href: "/dashboard/products",
       icon: Box,
       permission: "products.create",
     });

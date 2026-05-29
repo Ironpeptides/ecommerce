@@ -72,17 +72,17 @@ export const sidebarLinks: ISidebarLink[] = [
     title: "Inventory",
     icon: BaggageClaim,
     dropdown: true,
-    href: "/dashboard/inventory/products",
+    href: "/dashboard/products",
     permission: "products.read",
     dropdownMenu: [
       {
         title: "Categories",
-        href: "/dashboard/inventory/categories",
+        href: "/dashboard/products?tab=categories",
         permission: "categories.read",
       },
       {
         title: "Products",
-        href: "/dashboard/inventory/products",
+        href: "/dashboard/products",
         permission: "products.read",
       },
     ],
@@ -101,7 +101,7 @@ export const sidebarLinks: ISidebarLink[] = [
       },
       {
         title: "Customers",
-        href: "/dashboard/sales/customers",
+        href: "/dashboard/sales?tab=customers",
         permission: "customers.read",
       },
     ],
