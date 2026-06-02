@@ -29,7 +29,6 @@ import { signOut } from "next-auth/react";
 import { NotificationMenu } from "../NotificationMenu";
 import { UserDropdownMenu } from "../UserDropdownMenu";
 
-// ─── Buyer sidebar links (static, permission-free — already scoped by role) ───
 const buyerSidebarLinks: ISidebarLink[] = [
   {
     title: "My Orders",
@@ -89,40 +88,28 @@ const buyerSidebarLinks: ISidebarLink[] = [
   },
 ];
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 interface SidebarProps {
   session: Session;
   notifications?: Notification[];
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Returns true when the signed-in user has the "buyer" role.
- * Relies on session.user.roles (array) populated by your NextAuth callbacks.
- */
 function detectBuyer(user: Session["user"]): boolean {
-  // Prefer explicit roles array when available
   if (Array.isArray((user as any).roles)) {
     return (user as any).roles.some(
       (r: { roleName: string }) => r.roleName === "buyer"
     );
   }
-  // Fallback: check flat permissions — buyers have "cart.read", staff never do
   return (user as any).permissions?.includes("cart.read") ?? false;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
 export default function Sidebar({ session, notifications = [] }: SidebarProps) {
   const router = useRouter();
   const [openDropdownIndex, setOpenDropdownIndex] = useState<number | null>(null);
   const pathname = usePathname();
   const user = session.user;
 
-  // ── Role detection ──────────────────────────────────────────────────────────
   const isBuyer = detectBuyer(user);
 
-  // ── Permission helpers (staff only) ────────────────────────────────────────
   const hasPermission = (permission: string): boolean =>
     (user as any).permissions?.includes(permission) ?? false;
 
@@ -140,7 +127,6 @@ export default function Sidebar({ session, notifications = [] }: SidebarProps) {
           !link.dropdown || (link.dropdownMenu && link.dropdownMenu.length > 0)
       );
 
-  // ── Pick the right link list ────────────────────────────────────────────────
   const activeLinks: ISidebarLink[] = isBuyer
     ? buyerSidebarLinks
     : filterSidebarLinks(sidebarLinks);
@@ -155,24 +141,47 @@ export default function Sidebar({ session, notifications = [] }: SidebarProps) {
   }
 
   return (
-    <div className="fixed top-0 left-0 h-full w-[220px] lg:w-[280px] border-r bg-muted/40 hidden md:block overflow-y-auto">
+    <div
+      className={cn(
+        "fixed top-0 left-0 h-full w-[220px] lg:w-[280px] border-r hidden md:block overflow-y-auto",
+        isBuyer ? "bg-blue-50 dark:bg-blue-950/30" : "bg-muted/40"
+      )}
+    >
       <div className="flex h-full max-h-screen flex-col gap-2">
-        {/* ── Header ─────────────────────────────────────────────────────────── */}
-        <div className="flex flex-shrink-0 h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
+        {/* ── Header ── */}
+        <div
+          className={cn(
+            "flex flex-shrink-0 h-14 items-center border-b px-4 lg:h-[60px] lg:px-6",
+            isBuyer
+              ? "bg-blue-100 dark:bg-blue-900/40 border-blue-200 dark:border-blue-800"
+              : ""
+          )}
+        >
           <Logo href="/dashboard" />
           <NotificationMenu notifications={notifications} />
         </div>
 
-        {/* ── Optional buyer badge ────────────────────────────────────────────── */}
-        {isBuyer && (
-          <div className="mx-4 mt-1 rounded-md bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
+        {/* ── Role badge ── */}
+        {isBuyer ? (
+          <div className="mx-4 mt-1 rounded-md bg-blue-500/15 border border-blue-300/40 px-3 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-2">
+            <ShoppingBag className="h-3 w-3" />
             Buyer Portal
+          </div>
+        ) : (
+          <div className="mx-4 mt-1 rounded-md bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary flex items-center gap-2">
+            <LayoutGrid className="h-3 w-3" />
+            Admin Portal
           </div>
         )}
 
-        {/* ── Navigation ─────────────────────────────────────────────────────── */}
+        {/* ── Navigation ── */}
         <div className="flex-1">
           <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
+            {/* Section label */}
+            <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+              {isBuyer ? "My Account" : "Management"}
+            </p>
+
             {activeLinks.map((item, i) => {
               const Icon = item.icon;
               const isHrefIncluded =
@@ -183,12 +192,12 @@ export default function Sidebar({ session, notifications = [] }: SidebarProps) {
               return (
                 <div key={i}>
                   {item.dropdown ? (
-                    // ── Collapsible dropdown (staff links only) ───────────────
+                    // ── Collapsible dropdown (admin only) ──
                     <Collapsible open={isOpen}>
                       <CollapsibleTrigger
                         onClick={() => setOpenDropdownIndex(isOpen ? null : i)}
                         className={cn(
-                          "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary w-full",
+                          "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-muted/60 w-full",
                           isHrefIncluded && "bg-muted text-primary"
                         )}
                       >
@@ -219,12 +228,19 @@ export default function Sidebar({ session, notifications = [] }: SidebarProps) {
                       </CollapsibleContent>
                     </Collapsible>
                   ) : (
-                    // ── Flat link ─────────────────────────────────────────────
+                    // ── Flat link ──
                     <Link
                       href={item.href ?? "#"}
                       className={cn(
                         "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-                        pathname === item.href && "bg-muted text-primary"
+                        // Buyer active style: blue tint
+                        isBuyer && pathname === item.href &&
+                          "bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400",
+                        // Admin active style: default muted
+                        !isBuyer && pathname === item.href &&
+                          "bg-muted text-primary",
+                        // Buyer hover
+                        isBuyer && "hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400"
                       )}
                     >
                       <Icon className="h-4 w-4" />
@@ -235,22 +251,34 @@ export default function Sidebar({ session, notifications = [] }: SidebarProps) {
               );
             })}
 
-            {/* ── Live website link (staff only) ─────────────────────────────── */}
-            
-              <Link
-                href="/"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-                target="_blank"
-              >
-                <ExternalLink className="h-4 w-4" />
-                Live Website
-              </Link>
-          
+            {/* ── Live website link (admin only) ── */}
+            {!isBuyer && (
+              <>
+                <p className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+                  Quick Links
+                </p>
+                <Link
+                  href="/"
+                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                  target="_blank"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Live Website
+                </Link>
+              </>
+            )}
           </nav>
         </div>
 
-        {/* ── User menu ──────────────────────────────────────────────────────── */}
-        <div className="p-4">
+        {/* ── User menu ── */}
+        <div
+          className={cn(
+            "p-4 border-t",
+            isBuyer
+              ? "border-blue-200 dark:border-blue-800"
+              : "border-border"
+          )}
+        >
           <UserDropdownMenu
             username={session?.user?.name ?? ""}
             email={session?.user?.email ?? ""}

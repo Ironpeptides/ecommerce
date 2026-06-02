@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { Menu, ShoppingBag, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import {ModeToggle} from "@/components/mode-toggle"
+import { ModeToggle } from "@/components/mode-toggle";
 import { Session } from "next-auth";
 import Logo from "../global/Logo";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,36 @@ import { sidebarLinks } from "@/config/sidebar2";
 import { usePermission } from "@/hooks/usePermissions";
 import { UserDropdownMenu } from "../UserDropdownMenu";
 import { fetchUser } from "@/actions/profile";
+import {
+  ShoppingCart,
+  Heart,
+  Star,
+  Package,
+  User,
+  HeadphonesIcon,
+} from "lucide-react";
+import { ISidebarLink } from "@/config/sidebar2";
+
+// ── Reuse buyer links for the mobile sheet ──
+const buyerSidebarLinks: ISidebarLink[] = [
+  { title: "My Orders", href: "/dashboard/orders/buyer", icon: Package, permission: "orders.read", dropdown: false },
+  { title: "Wishlist", href: "/wishlist", icon: Heart, permission: "wishlist.read", dropdown: false },
+  { title: "Cart", href: "/cart", icon: ShoppingCart, permission: "cart.read", dropdown: false },
+  { title: "Checkout", href: "/cart", icon: ShoppingBag, permission: "checkout.read", dropdown: false },
+  { title: "My Reviews", href: "/dashboard/reviews", icon: Star, permission: "reviews.read", dropdown: false },
+  { title: "Support", href: "/contact", icon: HeadphonesIcon, permission: "support.read", dropdown: false },
+  { title: "Profile", href: "/dashboard/profile", icon: User, permission: "profile.read", dropdown: false },
+  { title: "Browse Store", href: "/", icon: LayoutGrid, permission: "categories.read", dropdown: false },
+];
+
+function detectBuyer(user: Session["user"]): boolean {
+  if (Array.isArray((user as any).roles)) {
+    return (user as any).roles.some(
+      (r: { roleName: string }) => r.roleName === "buyer"
+    );
+  }
+  return (user as any).permissions?.includes("cart.read") ?? false;
+}
 
 type User = {
   name: string;
@@ -28,6 +58,8 @@ export default function Navbar({ session }: { session: Session }) {
   const [userData, setUserData] = useState<User | null>(null);
   const userId = session?.user?.id;
 
+  const isBuyer = detectBuyer(session.user);
+
   useEffect(() => {
     async function loadUserData() {
       try {
@@ -37,51 +69,42 @@ export default function Navbar({ session }: { session: Session }) {
         console.error("Failed to fetch user data:", error);
       }
     }
-
     loadUserData();
   }, [userId]);
 
-  const filteredLinks = sidebarLinks.filter((link) => {
-    if (!hasPermission(link.permission)) {
-      return false;
-    }
-
-    if (link.dropdown && link.dropdownMenu) {
-      return link.dropdownMenu.some((item) => hasPermission(item.permission));
-    }
-
-    return true;
-  });
-
-  const mobileLinks = filteredLinks.reduce(
-    (acc, link) => {
-      if (!link.dropdown) {
-        acc.push({
-          title: link.title,
-          href: link.href || "#",
-          icon: link.icon,
-          permission: link.permission,
-        });
-        return acc;
+  // ── Admin: flatten staff links for mobile ──
+  const adminMobileLinks = sidebarLinks
+    .filter((link) => {
+      if (!hasPermission(link.permission)) return false;
+      if (link.dropdown && link.dropdownMenu) {
+        return link.dropdownMenu.some((item) => hasPermission(item.permission));
       }
-
-      if (link.dropdownMenu) {
-        link.dropdownMenu.forEach((item) => {
+      return true;
+    })
+    .reduce(
+      (acc, link) => {
+        if (!link.dropdown) {
+          acc.push({ title: link.title, href: link.href || "#", icon: link.icon });
+          return acc;
+        }
+        link.dropdownMenu?.forEach((item) => {
           if (hasPermission(item.permission)) {
-            acc.push({
-              title: item.title,
-              href: item.href,
-              icon: link.icon,
-              permission: item.permission,
-            });
+            acc.push({ title: item.title, href: item.href, icon: link.icon });
           }
         });
-      }
+        return acc;
+      },
+      [] as Array<{ title: string; href: string; icon: any }>
+    );
 
-      return acc;
-    },
-    [] as Array<{ title: string; href: string; icon: any; permission: string }>
-  );
+  // ── Buyer: flat list, no permission checks needed ──
+  const buyerMobileLinks = buyerSidebarLinks.map((l) => ({
+    title: l.title,
+    href: l.href ?? "#",
+    icon: l.icon,
+  }));
+
+  const mobileLinks = isBuyer ? buyerMobileLinks : adminMobileLinks;
 
   async function handleLogout() {
     try {
@@ -102,20 +125,49 @@ export default function Navbar({ session }: { session: Session }) {
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="flex flex-col">
+        <SheetContent
+          side="left"
+          className={cn(
+            "flex flex-col",
+            isBuyer && "bg-blue-50 dark:bg-blue-950/30"
+          )}
+        >
           <nav className="grid gap-2 text-lg font-medium">
             <Logo href="/dashboard" />
+
+            {/* Role badge in mobile sheet */}
+            <div
+              className={cn(
+                "rounded-md px-3 py-1.5 text-xs font-semibold flex items-center gap-2 mb-1",
+                isBuyer
+                  ? "bg-blue-500/15 border border-blue-300/40 text-blue-600 dark:text-blue-400"
+                  : "bg-primary/10 border border-primary/20 text-primary"
+              )}
+            >
+              {isBuyer ? (
+                <><ShoppingBag className="h-3 w-3" /> Buyer Portal</>
+              ) : (
+                <><LayoutGrid className="h-3 w-3" /> Admin Portal</>
+              )}
+            </div>
+
             {mobileLinks.map((item, i) => {
               const Icon = item.icon;
               const isActive = item.href === pathname;
-
               return (
                 <Link
                   key={i}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-                    isActive && "bg-muted text-primary"
+                    "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all",
+                    // Buyer active + hover
+                    isBuyer && isActive &&
+                      "bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400",
+                    isBuyer && !isActive &&
+                      "hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400",
+                    // Admin active + hover
+                    !isBuyer && isActive && "bg-muted text-primary",
+                    !isBuyer && !isActive && "hover:text-primary"
                   )}
                 >
                   <Icon className="h-4 w-4" />
@@ -126,20 +178,28 @@ export default function Navbar({ session }: { session: Session }) {
           </nav>
 
           <div className="mt-auto">
-            <Button onClick={handleLogout} size="sm" className="w-full">
+            <Button
+              onClick={handleLogout}
+              size="sm"
+              className={cn(
+                "w-full",
+                isBuyer && "bg-blue-600 hover:bg-blue-700 text-white"
+              )}
+            >
               Logout
             </Button>
           </div>
         </SheetContent>
       </Sheet>
 
-      <div className="w-full flex-1"></div>
+      <div className="w-full flex-1" />
       <div className="p-4">
         <UserDropdownMenu
           username={session?.user?.name ?? ""}
           email={session?.user?.email ?? ""}
           avatarUrl={
-            userData?.image ?? session?.user?.image ??
+            userData?.image ??
+            session?.user?.image ??
             "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20(54)-NX3G1KANQ2p4Gupgnvn94OQKsGYzyU.png"
           }
         />
