@@ -24,7 +24,6 @@ import {
 } from "lucide-react";
 import { ISidebarLink } from "@/config/sidebar2";
 
-// ── Reuse buyer links for the mobile sheet ──
 const buyerSidebarLinks: ISidebarLink[] = [
   { title: "My Orders", href: "/dashboard/orders/buyer", icon: Package, permission: "orders.read", dropdown: false },
   { title: "Wishlist", href: "/wishlist", icon: Heart, permission: "wishlist.read", dropdown: false },
@@ -56,8 +55,9 @@ export default function Navbar({ session }: { session: Session }) {
   const pathname = usePathname();
   const { hasPermission } = usePermission(session);
   const [userData, setUserData] = useState<User | null>(null);
-  const userId = session?.user?.id;
+  const [sheetOpen, setSheetOpen] = useState(false); // CHANGE 1: added sheet state
 
+  const userId = session?.user?.id;
   const isBuyer = detectBuyer(session.user);
 
   useEffect(() => {
@@ -72,7 +72,11 @@ export default function Navbar({ session }: { session: Session }) {
     loadUserData();
   }, [userId]);
 
-  // ── Admin: flatten staff links for mobile ──
+  // CHANGE 2: close sheet on route change (handles back/forward too)
+  useEffect(() => {
+    setSheetOpen(false);
+  }, [pathname]);
+
   const adminMobileLinks = sidebarLinks
     .filter((link) => {
       if (!hasPermission(link.permission)) return false;
@@ -97,7 +101,6 @@ export default function Navbar({ session }: { session: Session }) {
       [] as Array<{ title: string; href: string; icon: any }>
     );
 
-  // ── Buyer: flat list, no permission checks needed ──
   const buyerMobileLinks = buyerSidebarLinks.map((l) => ({
     title: l.title,
     href: l.href ?? "#",
@@ -118,7 +121,8 @@ export default function Navbar({ session }: { session: Session }) {
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-muted/60 px-4 lg:h-[60px] lg:px-6">
       <ModeToggle />
-      <Sheet>
+      {/* CHANGE 3: bind open state to Sheet */}
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="shrink-0 md:hidden">
             <Menu className="h-5 w-5" />
@@ -135,7 +139,6 @@ export default function Navbar({ session }: { session: Session }) {
           <nav className="grid gap-2 text-lg font-medium">
             <Logo href="/dashboard" />
 
-            {/* Role badge in mobile sheet */}
             <div
               className={cn(
                 "rounded-md px-3 py-1.5 text-xs font-semibold flex items-center gap-2 mb-1",
@@ -158,14 +161,13 @@ export default function Navbar({ session }: { session: Session }) {
                 <Link
                   key={i}
                   href={item.href}
+                  onClick={() => setSheetOpen(false)} // CHANGE 3 (cont): close on click
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all",
-                    // Buyer active + hover
                     isBuyer && isActive &&
                       "bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400",
                     isBuyer && !isActive &&
                       "hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400",
-                    // Admin active + hover
                     !isBuyer && isActive && "bg-muted text-primary",
                     !isBuyer && !isActive && "hover:text-primary"
                   )}

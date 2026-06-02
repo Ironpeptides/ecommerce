@@ -3,6 +3,9 @@ import { getOrdersByStatus, getOrdersAwaitingApproval } from "@/actions/ordersEc
 import { BaseTable } from "@/components/dashboard/Tables/BaseTable";
 import { columns } from "./columns";
 import { Badge } from "@/components/ui/badge";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/config/auth";
+import { redirect } from "next/navigation";
 
 const TABS = ["all", "pending", "shipped", "completed", "refunds", "awaiting-approval"] as const;
 
@@ -21,7 +24,19 @@ const TAB_META: Record<
   },
 };
 
+function isBuyer(user: any): boolean {
+  if (Array.isArray(user?.roles)) {
+    return user.roles.some((r: { roleName: string }) => r.roleName === "buyer");
+  }
+  return user?.permissions?.includes("cart.read") ?? false;
+}
+
 export default async function OrdersPage() {
+  const session = await getServerSession(authOptions);
+
+  if (!session) redirect("/login");
+  if (isBuyer(session.user)) redirect("/dashboard/orders/buyer");
+
   const [all, pending, shipped, completed, refunds, awaitingApproval] =
     await Promise.all([
       getOrdersByStatus("all"),
@@ -83,3 +98,6 @@ export default async function OrdersPage() {
     </div>
   );
 }
+
+// 
+
