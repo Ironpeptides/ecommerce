@@ -10,7 +10,7 @@ import Logo from "../global/Logo";
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { sidebarLinks } from "@/config/sidebar";
+import { sidebarLinks } from "@/config/sidebar2";
 import { usePermission } from "@/hooks/usePermissions";
 import { UserDropdownMenu } from "../UserDropdownMenu";
 import { fetchUser } from "@/actions/profile";
