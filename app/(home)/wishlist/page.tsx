@@ -146,7 +146,7 @@ export default function WishlistPage() {
               </Badge>
             )}
           </div>
-          <Link href="/shop">
+          <Link href="/">
             <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground">
               <ArrowLeft className="h-4 w-4" />
               Continue Shopping
@@ -166,7 +166,7 @@ export default function WishlistPage() {
                 Save items you love and come back to them anytime.
               </p>
             </div>
-            <Link href="/shop">
+            <Link href="/">
               <Button className="mt-2">Browse Products</Button>
             </Link>
           </div>

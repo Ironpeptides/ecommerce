@@ -119,29 +119,23 @@ function hasPermission(user: AuthenticatedUser, permission: string): boolean {
   return user.permissions?.includes(permission) ?? false;
 }
 
+/**
+ * Titles of sidebar links that buyers are allowed to see in Quick Navigation.
+ * Adjust these strings to match the `title` values in your sidebarLinks config.
+ */
+const BUYER_ALLOWED_TITLES = new Set(["Dashboard", "My Orders", "Orders"]);
+
 // Convert sidebar links to dashboard-friendly format
 function getDashboardLinksFromSidebar(user: AuthenticatedUser): DashboardLink[] {
   const userPermissions = getUserPermissions(user);
   const links: DashboardLink[] = [];
-  
-  const iconMap: Record<string, React.ElementType> = {
-    Home: Box,
-    ShoppingCart: ShoppingCart,
-    Heart: Heart,
-    Star: Star,
-    HeadphonesIcon: HeadphonesIcon,
-    User: User,
-    Users: Users,
-    BaggageClaim: Package,
-    CircleDollarSign: DollarSign,
-    Book: Book,
-    Settings: Settings,
-    BarChart4: BarChart2,
-  };
-  
+
+  const isBuyer = user.roles.some((r) => r.roleName.toLowerCase() === "buyer");
+
   const descriptionMap: Record<string, string> = {
     "Dashboard": "View your overview and analytics",
     "My Orders": "Track and manage your orders",
+    "Orders": "Track and manage your orders",
     "My Wishlist": "Your saved items",
     "My Reviews": "Manage your product reviews",
     "Support Tickets": "Get help when you need it",
@@ -153,25 +147,27 @@ function getDashboardLinksFromSidebar(user: AuthenticatedUser): DashboardLink[] 
     "Settings": "Configure system settings",
     "Reports": "View analytics reports",
   };
-  
-  sidebarLinks.forEach(link => {
-    if (hasPermission(user, link.permission)) {
-      let icon = link.icon;
-      // @ts-ignore - handle icon mapping
-      const iconName = link.icon.name || link.icon.toString().split(' ')[1];
-      const isBuyer = user.roles.some(r => r.roleName === "buyer");
-      
-      links.push({
-        label: link.title,
-        href:  isBuyer && link.title == "Orders" ? "/dashboard/orders/buyer" : link.href || "#",
-        icon: link.icon,
-        description: descriptionMap[link.title] || `Access ${link.title.toLowerCase()}`,
-        badge: link.badge,
-        permission: link.permission,
-      });
-    }
+
+  sidebarLinks.forEach((link) => {
+    if (!hasPermission(user, link.permission)) return;
+
+    // For buyers, only show the explicitly allowed navigation cards
+    if (isBuyer && !BUYER_ALLOWED_TITLES.has(link.title)) return;
+
+    const href = isBuyer && (link.title === "My Orders" || link.title === "Orders")
+      ? "/dashboard/orders/buyer"
+      : link.href || "#";
+
+    links.push({
+      label: link.title,
+      href,
+      icon: link.icon,
+      description: descriptionMap[link.title] || `Access ${link.title.toLowerCase()}`,
+      badge: link.badge,
+      permission: link.permission,
+    });
   });
-  
+
   return links;
 }
 
@@ -181,8 +177,8 @@ function getQuickActions(user: AuthenticatedUser): QuickAction[] {
   
   if (hasPermission(user, "orders.create")) {
     actions.push({
-      label: "New Order",
-      href: "/",
+      label: "Browse Products",
+      href: "/cart",
       icon: ShoppingCart,
       permission: "orders.create",
     });
@@ -353,8 +349,6 @@ function WelcomeHero({ user }: { user: AuthenticatedUser }) {
   }, []);
 
   // ── Memoized Calculations ────────────────────────────────────────────────
-  // We use useMemo so these only recalculate if 'user' or 'roleNames' change, 
-  // NOT every second when 'now' updates.
   const userTimezone = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
   
   const tzCity = useMemo(() => {
@@ -378,9 +372,7 @@ function WelcomeHero({ user }: { user: AuthenticatedUser }) {
       : null;
   }, [user.roles]);
 
-  
   // ── Formatted Time ────────────────────────────────────────────────────────
-  // Updated to include seconds
   const formattedTime = new Intl.DateTimeFormat("en-US", {
     hour: "numeric",
     minute: "2-digit",
@@ -434,7 +426,7 @@ function WelcomeHero({ user }: { user: AuthenticatedUser }) {
               ))}
             </div>
 
-            {/* Live clock: High-precision Professional Look */}
+            {/* Live clock */}
             <div className="group flex items-center gap-3 rounded-xl bg-gray-50/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 p-1.5 pr-4 transition-all hover:border-emerald-500/30">
               <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
                 <span className="relative flex h-2 w-2">
@@ -478,17 +470,15 @@ export default function UnifiedDashboard({ user }: UnifiedDashboardProps) {
   const quickActions = useMemo(() => getQuickActions(user), [user]);
   const { cards: stats } = useDashboardStats(user);
 
-  const isBuyer = user.roles.some(r => r.roleName === "buyer");
+  const isBuyer = user.roles.some((r) => r.roleName.toLowerCase() === "buyer");
   
   // Get pending orders count for buyer
   const pendingOrders = useMemo(() => {
-  if (userPermissions.has("orders.read")) {
-    // You could fetch this from an API or state
-    return 3; // Replace with actual pending orders count from your data
-  }
-  return 0;
-}, [userPermissions]);
-
+    if (userPermissions.has("orders.read")) {
+      return 3; // Replace with actual pending orders count from your data
+    }
+    return 0;
+  }, [userPermissions]);
 
   const wishlistCount = userPermissions.has("wishlist.read") ? 8 : 0;
 
@@ -502,7 +492,7 @@ export default function UnifiedDashboard({ user }: UnifiedDashboardProps) {
           <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30 px-4 py-3">
             <p className="text-sm text-blue-800 dark:text-blue-300 flex items-center gap-2">
               <Bell className="h-4 w-4" />
-              You may have {/* {pendingOrders} */} a pending order that need attention.
+              You may have a pending order that need attention.
             </p>
           </div>
         )}
@@ -511,7 +501,7 @@ export default function UnifiedDashboard({ user }: UnifiedDashboardProps) {
           <div className="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 px-4 py-3">
             <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
               <Heart className="h-4 w-4 text-rose-500" />
-              You may  have {/* {wishlistCount} */} items in your wishlist. Add to cart!
+              You may have items in your wishlist. Add to cart!
             </p>
           </div>
         )}
@@ -570,7 +560,7 @@ export default function UnifiedDashboard({ user }: UnifiedDashboardProps) {
           </div>
         )}
 
-        {/* Navigation Sections - Matches Sidebar exactly */}
+        {/* ── Quick Navigation ── */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
@@ -604,17 +594,11 @@ export default function UnifiedDashboard({ user }: UnifiedDashboardProps) {
                     <p className="text-xs text-gray-500 dark:text-gray-400">{link.description}</p>
                   </div>
 
-<div className="mt-4 flex items-center gap-1 text-xs font-medium text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
-  <a
-    href={isBuyer ? "/dashboard/orders/buyer" : link.href}
-    className="flex items-center gap-1"
-  >
-    Go to {isBuyer ? "Buyer Portal" : link.href}
-    <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-  </a>
-</div>
-
-
+                  {/* "Go to" link — uses the already-resolved href from getDashboardLinksFromSidebar */}
+                  <div className="mt-4 flex items-center gap-1 text-xs font-medium text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span>Go to {link.label}</span>
+                    <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                  </div>
                 </div>
               </button>
             ))}

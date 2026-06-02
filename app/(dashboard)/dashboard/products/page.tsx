@@ -61,6 +61,20 @@ export default async function ProductsPage() {
   value: cat.id,
   label: cat.title
 }));
+const buyerRole = user.roles.some((r: { roleName: string }) => r.roleName === "buyer");
+
+if (buyerRole) {
+  return (
+    <div className="flex h-full items-center justify-center p-8">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold tracking-tight">Not Authorized</h2>
+        <p className="text-muted-foreground mt-2 text-sm">
+          You don't have permission to view this page.
+        </p>
+      </div>
+    </div>
+  );
+}
 
   return (
     <div className="p-8">

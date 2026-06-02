@@ -106,7 +106,7 @@ export function ReviewClient({ product, existingReview, userId }: ReviewClientPr
             </p>
           </div>
           <div className="flex gap-3 justify-center pt-2">
-            <Link href="/shop">
+            <Link href="/">
               <Button variant="outline">Continue Shopping</Button>
             </Link>
             <Link href="/dashboard/orders/buyer">
