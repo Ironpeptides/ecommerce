@@ -40,7 +40,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   XCircle,
   Loader2,
@@ -53,6 +53,8 @@ import {
   CreditCard,
   Coins,
   RefreshCw,
+  X,
+  ArrowRight,
 } from "lucide-react";
 import CheckoutForm from "../../components/checkout/checkoutForm";
 
@@ -179,12 +181,24 @@ const CheckoutContent = () => {
   const { data: session, status: authStatus } = useSession();
   const isSubscriber = session?.user?.subscriptionStatus === "active";
   const [pricingConfig, setPricingConfig] = useState<PricingConfig | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const proceedButtonRef = useRef<HTMLButtonElement>(null);
 
   // ── Subscription redirect — preserves checkout session across navigation ────
   // We store the sessionId in localStorage before redirecting so the user can
   // return to exactly this checkout page after subscribing, without losing
   // their cart. The billing page should read "checkout_session_id" on mount
   // and redirect back here if it exists.
+
+  useEffect(() => {
+  if (status !== "ready") return;
+  proceedButtonRef.current?.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+}, [paymentMethod, status]);
+
+
   const handleSubscribe = useCallback(() => {
     if (sessionId) {
       try {
@@ -249,6 +263,11 @@ const CheckoutContent = () => {
   useEffect(() => {
     loadCheckout();
   }, [loadCheckout]);
+
+
+
+
+
 
   // ── Pricing summary — only recalculates when config changes ───────────────
   const pricingSummary = useMemo(() => {
@@ -446,6 +465,35 @@ const CheckoutContent = () => {
 
       {/* Checkout Form */}
       <div className="max-w-2xl mx-auto">
+  <button
+    ref={proceedButtonRef}
+    onClick={() => setShowPaymentModal(true)}
+    className="w-full py-4 px-6 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+  >
+    Proceed with {PAYMENT_METHODS.find(m => m.id === paymentMethod)?.label}
+    <ArrowRight size={18} />
+  </button>
+</div>
+
+{/* Payment Modal */}
+{showPaymentModal && (
+  <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-0 sm:p-4">
+    <div className="bg-[#09090b] w-full sm:max-w-2xl sm:rounded-2xl border border-white/10 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+      {/* Modal Header */}
+      <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-white/10 bg-[#09090b]">
+        <p className="text-sm font-semibold text-slate-300">
+          Complete Payment · {PAYMENT_METHODS.find(m => m.id === paymentMethod)?.label}
+        </p>
+        <button
+          onClick={() => setShowPaymentModal(false)}
+          className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-slate-200 transition-colors"
+        >
+          <X size={18} />
+        </button>
+      </div>
+
+      {/* Modal Body */}
+      <div className="p-4 sm:p-6">
         <CheckoutForm
           cartItems={cartItems}
           coupon={coupon}
@@ -456,6 +504,9 @@ const CheckoutContent = () => {
           pricingConfig={pricingConfig}
         />
       </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };
