@@ -18,13 +18,16 @@ export default async function CouponsPage() {
       where: {  
         roles: {
           some: {
-            roleName: "marketer"
+            roleName: "affiliate_"  
           }
         }
       },
       select: { id: true, name: true, email: true },
     }),
   ]);
+
+  console.log("Fetched coupons:", coupons);
+  console.log("Fetched marketers:", marketers);
 
   return <CouponsClient coupons={coupons} marketers={marketers} />;
 }
