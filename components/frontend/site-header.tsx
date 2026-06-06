@@ -34,7 +34,7 @@ const shopCategories = [
 ];
 
 const aboutLinks = [
-  { icon: MilestoneIcon, title: "About Us", description: "Get in touch with our support team", href: "/about-us" },
+  { icon: MilestoneIcon, title: "About Us", description: "Get to know us better", href: "/about-us" },
   { icon: Mail, title: "Contact Us", description: "Get in touch with our support team", href: "/contact" },
   { icon: Phone, title: "Support", description: "Technical and customer support", href: "/contact" },
 ];

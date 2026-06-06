@@ -164,6 +164,30 @@ export const sidebarLinks: ISidebarLink[] = [
     ],
   },
    {
+    title: "Affiliate",
+    icon: CircleDollarSign,
+    dropdown: true,
+    href: "/dashboard/affiliate",
+    permission: "affiliate.read",
+    dropdownMenu: [
+      {
+        title: "All Affiliates",
+        href: "/dashboard/affiliate",
+        permission: "affiliate.read",
+      },
+      {
+        title: "Customers",
+        href: "/dashboard/affiliate?tab=customers",
+        permission: "customers.read",
+      },
+      {
+        title: "Transactions",
+        href: "/dashboard/affiliate?tab=transactions",
+        permission: "affiliate.read",
+      },
+    ],
+  },
+   {
     title: "Blogs",
     icon: Book,
     dropdown: false,

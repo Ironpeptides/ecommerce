@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, ShoppingBag, LayoutGrid } from "lucide-react";
+import { Menu, ShoppingBag, LayoutGrid, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -35,14 +35,43 @@ const buyerSidebarLinks: ISidebarLink[] = [
   { title: "Browse Store", href: "/", icon: LayoutGrid, permission: "categories.read", dropdown: false },
 ];
 
-function detectBuyer(user: Session["user"]): boolean {
-  if (Array.isArray((user as any).roles)) {
-    return (user as any).roles.some(
-      (r: { roleName: string }) => r.roleName === "buyer"
-    );
-  }
-  return (user as any).permissions?.includes("cart.read") ?? false;
+type PortalKey = 'buyer' | 'affiliate_' | 'admin';
+interface PortalDetails {
+  label: string;
+  icon: React.ReactNode;
+  className: string;
+  sectionLabel: string;
 }
+
+
+function getUserRole(user: Session["user"]): string {
+  if (Array.isArray((user as any).roles) && (user as any).roles.length > 0) {
+    return (user as any).roles[0].roleName as string;
+  }
+  if ((user as any).permissions?.includes("cart.read")) return "buyer";
+  return "admin";
+}
+
+const portalConfig = {
+  buyer: {
+    label: "Buyer Portal",
+    icon: <ShoppingBag className="h-3 w-3" />,
+    className: "bg-blue-500/15 border-blue-300/40 text-blue-600 dark:text-blue-400",
+    sectionLabel: "My Account",
+  },
+  affiliate_: {
+    label: "Affiliate Portal",
+    icon: <Users className="h-3 w-3" />,
+    className: "bg-green-500/15 border-green-300/40 text-green-600 dark:text-green-400",
+    sectionLabel: "My Account",
+  },
+  admin: {
+    label: "Admin Portal",
+    icon: <LayoutGrid className="h-3 w-3" />,
+    className: "bg-primary/10 border-primary/20 text-primary",
+    sectionLabel: "Management",
+  },
+} as const satisfies Record<PortalKey, PortalDetails>;
 
 type User = {
   name: string;
@@ -55,10 +84,13 @@ export default function Navbar({ session }: { session: Session }) {
   const pathname = usePathname();
   const { hasPermission } = usePermission(session);
   const [userData, setUserData] = useState<User | null>(null);
-  const [sheetOpen, setSheetOpen] = useState(false); // CHANGE 1: added sheet state
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const user = session.user;
 
   const userId = session?.user?.id;
-  const isBuyer = detectBuyer(session.user);
+  const role = getUserRole(user);
+  const portal = portalConfig[role as keyof typeof portalConfig] ?? portalConfig.admin;
+  const isBuyer = role === "buyer";
 
   useEffect(() => {
     async function loadUserData() {
@@ -72,7 +104,6 @@ export default function Navbar({ session }: { session: Session }) {
     loadUserData();
   }, [userId]);
 
-  // CHANGE 2: close sheet on route change (handles back/forward too)
   useEffect(() => {
     setSheetOpen(false);
   }, [pathname]);
@@ -121,7 +152,6 @@ export default function Navbar({ session }: { session: Session }) {
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-muted/60 px-4 lg:h-[60px] lg:px-6">
       <ModeToggle />
-      {/* CHANGE 3: bind open state to Sheet */}
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="shrink-0 md:hidden">
@@ -139,19 +169,15 @@ export default function Navbar({ session }: { session: Session }) {
           <nav className="grid gap-2 text-lg font-medium">
             <Logo href="/dashboard" />
 
+            {/* ── Role badge ── */}
             <div
               className={cn(
-                "rounded-md px-3 py-1.5 text-xs font-semibold flex items-center gap-2 mb-1",
-                isBuyer
-                  ? "bg-blue-500/15 border border-blue-300/40 text-blue-600 dark:text-blue-400"
-                  : "bg-primary/10 border border-primary/20 text-primary"
+                "rounded-md border px-3 py-1.5 text-xs font-semibold flex items-center gap-2 mb-1",
+                portal.className
               )}
             >
-              {isBuyer ? (
-                <><ShoppingBag className="h-3 w-3" /> Buyer Portal</>
-              ) : (
-                <><LayoutGrid className="h-3 w-3" /> Admin Portal</>
-              )}
+              {portal.icon}
+              {portal.label}
             </div>
 
             {mobileLinks.map((item, i) => {
@@ -161,7 +187,7 @@ export default function Navbar({ session }: { session: Session }) {
                 <Link
                   key={i}
                   href={item.href}
-                  onClick={() => setSheetOpen(false)} // CHANGE 3 (cont): close on click
+                  onClick={() => setSheetOpen(false)}
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all",
                     isBuyer && isActive &&

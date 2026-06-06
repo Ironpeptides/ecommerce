@@ -200,6 +200,17 @@ export const permissions: ModulePermissions[] = [
       delete: "orders.delete",
     },
   },
+
+  {
+    display: "Affiliate",
+    name: "affiliate",
+    permissions: {
+      create: "affiliate.create",
+      read: "affiliate.read",
+      update: "affiliate.update",
+      delete: "affiliate.delete",
+    },
+  },
   {
     display: "Reports",
     name: "reports",
@@ -347,6 +358,7 @@ export const staffPermissions = [
   "categories.update",
   "orders.update",
   "sales.read",
+  "affiliate.read",
 ];
 
 export const managerPermissions = [
@@ -387,6 +399,10 @@ export const adminPermissions = [
   "blogs.create",
   "blogs.update",
   "blogs.delete",
+  "affiliate.create",
+  "affiliate.update",
+  "affiliate.delete",
+  "affiliate.read",
 ];
 
 /* export const buyerPermissions = [

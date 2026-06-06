@@ -14,6 +14,7 @@ import {
   HeadphonesIcon,
   ShoppingBag,
   LayoutGrid,
+  Users,
 } from "lucide-react";
 import {
   Collapsible,
@@ -93,14 +94,43 @@ interface SidebarProps {
   notifications?: Notification[];
 }
 
-function detectBuyer(user: Session["user"]): boolean {
-  if (Array.isArray((user as any).roles)) {
-    return (user as any).roles.some(
-      (r: { roleName: string }) => r.roleName === "buyer"
-    );
-  }
-  return (user as any).permissions?.includes("cart.read") ?? false;
+interface PortalDetails {
+  label: string;
+  icon: React.ReactNode;
+  className: string;
+  sectionLabel: string;
 }
+
+type PortalKey = 'buyer' | 'affiliate_' | 'admin';
+
+function getUserRole(user: Session["user"]): string {
+  if (Array.isArray((user as any).roles) && (user as any).roles.length > 0) {
+    return (user as any).roles[0].roleName as string;
+  }
+  if ((user as any).permissions?.includes("cart.read")) return "buyer";
+  return "admin";
+}
+
+const portalConfig = {
+  buyer: {
+    label: "Buyer Portal",
+    icon: <ShoppingBag className="h-3 w-3" />,
+    className: "bg-blue-500/15 border-blue-300/40 text-blue-600 dark:text-blue-400",
+    sectionLabel: "My Account",
+  },
+  affiliate_: {
+    label: "Affiliate Portal",
+    icon: <Users className="h-3 w-3" />,
+    className: "bg-green-500/15 border-green-300/40 text-green-600 dark:text-green-400",
+    sectionLabel: "My Account",
+  },
+  admin: {
+    label: "Admin Portal",
+    icon: <LayoutGrid className="h-3 w-3" />,
+    className: "bg-primary/10 border-primary/20 text-primary",
+    sectionLabel: "Management",
+  },
+} as const satisfies Record<PortalKey, PortalDetails>;
 
 export default function Sidebar({ session, notifications = [] }: SidebarProps) {
   const router = useRouter();
@@ -108,7 +138,9 @@ export default function Sidebar({ session, notifications = [] }: SidebarProps) {
   const pathname = usePathname();
   const user = session.user;
 
-  const isBuyer = detectBuyer(user);
+  const role = getUserRole(user);
+  const portal = portalConfig[role as keyof typeof portalConfig] ?? portalConfig.admin;
+  const isBuyer = role === "buyer";
 
   const hasPermission = (permission: string): boolean =>
     (user as any).permissions?.includes(permission) ?? false;
@@ -162,24 +194,21 @@ export default function Sidebar({ session, notifications = [] }: SidebarProps) {
         </div>
 
         {/* ── Role badge ── */}
-        {isBuyer ? (
-          <div className="mx-4 mt-1 rounded-md bg-blue-500/15 border border-blue-300/40 px-3 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-2">
-            <ShoppingBag className="h-3 w-3" />
-            Buyer Portal
-          </div>
-        ) : (
-          <div className="mx-4 mt-1 rounded-md bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary flex items-center gap-2">
-            <LayoutGrid className="h-3 w-3" />
-            Admin Portal
-          </div>
-        )}
+        <div
+          className={cn(
+            "mx-4 mt-1 rounded-md border px-3 py-1.5 text-xs font-semibold flex items-center gap-2",
+            portal.className
+          )}
+        >
+          {portal.icon}
+          {portal.label}
+        </div>
 
         {/* ── Navigation ── */}
         <div className="flex-1">
           <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-            {/* Section label */}
             <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
-              {isBuyer ? "My Account" : "Management"}
+              {portal.sectionLabel}
             </p>
 
             {activeLinks.map((item, i) => {
@@ -192,7 +221,6 @@ export default function Sidebar({ session, notifications = [] }: SidebarProps) {
               return (
                 <div key={i}>
                   {item.dropdown ? (
-                    // ── Collapsible dropdown (admin only) ──
                     <Collapsible open={isOpen}>
                       <CollapsibleTrigger
                         onClick={() => setOpenDropdownIndex(isOpen ? null : i)}
@@ -228,18 +256,14 @@ export default function Sidebar({ session, notifications = [] }: SidebarProps) {
                       </CollapsibleContent>
                     </Collapsible>
                   ) : (
-                    // ── Flat link ──
                     <Link
                       href={item.href ?? "#"}
                       className={cn(
                         "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-                        // Buyer active style: blue tint
                         isBuyer && pathname === item.href &&
                           "bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400",
-                        // Admin active style: default muted
                         !isBuyer && pathname === item.href &&
                           "bg-muted text-primary",
-                        // Buyer hover
                         isBuyer && "hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400"
                       )}
                     >
@@ -274,9 +298,7 @@ export default function Sidebar({ session, notifications = [] }: SidebarProps) {
         <div
           className={cn(
             "p-4 border-t",
-            isBuyer
-              ? "border-blue-200 dark:border-blue-800"
-              : "border-border"
+            isBuyer ? "border-blue-200 dark:border-blue-800" : "border-border"
           )}
         >
           <UserDropdownMenu
