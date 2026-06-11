@@ -56,7 +56,7 @@ export default function RegisterForm() {
     );
 
     const orgData: OrgData = {
-      name: data.orgName,
+      name: data.orgName || 'Haelolabs',
       slug: generateSlug(data.orgName),
       timezone: country?.timezone,
       currency: country?.value,
@@ -125,6 +125,7 @@ export default function RegisterForm() {
                 name="orgName"
                 icon={Warehouse}
                 placeholder="e.g. PeptidesInc"
+                isRequired={false}
                 
               />
               <FormSelectInput
@@ -173,7 +174,7 @@ export default function RegisterForm() {
                 name="email"
                 icon={Mail}
                 placeholder="you@example.com"
-                isRequired={false}
+                isRequired={true}
               />
             </div>
 

@@ -104,14 +104,14 @@ export async function createUser(data: UserProps, orgData:OrgData) {
          },
       });
 
-      if(existingOrganisation){
+      /* if(existingOrganisation){
         return {
           error: `Organization Name ${orgData.name} is already taken`,
           status: 409,
           data: null,
         };
 
-      }
+      } */
 
 
       const org = await db.organisation.create({
