@@ -472,7 +472,7 @@ export async function sendResetLink(email: string) {
 
     const resetPasswordLink = `${baseUrl}/reset-password?token=${token}&&email=${email}`;
     const { data, error } = await resend.emails.send({
-      from: "NextAdmin <info@desishub.com>",
+      from: "Haelolabs <support@haelo.fit>",
       to: email,
       subject: "Reset Password Request",
       react: ResetPasswordEmail({ userFirstname, resetPasswordLink }),
@@ -526,7 +526,7 @@ export async function updateUserPassword(id: string, data: PasswordProps) {
         password: hashedPassword,
       },
     });
-    revalidatePath("/dashboard/clients");
+    revalidatePath("/dashboard/settings/profile");
     return { error: null, status: 200 };
   } catch (error) {
     console.log(error);
