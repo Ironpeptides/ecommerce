@@ -16,14 +16,14 @@ const PAYMENT_ADDRESSES = {
   venmo: {
     address:      process.env.PAYMENT_VENMO_ADDRESS      ?? "@vreloj",
     identifier:   "Venmo",
-    instructions: "Search for the username below in your Venmo app and send the exact amount. Include your Order ID in the payment note for faster verification.",
+    instructions: "Search for the username below in your Venmo app and send the exact amount. Include your Order ID in the payment note for faster verification. Don't mention anything about peptides.If a must use,'Research material",
     minAmount:    1,
     currency:     "USD",
   },
   cashapp: {
     address:      process.env.PAYMENT_CASHAPP_ADDRESS   ?? "$sparklesss01",
     identifier:   "Cash App",
-    instructions: "Open Cash App, tap the $ icon, search for the $Cashtag below and send the exact amount. Include your Order ID in the note.",
+    instructions: "Open Cash App, tap the $ icon, search for the $Cashtag below and send the exact amount. Include your Order ID in the note. Don't mention anything about peptides.If a must use,'Research material",
     minAmount:    1,
     currency:     "USD",
   },
@@ -31,7 +31,7 @@ const PAYMENT_ADDRESSES = {
     // Standardized 10-digit format for better UX
     address:      process.env.PAYMENT_ZELLE_ADDRESS      ?? "(682) 262-7443",
     identifier:   "Zelle",
-    instructions: "Open your bank app, navigate to Zelle, and send to the phone number below. Include your Order ID in the memo field. Zelle transfers are instant and irreversible.",
+    instructions: "Open your bank app, navigate to Zelle, and send to the phone number below. Include your Order ID in the memo field. Zelle transfers are instant and irreversible. Don't mention anything about peptides.If a must use,'Research material'",
     minAmount:    1,
     currency:     "USD",
   },

@@ -502,6 +502,7 @@ model Coupon {
   isActive       Boolean      @default(true)
 
   // Marketer/affiliate link
+  // buyer-affiliate 
   marketerId     String?
   marketer       User?        @relation("MarketerCoupons", fields: [marketerId], references: [id])
   commissionRate Float? // e.g. 0.10 = 10% commission per sale

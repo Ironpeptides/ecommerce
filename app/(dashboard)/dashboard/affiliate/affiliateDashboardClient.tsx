@@ -361,7 +361,7 @@ export function AffiliateDashboardClient({
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {coupons.length === 0 ? (
             <p className="text-sm text-muted-foreground col-span-full text-center py-10">
-              No coupons assigned to your account.
+              No coupons assigned to your account. Contact us to create your unique referral code and start earning commissions!
             </p>
           ) : (
             coupons.map((coupon) => (

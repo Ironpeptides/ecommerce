@@ -94,7 +94,7 @@ const METHOD_CONFIG = {
     addressLabel: "Cashtag",
     fallbackAddress: "$sparklesss01",
     fallbackInstructions:
-      "Open Cash App, tap the $ icon, search the $Cashtag below and send the exact amount. Include your Order ID in the note.",
+      `Open Cash App, tap the $ icon, search the $Cashtag below and send the exact amount. Include your Order ID in the note. Don't mention anything about peptides.If a must use,'Research chemicals'.`,
   },
   zelle: {
   label: "Zelle",
@@ -242,7 +242,7 @@ const ManualPaymentForm = ({
       { icon: CheckCircle,title: "Confirm & Return",   description: "Tap 'Pay', then come back here and click 'I Have Paid'." },
     ];
     if (paymentMethod === "zelle") return [
-      { icon: Smartphone, title: "Open Your Bank App", description: "Open your bank or credit union app. Most major US banks support Zelle built-in — no separate app needed." },
+      { icon: Smartphone, title: "Open Your Bank App", description: "Open your bank or credit union app. Most major US banks support Zelle built-in — no separate app needed. Don't mention anything about peptides.If a must use,'Research chemicals" },
       { icon: Search,     title: "Find Zelle",          description: "Look for 'Zelle' or 'Send Money' in your bank app's menu." },
       { icon: Send,       title: "Send to Our Email",   description: `Send to "${paymentDetails?.address || "(682) 262-7443"}". Enter the exact amount: ${fmt(breakdown.grandTotal)}. Add your Order ID in the memo.` },
       { icon: CheckCircle,title: "Confirm & Return",   description: "Confirm the payment in your app, then return here and click 'I Have Paid'." },
@@ -332,7 +332,7 @@ const ManualPaymentForm = ({
             </button>
           </div>
           <p className="text-gray-400 text-sm mt-2">
-            Complete your payment using the instructions below
+            Complete your payment using the instructions below and click "I Have Paid" button below when done.
           </p>
         </div>
 
@@ -529,15 +529,17 @@ const ManualPaymentForm = ({
                   <>
                     <li>Zelle transfers are instant and irreversible</li>
                     <li>Include your Order ID in the memo field</li>
+                    <li>Don't mention anything about peptides.If a must use "Research material"</li>
                     <li>Allow 1–2 hours for admin verification</li>
                   </>
                 ) : (
                   <>
                     <li>Include your Order ID in the payment note</li>
                     <li>Allow 1–2 hours for manual verification</li>
+                    <li>Don't mention anything about peptides.If a must use "Research material"</li>
                   </>
                 )}
-                <li>Your order ships after admin verification</li>
+                <li>Your order ships after admin verification.Click "I have paid" buton below when done.</li>
               </ul>
             </div>
           </div>

@@ -177,7 +177,7 @@ const CheckoutContent = () => {
   const [cartItems, setCartItems]         = useState<any[]>([]);
   const [coupon, setCoupon]               = useState<any>(null);
   const [error, setError]                 = useState<string | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("payblis");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("venmo");
   const { data: session, status: authStatus } = useSession();
   const isSubscriber = session?.user?.subscriptionStatus === "active";
   const [pricingConfig, setPricingConfig] = useState<PricingConfig | null>(null);
