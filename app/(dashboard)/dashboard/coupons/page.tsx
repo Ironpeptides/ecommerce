@@ -15,15 +15,17 @@ export default async function CouponsPage() {
     }),
     // fetch users who are marketers to populate the marketer dropdown
     db.user.findMany({
-      where: {  
-        roles: {
-          some: {
-            roleName: "affiliate_"  
-          }
-        }
+  where: {
+    roles: {
+      some: {
+        roleName: {
+          in: ["affiliate_", "buyer_"], 
+        },
       },
-      select: { id: true, name: true, email: true },
-    }),
+    },
+  },
+  select: { id: true, name: true, email: true },
+}),
   ]);
 
   console.log("Fetched coupons:", coupons);
