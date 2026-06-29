@@ -19,7 +19,7 @@ export default async function CouponsPage() {
     roles: {
       some: {
         roleName: {
-          in: ["affiliate_", "buyer_"], 
+          in: ["affiliate_", "buyer"], 
         },
       },
     },
