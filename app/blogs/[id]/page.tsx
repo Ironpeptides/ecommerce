@@ -11,32 +11,72 @@ type Props = {
   params: Promise<{ id: string }>;
 };
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://haelolabs.com";
+const SITE_NAME = "Haelo Labs";
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const blog = await getBlogById(id);
-  if (!blog) return { title: "Blog Not Found" };
+
+  if (!blog) {
+    return {
+      title: "Blog Not Found",
+      robots: { index: false, follow: false },
+    };
+  }
 
   const description = blog.description ?? undefined;
-  const images = blog.thumbnail ? [{ url: blog.thumbnail }] : [];
+  const canonicalUrl = `${SITE_URL}/blogs/${id}`;
+  const ogImages = blog.thumbnail
+    ? [{ url: blog.thumbnail, width: 1200, height: 630, alt: blog.title }]
+    : [];
+
+  // Simple keyword extraction from category + title, dedup'd.
+  const keywords = Array.from(
+    new Set(
+      [blog.categoryTitle, ...blog.title.split(/\s+/)]
+        .filter(Boolean)
+        .map((k) => (k as string).toLowerCase())
+    )
+  );
 
   return {
     title: blog.title,
     description,
-    alternates: { canonical: `/blogs/${id}` },
+    keywords: keywords.length ? keywords : undefined,
+    metadataBase: new URL(SITE_URL),
+    alternates: { canonical: canonicalUrl },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
     openGraph: {
       title: blog.title,
       description,
-      images,
+      url: canonicalUrl,
+      siteName: SITE_NAME,
+      images: ogImages,
       type: "article",
+      locale: "en_US",
       publishedTime: new Date(blog.createdAt).toISOString(),
+      modifiedTime: new Date(blog.createdAt).toISOString(),
       authors: blog.authorName ? [blog.authorName] : undefined,
       ...(blog.categoryTitle && { section: blog.categoryTitle }),
+      tags: keywords.length ? keywords : undefined,
     },
     twitter: {
       card: "summary_large_image",
       title: blog.title,
       description,
       images: blog.thumbnail ? [blog.thumbnail] : [],
+      site: "@haelolabs",
+      creator: "@haelolabs",
     },
   };
 }
@@ -68,6 +108,7 @@ export default async function BlogPage({ params }: Props) {
 
   const mins = readingTime(blog.content);
   const isoDate = new Date(blog.createdAt).toISOString();
+  const canonicalUrl = `${SITE_URL}/blogs/${id}`;
 
   // JSON-LD structured data for richer SEO / Google snippets
   const jsonLd = {
@@ -78,7 +119,16 @@ export default async function BlogPage({ params }: Props) {
     image: blog.thumbnail ? [blog.thumbnail] : undefined,
     datePublished: isoDate,
     dateModified: isoDate,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": canonicalUrl,
+    },
     articleSection: blog.categoryTitle ?? undefined,
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
     author: blog.authorName
       ? {
           "@type": "Person",
@@ -111,10 +161,8 @@ export default async function BlogPage({ params }: Props) {
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900" />
           )}
-          {/* Stronger bottom gradient so text stays legible on any image */}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/75 to-black/20" />
 
-          {/* Back nav */}
           <div className="absolute top-4 sm:top-6 left-4 sm:left-6 z-20">
             <Link
               href="/blogs"
@@ -127,7 +175,6 @@ export default async function BlogPage({ params }: Props) {
             </Link>
           </div>
 
-          {/* Hero content */}
           <div className="absolute bottom-0 left-0 right-0 z-10 px-4 sm:px-6 md:px-12 lg:px-24 pb-8 sm:pb-12 md:pb-16">
             <div className="max-w-4xl">
               {blog.categoryTitle && (
@@ -144,7 +191,6 @@ export default async function BlogPage({ params }: Props) {
                 {blog.title}
               </h1>
 
-              {/* Meta row */}
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:text-sm text-gray-300">
                 {blog.authorName && (
                   <span className="flex items-center gap-2">

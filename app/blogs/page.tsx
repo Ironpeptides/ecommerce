@@ -4,10 +4,42 @@ import Image from "next/image";
 import Link from "next/link";
 import { Calendar, Clock, ChevronRight, BookOpen, Tag } from "lucide-react";
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://haelolabs.com";
+const SITE_NAME = "Haelo Labs";
+const PAGE_TITLE = "Blog — Insights, Guides & Updates";
+const PAGE_DESCRIPTION =
+  "Explore our latest articles, research insights, and guides written by our team of experts.";
+
 export const metadata: Metadata = {
-  title: "Blog — Insights, Guides & Updates",
-  description:
-    "Explore our latest articles, research insights, and guides written by our team of experts.",
+  title: PAGE_TITLE,
+  description: PAGE_DESCRIPTION,
+  metadataBase: new URL(SITE_URL),
+  alternates: { canonical: `${SITE_URL}/blogs` },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    url: `${SITE_URL}/blogs`,
+    siteName: SITE_NAME,
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    site: "@haelolabs",
+    creator: "@haelolabs",
+  },
 };
 
 function readingTime(content: string | null): number {
@@ -36,8 +68,36 @@ export default async function BlogsPage() {
   const featured = blogs[0] ?? null;
   const rest = blogs.slice(1);
 
+  // JSON-LD: describes this page as a blog index listing articles (SEO)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    url: `${SITE_URL}/blogs`,
+    isPartOf: {
+      "@type": "WebSite",
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: blogs.slice(0, 20).map((blog, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        url: `${SITE_URL}/blogs/${blog.id}`,
+        name: blog.title,
+      })),
+    },
+  };
+
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-white">
+      {/* JSON-LD structured data (SEO) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       {/* ── Page header ─────────────────────────────────────────── */}
       <section className="relative overflow-hidden border-b border-white/8 pt-28 pb-16 px-6">
