@@ -482,7 +482,7 @@ export default function SiteHeader({ session }: { session: Session | null }) {
   <Bitcoin size={16} className="text-yellow-400" />
   How to buy crypto
 </button>
-                <Link href="/blog" onClick={() => setOpen(false)} className="p-3 text-gray-300 hover:bg-white/5 rounded-lg hover:text-blue-400 transition-colors">
+                <Link href="/blogs" onClick={() => setOpen(false)} className="p-3 text-gray-300 hover:bg-white/5 rounded-lg hover:text-blue-400 transition-colors">
                   Blog
                 </Link>
                 

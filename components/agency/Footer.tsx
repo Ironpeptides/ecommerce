@@ -50,7 +50,7 @@ const footerSections: FooterSection[] = [
   {
     title: "Resources",
     links: [
-      { label: "Blog", href: "/blog" },
+      { label: "Blog", href: "/blogs" },
       { label: "Case Studies", href: "/case-studies" },
       { label: "Documentation", href: "/docs" },
       { label: "Privacy Policy", href: "/privacy" },
