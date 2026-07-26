@@ -66,6 +66,7 @@ export type PaymentMethod =
   | "cashapp"
   | "zelle"
   | "payblis"
+  | "stripe"
   | "credits";
 
 interface PricingConfig {

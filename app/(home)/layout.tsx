@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { ReactNode } from "react";
 import { PremiumProvider } from "@/components/providers/premium-provider";
 import ClientModals from "@/components/modals/ClientModals";
+import GrandOpeningBanner from "@/components/frontend/grand-opening-banner";
 
 export default async function HomeLayout({
   children,
@@ -55,6 +56,9 @@ export default async function HomeLayout({
             </div>
           </div>
         </div>
+
+        {/* GRAND OPENING SALE BANNER */}
+        <GrandOpeningBanner ctaHref="/products" />
 
         {/* GRAIN OVERLAY – static texture (no SVG filter) */}
         <div
