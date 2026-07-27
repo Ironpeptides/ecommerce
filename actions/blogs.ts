@@ -11,6 +11,7 @@ export type BlogCategoryProps = {
 export type BriefBlog = {
   id: string;
   title: string;
+  slug: string;
   thumbnail: string | null;
   published: boolean | null;
   categoryTitle: string;
@@ -304,4 +305,25 @@ export async function getOtherCategories(catId: string) {
   });
 
   return otherCategories;
+}
+
+
+
+
+export async function getAllBlogSlugs() {
+  try {
+    const blogs = await db.blog.findMany({
+      where: {
+        published: true,
+      },
+      select: {
+        slug: true,
+      },
+    });
+
+    return blogs;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
 }

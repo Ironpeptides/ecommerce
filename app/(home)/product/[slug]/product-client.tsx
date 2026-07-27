@@ -75,7 +75,7 @@ interface Product {
   images: ProductImage[];
   variants: ProductVariant[];
   reviews: ProductReview[];
-  purity?: string | null;
+  purity?: string | number | null;
   casNumber?: string | null;
   molecularFormula?: string | null;
   molecularWeight?: string | null;

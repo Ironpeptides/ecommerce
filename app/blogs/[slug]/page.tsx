@@ -1,5 +1,6 @@
-import { getBlogById, getRelatedBlogs } from "@/actions/blogs";
+import { getBlogBySlug, getRelatedBlogs } from "@/actions/blogs";
 import { getReactions } from "@/actions/reactions";
+import { getAllBlogSlugs } from "@/actions/blogs";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,15 +9,21 @@ import type { Metadata } from "next";
 import BlogReactions from "@/components/blogs/blogReactions";
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 };
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://haelolabs.com";
-const SITE_NAME = "Haelo Labs";
+const SITE_NAME = "HaeloLabs";
+
+// PRE-BUILD ALL BLOG PAGES AT DEPLOY TIME
+export async function generateStaticParams() {
+  const slugs = await getAllBlogSlugs();
+  return slugs.map((s) => ({ slug: s.slug }));
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params;
-  const blog = await getBlogById(id);
+  const { slug } = await params;
+  const blog = await getBlogBySlug(slug);
 
   if (!blog) {
     return {
@@ -26,12 +33,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const description = blog.description ?? undefined;
-  const canonicalUrl = `${SITE_URL}/blogs/${id}`;
+  const canonicalUrl = `${SITE_URL}/blogs/${slug}`;
   const ogImages = blog.thumbnail
     ? [{ url: blog.thumbnail, width: 1200, height: 630, alt: blog.title }]
     : [];
 
-  // Simple keyword extraction from category + title, dedup'd.
   const keywords = Array.from(
     new Set(
       [blog.categoryTitle, ...blog.title.split(/\s+/)]
@@ -96,21 +102,22 @@ function formatDate(date: Date | string): string {
 }
 
 export default async function BlogPage({ params }: Props) {
-  const { id } = await params;
+  const { slug } = await params;
 
-  const blog = await getBlogById(id);
+  // Fetch by SLUG, not ID
+  const blog = await getBlogBySlug(slug);
   if (!blog) notFound();
 
+  // Pass the actual blog ID (not slug) to getRelatedBlogs and getReactions
   const [related, initialReactions] = await Promise.all([
-    getRelatedBlogs(id).catch(() => []),
-    getReactions(id),
+    getRelatedBlogs(blog.id).catch(() => []),
+    getReactions(blog.id),
   ]);
 
   const mins = readingTime(blog.content);
   const isoDate = new Date(blog.createdAt).toISOString();
-  const canonicalUrl = `${SITE_URL}/blogs/${id}`;
+  const canonicalUrl = `${SITE_URL}/blogs/${slug}`;
 
-  // JSON-LD structured data for richer SEO / Google snippets
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -140,14 +147,12 @@ export default async function BlogPage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-black text-white">
-      {/* JSON-LD structured data (SEO) */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
       <article aria-labelledby="blog-title">
-        {/* ── Hero ── */}
         <header className="relative w-full h-[58vh] min-h-[420px] max-h-[680px] overflow-hidden">
           {blog.thumbnail ? (
             <Image
@@ -223,7 +228,6 @@ export default async function BlogPage({ params }: Props) {
           </div>
         </header>
 
-        {/* ── Body ── */}
         <div className="max-w-3xl mx-auto px-4 sm:px-6 md:px-8 py-10 sm:py-14 md:py-16">
           {blog.description && (
             <p className="text-lg sm:text-xl text-gray-300 leading-relaxed border-l-2 border-white/30 pl-4 sm:pl-5 mb-10 sm:mb-12 italic">
@@ -240,12 +244,10 @@ export default async function BlogPage({ params }: Props) {
             <p className="text-gray-500 italic">This article has no content yet.</p>
           )}
 
-          {/* ── Reactions ── */}
           <div className="mt-12">
-            <BlogReactions blogId={id} initialReactions={initialReactions} />
+            <BlogReactions blogId={blog.id} initialReactions={initialReactions} />
           </div>
 
-          {/* ── Author card ── */}
           {blog.authorName && (
             <aside
               className="mt-12 border-t border-white/10 pt-10"
@@ -280,7 +282,6 @@ export default async function BlogPage({ params }: Props) {
         </div>
       </article>
 
-      {/* ── Related Blogs ── */}
       {related.length > 0 && (
         <section
           aria-label="Related articles"
@@ -297,7 +298,7 @@ export default async function BlogPage({ params }: Props) {
               {related.map((rb) => (
                 <Link
                   key={rb.id}
-                  href={`/blogs/${rb.id}`}
+                  href={`/blogs/${rb.slug}`}  
                   className="group flex flex-col bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-white/25 hover:bg-white/[0.07] transition-all"
                 >
                   <div className="relative aspect-[16/10] overflow-hidden">

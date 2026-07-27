@@ -40,7 +40,7 @@ export const columns: ColumnDef<BriefBlog>[] = [
         <Link
           className="flex items-center justify-center space-x-2"
           target="_blank"
-          href={`/blogs/${blog.id}`}
+          href={`/blogs/${blog.slug}`}
         >
           <Eye className="text-blue-500" />
         </Link>

@@ -136,6 +136,24 @@ export async function getRelatedProducts(
 }
 
 
+export async function getAllProductSlugs() {
+  try {
+    const products = await db.product.findMany({
+      where: {
+        isActive: true,
+      },
+      select: {
+        slug: true,
+      },
+    });
+
+    return products;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+}
+
 
 // Optional: Get product with transformed types (handles null values)
 export async function getProductWithDefaults(slug: string) {

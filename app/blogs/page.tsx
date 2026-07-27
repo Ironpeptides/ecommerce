@@ -85,7 +85,7 @@ export default async function BlogsPage() {
       itemListElement: blogs.slice(0, 20).map((blog, index) => ({
         "@type": "ListItem",
         position: index + 1,
-        url: `${SITE_URL}/blogs/${blog.id}`,
+        url: `${SITE_URL}/blogs/${blog.slug}`,
         name: blog.title,
       })),
     },
@@ -240,8 +240,8 @@ export default async function BlogsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {rest.map((blog, i) => (
                 <Link
-                  key={blog.id}
-                  href={`/blogs/${blog.id}`}
+                  key={blog.slug}
+                  href={`/blogs/${blog.slug}`}
                   className={`group block ${
                     // First two cards span full height (taller)
                     i < 2 ? "sm:row-span-1" : ""
