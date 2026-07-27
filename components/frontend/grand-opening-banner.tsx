@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { X, Copy } from "lucide-react";
+import { X, Copy, Scissors } from "lucide-react";
 
 interface GrandOpeningBannerProps {
-  message?: string; // We'll override this in the layout, but keep prop for flexibility
   ctaLabel?: string;
   ctaHref?: string;
   dismissible?: boolean;
@@ -13,7 +12,6 @@ interface GrandOpeningBannerProps {
 }
 
 export default function GrandOpeningBanner({
-  message, // We won't use the default message now; we'll hardcode the structured layout
   ctaLabel = "Shop now",
   ctaHref = "/products",
   dismissible = true,
@@ -50,72 +48,84 @@ export default function GrandOpeningBanner({
   };
 
   return (
-    <div className="relative w-full border-b border-white/5 bg-gradient-to-b from-[#0f0f12] to-[#0a0a0b]">
-      {/* subtle top glow */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/30 to-transparent"
-      />
+    // NOTE: top-12 assumes the announcement marquee above it stays h-12 (48px).
+    // If that bar's height ever changes, update this offset to match.
+    <div className=" top-12 z-50 w-full">
+      <div className="relative bg-gradient-to-r from-[#7f1414] via-[#a51c1c] to-[#7f1414] shadow-lg shadow-black/40">
+        {/* ceremonial ribbon edge — top */}
+        <div
+          aria-hidden="true"
+          className="h-[5px] w-full"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(135deg, #f5c453 0 8px, #7f1414 8px 16px)",
+          }}
+        />
 
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-3.5">
-        {/* LEFT SIDE: Badge + Highlighted Discount Code */}
-        <div className="flex flex-1 items-center gap-3 min-w-0 flex-wrap">
-          {/* Badge */}
-          <span className="inline-flex shrink-0 items-center rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-300">
-            Grand Opening Sale
-          </span>
-
-          {/* 
-            ✨ THE MAGIC: Instead of a flat sentence, we structure the text
-            so "LAUNCH20" is visually isolated like an image banner would do.
-          */}
-          <p className="flex items-center gap-2 text-sm font-medium text-slate-200 sm:text-base">
-            <span>Use code</span>
-            
-            {/* HIGHLIGHTED COUPON PILL - This is your "banner image" replacement */}
-            <span className="relative inline-flex items-center gap-1.5 rounded-md border border-amber-400/30 bg-amber-400/10 px-2.5 py-0.5 font-mono text-sm font-bold tracking-wider text-amber-300 shadow-sm shadow-amber-900/20">
-              LAUNCH20
-              <button
-                onClick={handleCopyCode}
-                className="rounded p-0.5 text-amber-400/60 transition-colors hover:bg-amber-400/20 hover:text-amber-200"
-                aria-label="Copy discount code"
-              >
-                <Copy className="h-3 w-3" />
-              </button>
-              {/* "Copied!" tooltip popup */}
-              {copied && (
-                <span className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-slate-800 px-2 py-0.5 text-[10px] font-sans font-medium text-white shadow-lg">
-                  Copied!
-                </span>
-              )}
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-4 gap-y-2 px-4 py-4 sm:justify-between sm:px-6 sm:py-5">
+          {/* LEFT: Badge + message */}
+          <div className="flex flex-1 flex-wrap items-center justify-center gap-3 min-w-0 sm:justify-start">
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-amber-300/50 bg-black/15 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-200 sm:text-sm">
+              <Scissors className="h-3.5 w-3.5" />
+              Grand Opening Sale
             </span>
 
-            <span>for 20% off site-wide!</span>
-          </p>
+            <p className="flex flex-wrap items-center justify-center gap-2 text-sm font-semibold text-white sm:text-base">
+              <span>Use code</span>
+
+              <span className="relative inline-flex items-center gap-1.5 rounded-md border-2 border-amber-300 bg-[#5c0f0f] px-3 py-1 font-mono text-sm font-bold tracking-wider text-amber-200 sm:text-base">
+                LAUNCH20
+                <button
+                  onClick={handleCopyCode}
+                  className="rounded p-0.5 text-amber-300/70 transition-colors hover:bg-amber-300/20 hover:text-amber-100"
+                  aria-label="Copy discount code"
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                </button>
+                {copied && (
+                  <span className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-slate-900 px-2 py-0.5 text-[10px] font-sans font-medium text-white shadow-lg">
+                    Copied!
+                  </span>
+                )}
+              </span>
+
+              <span>for 20% off site-wide!</span>
+            </p>
+          </div>
+
+          {/* RIGHT: CTA + dismiss */}
+          <div className="flex shrink-0 items-center gap-3">
+            {ctaLabel && ctaHref && (
+              <Link
+                href={ctaHref}
+                className="rounded-full bg-amber-300 px-5 py-2 text-sm font-bold text-[#5c0f0f] shadow-md shadow-black/30 transition hover:bg-amber-200 sm:text-base"
+              >
+                {ctaLabel}
+              </Link>
+            )}
+
+            {dismissible && (
+              <button
+                type="button"
+                onClick={handleDismiss}
+                aria-label="Dismiss grand opening banner"
+                className="rounded-full p-1.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* RIGHT SIDE: CTA + Dismiss */}
-        <div className="flex shrink-0 items-center gap-2">
-          {ctaLabel && ctaHref && (
-            <Link
-              href={ctaHref}
-              className="rounded-full bg-emerald-500 px-4 py-1.5 text-sm font-semibold text-white shadow-sm shadow-emerald-900/20 transition hover:bg-emerald-400 hover:shadow-emerald-500/30"
-            >
-              {ctaLabel}
-            </Link>
-          )}
-
-          {dismissible && (
-            <button
-              type="button"
-              onClick={handleDismiss}
-              aria-label="Dismiss grand opening banner"
-              className="rounded-full p-1.5 text-slate-500 transition-colors hover:bg-white/5 hover:text-slate-300"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
+        {/* ceremonial ribbon edge — bottom */}
+        <div
+          aria-hidden="true"
+          className="h-[5px] w-full"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(135deg, #f5c453 0 8px, #7f1414 8px 16px)",
+          }}
+        />
       </div>
     </div>
   );
