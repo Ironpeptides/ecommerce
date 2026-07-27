@@ -250,6 +250,8 @@ model Blog {
   author        User         @relation(fields: [authorId], references: [id])
   category      BlogCategory @relation(fields: [categoryId], references: [id])
   reactions BlogReaction[]
+  peptideInfoId String?     
+  peptideInfo   PeptideInfo? @relation("PeptideBlogs", fields: [peptideInfoId], references: [id])
 }
 
 model BlogCategory {
@@ -272,6 +274,28 @@ model BlogReaction {
 
   @@unique([blogId, emoji, sessionId])
   @@index([blogId])
+}
+
+
+model PeptideInfo {
+  id                String   @id @default(cuid())
+  slug              String   @unique        // e.g. "tirzepatide"
+  name              String                  // "Tirzepatide"
+  overview          String   @db.Text       // comprehensive introduction
+  mechanismOfAction String?  @db.Text       // how it works
+  researchHighlights String? @db.Text       // key studies summaries
+  dosageGuidance    String?  @db.Text       // research dosage info
+  safetyHandling    String?  @db.Text       // storage, reconstitution, purity
+  comparisons       String?  @db.Text       // vs other compounds
+  faq               Json?                   // array of { question: string, answer: string }
+  productSlug       String?                 // link to the buy page, e.g. "tirzepatide-10"
+  metaTitle         String?                 // custom SEO title
+  metaDescription   String?                 // custom meta description
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Optional: link to blog posts if you want to hard-relate them
+  blogPosts          Blog[]   @relation("PeptideBlogs")
 }
 
 model Changelog {

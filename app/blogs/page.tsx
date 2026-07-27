@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Calendar, Clock, ChevronRight, BookOpen, Tag } from "lucide-react";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://haelolabs.com";
-const SITE_NAME = "Haelo Labs";
+const SITE_NAME = "Haelolabs";
 const PAGE_TITLE = "Blog — Insights, Guides & Updates";
 const PAGE_DESCRIPTION =
   "Explore our latest articles, research insights, and guides written by our team of experts.";

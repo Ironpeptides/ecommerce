@@ -3,7 +3,7 @@ import { ProductsClient, type Filters, type SortBy } from "./productsClient";
 import type { Metadata } from "next";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://haelolabs.com";
-const SITE_NAME = "Haelo Labs";
+const SITE_NAME = "Haelolabs";
 const VALID_SORTS = new Set<string>(["newest", "rating", "price_asc", "price_desc", "popular"]);
 
 function parseSortBy(value: string | undefined): SortBy {

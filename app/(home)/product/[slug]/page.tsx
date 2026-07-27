@@ -7,7 +7,7 @@ type RawProduct = NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>;
 type RawRelated = Awaited<ReturnType<typeof getRelatedProducts>>[number];
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://haelolabs.com";
-const SITE_NAME = "Haelo Labs";
+const SITE_NAME = "Haelolabs";
 
 // TODO: confirm actual Prisma field names. `molarMass` / `formula` aren't on
 // RawProduct's inferred type — either the schema field is named differently

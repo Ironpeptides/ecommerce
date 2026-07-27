@@ -187,12 +187,25 @@ export const sidebarLinks: ISidebarLink[] = [
       },
     ],
   },
-   {
+    {
     title: "Blogs",
     icon: Book,
-    dropdown: false,
+    dropdown: true,
     href: "/dashboard/blogs",
     permission: "blogs.read",
+    dropdownMenu: [
+      {
+        title: "blogs",
+        href: "/dashboard/blogs",
+        permission: "blogs.read",
+      },
+      {
+        title: "Peptides",
+        href: "/dashboard/peptides",
+        permission: "sales.read",
+      },
+      
+    ],
   }, 
  /*  {
     title: "Settings",
