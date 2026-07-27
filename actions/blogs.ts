@@ -133,6 +133,7 @@ export async function getDashboardBlogs() {
       select: {
         id: true,
         title: true,
+        slug: true,         // ← add this line
         thumbnail: true,
         published: true,
         categoryTitle: true,
