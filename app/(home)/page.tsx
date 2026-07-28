@@ -14,7 +14,38 @@ import CryptoBanner from "@/components/home/cryptoBanner";
 import ShippingNotice from "@/components/home/shippingNotice";
 import { Review } from "@/types/types";
 import { ReviewsMarquee } from "@/components/home/reviews-marquee";
+import type { Metadata } from "next";
 
+
+
+
+
+export const metadata: Metadata = {
+  title: "Haelo Labs | Premium Research Peptides & Lab-Grade Compounds",
+  description: "Buy research-grade peptides with 99.6% purity. ISO-certified lab, third-party tested, USA-made. BPC-157, TB-500, NAD+, GHK-Cu & more. Strictly for laboratory research.",
+  openGraph: {
+    title: "Haelo Labs | Premium Research Peptides",
+    description: "Research-grade peptides with full analytical documentation. ISO-certified, third-party tested.",
+    url: "https://haelolabs.com",
+    siteName: "Haelo Labs",
+    images: [{ url: "https://haelolabs.com/og-image.jpg", width: 1200, height: 630 }],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Haelo Labs | Premium Research Peptides",
+    description: "Research-grade peptides with 99.6% purity. ISO-certified lab.",
+    images: ["https://haelolabs.com/og-image.jpg"],
+  },
+  alternates: {
+    canonical: "https://haelolabs.com",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 // Data fetches on the server — no loading skeleton, no useEffect
 export default async function Page({ searchParams }: { searchParams?: any }) {
   const orgId = undefined;
