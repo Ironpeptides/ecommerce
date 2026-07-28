@@ -278,24 +278,67 @@ model BlogReaction {
 
 
 model PeptideInfo {
-  id                String   @id @default(cuid())
-  slug              String   @unique        // e.g. "tirzepatide"
-  name              String                  // "Tirzepatide"
-  overview          String   @db.Text       // comprehensive introduction
-  mechanismOfAction String?  @db.Text       // how it works
-  researchHighlights String? @db.Text       // key studies summaries
-  dosageGuidance    String?  @db.Text       // research dosage info
-  safetyHandling    String?  @db.Text       // storage, reconstitution, purity
-  comparisons       String?  @db.Text       // vs other compounds
-  faq               Json?                   // array of { question: string, answer: string }
-  productSlug       String?                 // link to the buy page, e.g. "tirzepatide-10"
-  metaTitle         String?                 // custom SEO title
-  metaDescription   String?                 // custom meta description
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id     String @id @default(cuid())
+  slug   String @unique // e.g. "ghk-cu"
+  name   String // "GHK-Cu"
+  overview String @db.Text // comprehensive introduction (used on the parent /peptides/[slug] page)
+
+  // ----- Topic content fields -----
+  // Each of these maps 1:1 to a /peptides/[slug]/[topic] page.
+  // Keep them null until content exists — empty topic pages hurt more than help.
+  mechanismOfAction String? @db.Text
+  benefits          String? @db.Text 
+  dosageGuidance    String? @db.Text
+  sideEffects       String? @db.Text // NEW
+  safetyHandling    String? @db.Text // storage, purity, general handling
+  reconstitution    String? @db.Text // NEW — split out from safetyHandling so it can rank on its own for "how to reconstitute X"
+  researchHighlights String? @db.Text
+  comparisons       String? @db.Text
+  faq               Json? // array of { question: string, answer: string }
+
+  // ----- SEO controls -----
+  metaTitle       String? // optional override for the PARENT /peptides/[slug] page only
+  metaDescription String? // optional override for the PARENT /peptides/[slug] page only
+  keywords        String[] @default([]) // NEW — extra long-tail keywords appended across all topic pages, e.g. ["copper peptide", "anti-aging peptide"]
+
+  // NEW — per-topic SEO overrides without needing a column per topic.
+  // Shape: { "dosage": { "title": "...", "description": "...", "keywords": ["..."] }, "side-effects": {...} }
+  // Optional. If a topic key is absent, the generated default is used.
+  seoOverrides Json?
+
+  productSlug String? // link to the buy page, e.g. "ghk-cu-100mg"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Optional: link to blog posts if you want to hard-relate them
-  blogPosts          Blog[]   @relation("PeptideBlogs")
+  blogPosts Blog[] @relation("PeptideBlogs")
+  customTopics PeptideTopicContent[]
+
+  @@index([slug])
+}
+
+
+
+model PeptideTopicContent {
+  id        String      @id @default(cuid())
+  peptideId String
+  peptide   PeptideInfo @relation(fields: [peptideId], references: [id], onDelete: Cascade)
+
+  topicKey String // URL slug for this topic, e.g. "purity-testing" — becomes /peptides/[slug]/purity-testing
+  label    String // display label, e.g. "Purity Testing"
+  content  String @db.Text
+  order    Int    @default(0) // controls tab ordering on the parent page
+
+  metaTitle       String?
+  metaDescription String?
+  keywords        String[] @default([])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([peptideId, topicKey]) // one topicKey per peptide, not globally unique
+  @@index([peptideId])
 }
 
 model Changelog {
