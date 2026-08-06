@@ -15,6 +15,8 @@ import { adminPermissions, buyerPermissions } from "@/config/permissions";
 import { InviteData } from "@/components/Forms/users/UserInvitationForm";
 import InvitationEmail from "@/components/email-templates/user-invite";
 import "dotenv/config";
+import { randomUUID } from "crypto";
+import { Prisma } from "@prisma/client";
 // import { generateNumericToken } from "@/lib/token";
 const resend = new Resend(process.env.RESEND_API_KEY);
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
@@ -56,7 +58,22 @@ const UpdateUserSchema = z.object({
   image: z.string().optional(),
 });
 type UpdateUserInput = z.infer<typeof UpdateUserSchema>;
-export async function createUser(data: UserProps, orgData:OrgData) {
+
+
+function slugify(input: string) {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+function buildUniqueSlug(name: string) {
+  const base = slugify(name) || "org";
+  return `${base}-${Date.now()}-${randomUUID().slice(0, 6)}`;
+}
+
+export async function createUser(data: UserProps, orgData: OrgData) {
   const { email, password, firstName, lastName, name, phone, image, role } = data;
 
   try {
@@ -91,34 +108,36 @@ export async function createUser(data: UserProps, orgData:OrgData) {
 
       const IronpeptidesOrgData = {
         name: "Haelolabs",
-        slug: "haelolabs",
         timezone: "America/Mexico_City",
         currency: "MXN",
-        country: "Mexico"
+        country: "Mexico",
+      };
 
-      }
+      const baseOrgData = orgData || IronpeptidesOrgData;
+      const orgName = baseOrgData.name?.trim() || "Haelolabs";
 
-      const existingOrganisation = await tx.organisation.findUnique({
-        where: { 
-          slug: orgData.slug
-         },
-      });
+      // Only treat this as "join an existing org" if the caller explicitly
+      // provided a non-empty slug. Never trust it blindly, and never let an
+      // empty string slip through as a lookup/create value.
+      const requestedSlug = orgData?.slug?.trim();
 
-      /* if(existingOrganisation){
-        return {
-          error: `Organization Name ${orgData.name} is already taken`,
-          status: 409,
-          data: null,
-        };
-
-      } */
-
-
-      const org = await db.organisation.create({
-            data: orgData || IronpeptidesOrgData
+      const existingOrganisation = requestedSlug
+        ? await tx.organisation.findUnique({
+            where: { slug: requestedSlug },
           })
+        : null;
 
-
+      const org = existingOrganisation
+        ? existingOrganisation
+        : await tx.organisation.create({
+            data: {
+              ...baseOrgData,
+              name: orgName,
+              // Always generate the slug server-side so it's guaranteed
+              // unique and never empty, regardless of what was passed in.
+              slug: buildUniqueSlug(orgName),
+            },
+          });
 
       // Find or create default role
       let defaultRole = await tx.role.findFirst({
@@ -130,7 +149,7 @@ export async function createUser(data: UserProps, orgData:OrgData) {
         defaultRole = await tx.role.create({
           data: {
             ...BUYER_USER_ROLE,
-            orgId: org.id
+            orgId: org.id,
           },
         });
       }
@@ -138,16 +157,14 @@ export async function createUser(data: UserProps, orgData:OrgData) {
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
       // Generate a 6-figure token
-
-
-     const token = generateOTP()
+      const token = generateOTP();
 
       // Create user with role
       const newUser = await tx.user.create({
         data: {
           email,
           password: hashedPassword,
-           // role, This is for ecommerce
+          // role, This is for ecommerce
           firstName,
           orgId: org.id,
           orgName: org.name,
@@ -168,37 +185,47 @@ export async function createUser(data: UserProps, orgData:OrgData) {
       });
 
       // Send the verification email
-
-      const verificationCode = newUser.token??""
+      const verificationCode = newUser.token ?? "";
 
       const { data, error } = await resend.emails.send({
-      from:  `Haelolabs <support@haelo.fit>`, 
-      to: email,
-      subject: "Verify your Account",
-      react: VerifyEmail({ verificationCode}),
-    });
+        from: `Haelolabs <support@haelo.fit>`,
+        to: email,
+        subject: "Verify your Account",
+        react: VerifyEmail({ verificationCode }),
+      });
 
-    if(error){
-      console.log(error)
+      if (error) {
+        console.log(error);
 
-      return {
-        error: `Something went wrong,Please try again`,
-        status: 500,
-        data: null,
+        return {
+          error: `Something went wrong,Please try again`,
+          status: 500,
+          data: null,
+        };
       }
 
-    }
-
-    console.log(data);
-      
+      console.log(data);
 
       return {
         error: null,
         status: 200,
-        data: {id:newUser.id, email:newUser.email},
+        data: { id: newUser.id, email: newUser.email },
       };
     });
   } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      const target = (error.meta?.target as string[] | undefined)?.join(", ");
+      console.error("Unique constraint violation on:", target, error);
+      return {
+        error: `Something went wrong setting up your account. Please try again.`,
+        status: 409,
+        data: null,
+      };
+    }
+
     console.error("Error creating user:", error);
     return {
       error: `Something went wrong, Please try again`,

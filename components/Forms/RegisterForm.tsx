@@ -21,7 +21,7 @@ import { generateSlug } from "@/lib/generateSlug";
 
 export type OrgData = {
   name: string;
-  slug: string;
+  slug?: string;              // now optional
   timezone: string | undefined;
   currency: string | undefined;
   country: string;
@@ -44,46 +44,51 @@ export default function RegisterForm() {
   } = useForm<UserProps>();
   const router = useRouter();
 
-  async function onSubmit(data: UserProps) {
-    setLoading(true);
-    data.name = `${data.firstName} ${data.lastName}`;
-    data.role = "buyer";
-    data.image =
-      "https://utfs.io/f/59b606d1-9148-4f50-ae1c-e9d02322e834-2558r.png";
+ async function onSubmit(data: UserProps) {
+  setLoading(true);
+  data.name = `${data.firstName} ${data.lastName}`;
+  data.role = "buyer";
+  data.image =
+    "https://utfs.io/f/59b606d1-9148-4f50-ae1c-e9d02322e834-2558r.png";
 
-    const country = countries.find(
-      (country) => country.value === selectedCountry?.value
-    );
+  const country = countries.find(
+    (country) => country.value === selectedCountry?.value
+  );
 
-    const orgData: OrgData = {
-      name: data.orgName || 'Haelolabs',
-      slug: generateSlug(data.orgName),
-      timezone: country?.timezone,
-      currency: country?.value,
-      country: `${country?.label}-${country?.code}`,
-    };
+  const trimmedOrgName = data.orgName?.trim();
 
-    try {
-      const res = await createUser(data, orgData);
-      if (res.status === 409) {
-        setLoading(false);
-        setEmailErr(res.error);
-      } else if (res.status === 200) {
-        setLoading(false);
-        toast.success("Account Created successfully",{
-          description:"Your account has been created, pending verification"
-        });
-        router.push(`/verify/${res.data?.id}?email=${res.data?.email}`);
-      } else {
-        setLoading(false);
-        toast.error("Something went wrong");
-      }
-    } catch (error) {
+  const orgData: OrgData = {
+    name: trimmedOrgName || "Haelolabs",
+    // Only pass a slug when the user actually named an org — this signals
+    // "match/create by this name". Leave it undefined otherwise and let
+    // the backend generate a guaranteed-unique slug.
+    ...(trimmedOrgName ? { slug: generateSlug(trimmedOrgName) } : {}),
+    timezone: country?.timezone,
+    currency: country?.value,
+    country: `${country?.label}-${country?.code}`,
+  };
+
+  try {
+    const res = await createUser(data, orgData);
+    if (res.status === 409) {
       setLoading(false);
-      console.error("Network Error:", error);
-      toast.error("It seems something is wrong, try again");
+      setEmailErr(res.error);
+    } else if (res.status === 200) {
+      setLoading(false);
+      toast.success("Account Created successfully", {
+        description: "Your account has been created, pending verification",
+      });
+      router.push(`/verify/${res.data?.id}?email=${res.data?.email}`);
+    } else {
+      setLoading(false);
+      toast.error("Something went wrong");
     }
+  } catch (error) {
+    setLoading(false);
+    console.error("Network Error:", error);
+    toast.error("It seems something is wrong, try again");
   }
+}
 
   return (
     <div className="w-full lg:grid min-h-screen lg:grid-cols-2 relative  text-white">

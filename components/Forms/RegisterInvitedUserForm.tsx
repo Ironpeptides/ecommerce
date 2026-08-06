@@ -21,7 +21,7 @@ import { generateSlug } from "@/lib/generateSlug";
 
 export type OrgData = {
   name: string;
-  slug: string;
+  slug?: string;              // now optional
   timezone: string | undefined;
   currency: string | undefined;
   country: string;
