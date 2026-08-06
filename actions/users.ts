@@ -77,17 +77,16 @@ export async function createUser(data: UserProps, orgData: OrgData) {
   const { email, password, firstName, lastName, name, phone, image, role } = data;
 
   try {
-    // Use a transaction for atomic operations
-    return await db.$transaction(async (tx) => {
+    // 1. Heavy CPU tasks OUTSIDE the database transaction
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const token = generateOTP();
+
+    // 2. Database operations inside the transaction
+    const transactionResult = await db.$transaction(async (tx) => {
       // Check for existing users
       const existingUserByEmail = await tx.user.findUnique({
         where: { email },
       });
-
-      const existingUserByPhone = await tx.user.findUnique({
-        where: { phone },
-      });
-
       if (existingUserByEmail) {
         return {
           error: `This email ${email} is already in use`,
@@ -96,6 +95,9 @@ export async function createUser(data: UserProps, orgData: OrgData) {
         };
       }
 
+      const existingUserByPhone = await tx.user.findUnique({
+        where: { phone },
+      });
       if (existingUserByPhone) {
         return {
           error: `This Phone number ${phone} is already in use`,
@@ -104,21 +106,16 @@ export async function createUser(data: UserProps, orgData: OrgData) {
         };
       }
 
-      // CREATE THE ORGANISATION
-
-      const IronpeptidesOrgData = {
+      // Prepare Organisation Data
+      const defaultOrgParams = {
         name: "Haelolabs",
         timezone: "America/Mexico_City",
         currency: "MXN",
         country: "Mexico",
       };
 
-      const baseOrgData = orgData || IronpeptidesOrgData;
+      const baseOrgData = orgData || defaultOrgParams;
       const orgName = baseOrgData.name?.trim() || "Haelolabs";
-
-      // Only treat this as "join an existing org" if the caller explicitly
-      // provided a non-empty slug. Never trust it blindly, and never let an
-      // empty string slip through as a lookup/create value.
       const requestedSlug = orgData?.slug?.trim();
 
       const existingOrganisation = requestedSlug
@@ -127,24 +124,27 @@ export async function createUser(data: UserProps, orgData: OrgData) {
           })
         : null;
 
+      // Create org or use existing
       const org = existingOrganisation
         ? existingOrganisation
         : await tx.organisation.create({
             data: {
-              ...baseOrgData,
               name: orgName,
-              // Always generate the slug server-side so it's guaranteed
-              // unique and never empty, regardless of what was passed in.
-              slug: buildUniqueSlug(orgName),
+              timezone: baseOrgData.timezone ?? defaultOrgParams.timezone,
+              currency: baseOrgData.currency ?? defaultOrgParams.currency,
+              country: baseOrgData.country ?? defaultOrgParams.country,
+              slug: buildUniqueSlug(orgName), // Safe generated unique slug
             },
           });
 
-      // Find or create default role
+      // Find or create default role bound SPECIFICALLY to this organisation
       let defaultRole = await tx.role.findFirst({
-        where: { roleName: BUYER_USER_ROLE.roleName },
+        where: { 
+          roleName: BUYER_USER_ROLE.roleName,
+          orgId: org.id 
+        },
       });
 
-      // Create default role if it doesn't exist
       if (!defaultRole) {
         defaultRole = await tx.role.create({
           data: {
@@ -154,17 +154,11 @@ export async function createUser(data: UserProps, orgData: OrgData) {
         });
       }
 
-      // Hash password
-      const hashedPassword = await bcrypt.hash(password, 10);
-      // Generate a 6-figure token
-      const token = generateOTP();
-
-      // Create user with role
+      // Create user
       const newUser = await tx.user.create({
         data: {
           email,
           password: hashedPassword,
-          // role, This is for ecommerce
           firstName,
           orgId: org.id,
           orgName: org.name,
@@ -180,38 +174,39 @@ export async function createUser(data: UserProps, orgData: OrgData) {
           },
         },
         include: {
-          roles: true, // Include roles in the response
+          roles: true,
         },
       });
 
-      // Send the verification email
-      const verificationCode = newUser.token ?? "";
-
-      const { data, error } = await resend.emails.send({
-        from: `Haelolabs <support@haelo.fit>`,
-        to: email,
-        subject: "Verify your Account",
-        react: VerifyEmail({ verificationCode }),
-      });
-
-      if (error) {
-        console.log(error);
-
-        return {
-          error: `Something went wrong,Please try again`,
-          status: 500,
-          data: null,
-        };
-      }
-
-      console.log(data);
-
-      return {
-        error: null,
-        status: 200,
-        data: { id: newUser.id, email: newUser.email },
-      };
+      return { user: newUser };
     });
+
+    // Check if transaction returned early due to user conflict
+    if ("error" in transactionResult) {
+      return transactionResult;
+    }
+
+    // 3. Network operations OUTSIDE the transaction
+    const verificationCode = transactionResult.user.token ?? "";
+
+    const { data: emailData, error: emailError } = await resend.emails.send({
+      from: `Haelolabs <support@haelo.fit>`,
+      to: email,
+      subject: "Verify your Account",
+      react: VerifyEmail({ verificationCode }),
+    });
+
+    if (emailError) {
+      console.error("Resend Email Error:", emailError);
+      // Decide if you want to fail or notify the user to click "Resend Code"
+    }
+
+    return {
+      error: null,
+      status: 200,
+      data: { id: transactionResult.user.id, email: transactionResult.user.email },
+    };
+
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
