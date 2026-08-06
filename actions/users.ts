@@ -137,14 +137,14 @@ export async function createUser(data: UserProps, orgData: OrgData) {
             },
           });
 
-      // Find or create default role bound SPECIFICALLY to this organisation
+      
+      
+
       let defaultRole = await tx.role.findFirst({
-        where: { 
-          roleName: BUYER_USER_ROLE.roleName,
-          orgId: org.id 
-        },
+        where: { roleName: BUYER_USER_ROLE.roleName },
       });
 
+      // Create default role if it doesn't exist
       if (!defaultRole) {
         defaultRole = await tx.role.create({
           data: {
